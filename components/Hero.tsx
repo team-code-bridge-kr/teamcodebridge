@@ -23,9 +23,16 @@ export default function Hero() {
   const isInView = useInView(ref, { once: true, margin: '-100px' })
 
   return (
-    <section className="relative min-h-screen bg-black overflow-hidden">
-      {/* Background gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-black via-black to-slate-900" />
+    <section className="relative min-h-screen bg-black overflow-hidden flex items-center">
+      {/* Background Image with Overlay */}
+      <div className="absolute inset-0 z-0">
+        <img
+          src="/Users/activejang/.gemini/antigravity/brain/cdbe3d7f-c4f6-49c2-8a1b-913e3922433a/tcb_hero_premium_illustration_1766587384682.png"
+          alt="TCB Hero Background"
+          className="w-full h-full object-cover opacity-40"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-black/80 to-black" />
+      </div>
 
       {/* Animated background particles */}
       <div className="absolute inset-0 overflow-hidden">
@@ -55,12 +62,22 @@ export default function Hero() {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20">
         <div className="text-center">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}
+            className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/20 mb-8"
           >
-            <p className="text-cyan-400 text-base md:text-lg font-medium mb-4 tracking-wide">
-              가능성의 끝에서 IT 교육의 시작!
+            <span className="text-yellow-400 text-lg">🏆</span>
+            <span className="text-white text-sm font-semibold tracking-tight">교육부장관상 수상</span>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <p className="text-cyan-400 text-base md:text-lg font-bold mb-4 tracking-widest uppercase">
+              At the Edge of Possibility, IT Education Begins
             </p>
           </motion.div>
 

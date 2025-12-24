@@ -28,62 +28,66 @@ export default function About() {
 
   return (
     <section id="about" className="py-24 bg-gray-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          ref={ref}
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4">
-            TeamCodeBridge란?
-          </h2>
-          <p className="text-base md:text-lg text-gray-400 max-w-3xl mx-auto leading-relaxed">
-            우리는 '코드'라는 도구로 세상과 연결되는 다리를 만들고 있습니다.
-            <br className="hidden md:block" />
-            단순한 기술 전달을 넘어, 함께 성장하는 경험을 제공합니다.
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center mb-20">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6"
+          >
+            TeamCodeBridge 멘토, <span className="text-cyan-400">왜 특별할까요?</span>
+          </motion.h2>
+          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            단순히 코딩을 잘하는 것을 넘어, 실전 경험과 교육 철학을 겸비한
+            상위 1%의 멘토진이 함께합니다.
           </p>
-        </motion.div>
+        </div>
 
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
-          {features.map((feature, index) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[
+            { title: '전국 규모 수상 실적', desc: '국내외 유수의 해커톤 및 공모전에서 실력을 검증받은 인재들입니다.', icon: '🏆' },
+            { title: '실전 프로젝트 & 창업', desc: '실제 서비스를 런칭하거나 스타트업을 운영해본 실무형 멘토진입니다.', icon: '🚀' },
+            { title: '교육 전문가 & 강의', desc: '다양한 교육 기관에서 수백 명의 학생들을 가르쳐본 베테랑입니다.', icon: '👨‍🏫' },
+            { title: 'AI·SW 연구 및 논문', desc: '최신 AI 트렌드를 연구하고 학술적 깊이를 더하는 연구자들입니다.', icon: '🔬' },
+            { title: '디지털 콘텐츠 영향력', desc: '유튜브, 블로그 등을 통해 지식을 공유하고 소통하는 크리에이터입니다.', icon: '📱' },
+            { title: '리더십 & 대외활동', desc: '다양한 커뮤니티를 이끌며 협업과 소통의 가치를 아는 리더들입니다.', icon: '🤝' },
+          ].map((item, index) => (
             <motion.div
-              key={feature.title}
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: index * 0.15 }}
-              className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700/50 hover:border-cyan-500/50 transition-all group"
+              key={item.title}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.1 }}
+              className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 hover:bg-white/10 transition-all group"
             >
-              <span className="text-4xl mb-4 block group-hover:scale-110 transition-transform">
-                {feature.icon}
-              </span>
-              <h3 className="text-xl font-bold text-white mb-3">
-                {feature.title}
-              </h3>
-              <p className="text-gray-400">
-                {feature.description}
-              </p>
+              <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
+                {item.icon}
+              </div>
+              <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">{item.desc}</p>
             </motion.div>
           ))}
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="bg-gradient-to-r from-cyan-500/10 to-teal-600/10 rounded-3xl p-8 md:p-12 border border-cyan-500/20"
-        >
-          <p className="text-lg md:text-xl text-gray-300 leading-relaxed text-center">
-            TeamCodeBridge는 단순히 '코딩을 가르치는 교육팀'이 아닙니다.
-            <br className="hidden md:block" />
-            학생들이 <span className="text-cyan-400 font-semibold">스스로 기획하고, 제작하고, 세상에 선보일 수 있는 힘</span>을 기르는 것을 목표로 합니다.
-            <br className="hidden md:block" />
-            누구든지 자신의 생각을 표현하고, 사람들과 연결되고, 의미 있는 결과를 만들어내는 경험.
-            <br className="hidden md:block" />
-            그게 바로 TeamCodeBridge가 지향하는 교육입니다.
-          </p>
-        </motion.div>
+        <div className="mt-32 text-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="inline-block p-[1px] rounded-3xl bg-gradient-to-r from-cyan-500 to-teal-500"
+          >
+            <div className="bg-black rounded-[23px] px-8 py-12 md:px-16 md:py-20">
+              <h3 className="text-2xl md:text-3xl font-bold text-white mb-6">
+                "가능성의 끝에서 IT 교육의 시작"
+              </h3>
+              <p className="text-gray-400 text-lg leading-relaxed max-w-3xl mx-auto">
+                TeamCodeBridge는 단순히 기술을 전달하는 것을 넘어,<br className="hidden md:block" />
+                학생들이 스스로의 가능성을 발견하고 현실로 만드는 다리가 되고자 합니다.
+              </p>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </section>
   )
