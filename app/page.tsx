@@ -5,6 +5,7 @@ import Achievement from '@/components/Achievement'
 import Projects from '@/components/Projects'
 import About from '@/components/About'
 import CTA from '@/components/CTA'
+import FAQ from '@/components/FAQ'
 import Footer from '@/components/Footer'
 
 export default function Home() {
@@ -16,6 +17,7 @@ export default function Home() {
       <Achievement />
       <About />
       <Projects />
+      <FAQ />
       <CTA />
       <Footer variant="dark" />
     </main>
