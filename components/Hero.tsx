@@ -28,9 +28,9 @@ export default function Hero() {
         <img
           src="/img/main_img_1.jpg"
           alt="TeamCodeBridge Activity"
-          className="w-full h-full object-cover opacity-60"
+          className="w-full h-full object-cover opacity-80"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/90" />
       </div>
 
       {/* Animated background particles */}
