@@ -70,24 +70,7 @@ export default function About() {
           ))}
         </div>
 
-        <div className="mt-32 text-center">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="inline-block p-[1px] rounded-3xl bg-gradient-to-r from-primary-500 to-primary-700"
-          >
-            <div className="bg-black rounded-[23px] px-8 py-12 md:px-16 md:py-20">
-              <h3 className="text-2xl md:text-3xl font-bold text-white mb-6">
-                "가능성의 끝에서 IT 교육의 시작"
-              </h3>
-              <p className="text-gray-400 text-lg leading-relaxed max-w-3xl mx-auto">
-                TeamCodeBridge는 단순히 기술을 전달하는 것을 넘어,<br className="hidden md:block" />
-                학생들이 스스로의 가능성을 발견하고 현실로 만드는 다리가 되고자 합니다.
-              </p>
-            </div>
-          </motion.div>
-        </div>
+
       </div>
     </section>
   )
