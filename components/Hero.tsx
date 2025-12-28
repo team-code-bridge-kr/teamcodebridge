@@ -2,8 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
-
-
+import Image from 'next/image'
 
 const backgroundImages = [
   '/img/main_img_1.jpg',
@@ -28,22 +27,30 @@ export default function Hero() {
       {/* Background Image Slider with Overlay */}
       <div className="absolute inset-0 z-0">
         <AnimatePresence mode="wait">
-          <motion.img
+          <motion.div
             key={currentIndex}
-            src={backgroundImages[currentIndex]}
-            alt="TeamCodeBridge Activity"
             initial={{ opacity: 0, scale: 1.1 }}
             animate={{ opacity: 0.9, scale: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1.5, ease: "easeInOut" }}
-            className="w-full h-full object-cover"
-          />
+            className="absolute inset-0 w-full h-full"
+          >
+            <Image
+              src={backgroundImages[currentIndex]}
+              alt="TeamCodeBridge Activity"
+              fill
+              priority={true}
+              className="object-cover"
+              sizes="100vw"
+              quality={75}
+            />
+          </motion.div>
         </AnimatePresence>
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/80" />
       </div>
 
-      {/* Animated background particles */}
-      <div className="absolute inset-0 overflow-hidden">
+      {/* Animated background particles - Hidden on mobile for performance */}
+      <div className="absolute inset-0 overflow-hidden hidden md:block">
         {[...Array(20)].map((_, i) => (
           <motion.div
             key={i}
@@ -69,8 +76,8 @@ export default function Hero() {
       {/* Main content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20">
         <div className="text-center relative">
-          {/* Subtle glow behind text for readability */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-black/20 blur-[100px] -z-10 pointer-events-none" />
+          {/* Subtle glow behind text - Optimized blur for mobile */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-black/20 blur-[40px] md:blur-[100px] -z-10 pointer-events-none" />
 
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
