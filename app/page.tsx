@@ -14,8 +14,8 @@ export default function Home() {
       <Hero />
       <Introduction />
       <Achievement />
-      <Projects />
       <About />
+      <Projects />
       <CTA />
       <Footer variant="dark" />
     </main>
