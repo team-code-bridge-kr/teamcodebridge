@@ -100,9 +100,7 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-gray-400 text-base md:text-lg max-w-3xl mx-auto mb-10"
           >
-            컴퓨터 관련 학과 학생들이 모인 연합 IT 교육팀
-            <br className="hidden md:block" />
-            미래 인재를 위한 실전적인 IT 교육과 멘토링을 제공합니다
+            대학생들이 직접 운영하는 비영리 IT 교육봉사
           </motion.p>
 
           <motion.div
