@@ -4,49 +4,55 @@ import { motion } from 'framer-motion'
 import { useInView } from 'framer-motion'
 import { useRef, useState, useEffect } from 'react'
 
-interface Project {
+interface Testimonial {
   id: number
   name: string
-  description: string
+  school: string
+  review: string
   gradient: string
   icon: string
 }
 
-const projects: Project[] = [
+const testimonials: Testimonial[] = [
   {
     id: 1,
-    name: '멘토링톤',
-    description: '컴퓨터공학 전공 선배들과 함께하는 창의적 미니 해커톤! AI·소프트웨어 프로젝트를 기획부터 프로토타입 개발까지 함께 진행합니다.',
+    name: '김민준',
+    school: 'OO고등학교 2학년',
+    review: '막연하기만 했던 AI 개발자의 꿈이 구체화되었어요. 멘토님들과 함께 프로젝트를 완성하며 할 수 있다는 자신감을 얻었습니다!',
     gradient: 'from-purple-500 to-pink-500',
-    icon: '🚀',
+    icon: '✨',
   },
   {
     id: 2,
-    name: '멘토링',
-    description: '대학 진학을 위한 입시 꿀팁부터, 생활기록부 작성, 세특 설계, 코딩 프로젝트 기획 등 실질적인 진로 상담을 제공합니다.',
+    name: '이서연',
+    school: 'XX중학교 3학년',
+    review: '코딩이 이렇게 재밌는 건지 처음 알았어요. 어려운 개념도 눈높이에 맞춰 설명해주셔서 포기하지 않고 끝까지 마칠 수 있었습니다.',
     gradient: 'from-blue-500 to-cyan-500',
     icon: '💡',
   },
   {
     id: 3,
-    name: '스쿨어택',
-    description: '멘토들이 직접 고등학교로 찾아가는 출동형 코딩 교육 & 진로 멘토링 프로그램입니다.',
+    name: '박지훈',
+    school: '△△고등학교 1학년',
+    review: '생기부 세특 방향을 못 잡고 있었는데, 멘토링을 통해 저만의 차별화된 IT 프로젝트 스토리를 만들 수 있어 정말 유익했습니다.',
     gradient: 'from-orange-500 to-red-500',
     icon: '🎯',
   },
   {
     id: 4,
-    name: '코딩콘서트',
-    description: '우수 멘토들이 들려주는 실제 경험 기반의 성공 스토리와 AI, 소프트웨어 분야의 개발 팁을 공유하는 강연입니다.',
+    name: '최아인',
+    school: '□□고등학교 2학년',
+    review: '해커톤에서 팀원들과 밤새 고민하며 문제를 해결했던 경험은 평생 잊지 못할 거예요. 기술 그 이상의 가치를 배웠습니다.',
     gradient: 'from-green-500 to-emerald-500',
-    icon: '🎤',
+    icon: '🤝',
   },
   {
     id: 5,
-    name: 'AI 워크숍',
-    description: 'ChatGPT, 이미지 생성 AI 등 최신 AI 도구를 활용한 실습 중심 워크숍을 진행합니다.',
+    name: '정우진',
+    school: '◇◇중학교 2학년',
+    review: '단순한 강의가 아니라 진짜 형, 누나처럼 진로 고민을 들어주셔서 감사했어요. 다음 시즌에도 꼭 다시 참여하고 싶어요!',
     gradient: 'from-indigo-500 to-purple-500',
-    icon: '🤖',
+    icon: '❤️',
   },
 ]
 
@@ -59,16 +65,16 @@ export default function Projects() {
   // Auto scroll effect
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % projects.length)
-    }, 4000)
+      setCurrentIndex((prev) => (prev + 1) % testimonials.length)
+    }, 5000)
     return () => clearInterval(interval)
   }, [])
 
-  // Scroll to current project
+  // Scroll to current testimonial
   useEffect(() => {
     if (scrollRef.current) {
-      const cardWidth = 360
-      const gap = 24
+      const cardWidth = 340
+      const gap = 20
       scrollRef.current.scrollTo({
         left: currentIndex * (cardWidth + gap),
         behavior: 'smooth'
@@ -77,7 +83,7 @@ export default function Projects() {
   }, [currentIndex])
 
   return (
-    <section id="projects" className="py-16 bg-black relative overflow-hidden">
+    <section id="projects" className="py-20 bg-black relative overflow-hidden">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
           ref={ref}
@@ -87,10 +93,10 @@ export default function Projects() {
           className="text-center mb-12"
         >
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
-            활동 사례 모아보기
+            함께 성장한 <span className="gradient-text">학생들의 이야기</span>
           </h2>
           <p className="text-sm md:text-base text-gray-400">
-            TeamCodeBridge의 다양한 프로그램을 소개합니다
+            팀코드브릿지와 함께 꿈을 현실로 만든 멘티들의 생생한 후기입니다
           </p>
         </motion.div>
       </div>
@@ -99,60 +105,61 @@ export default function Projects() {
       <div className="relative">
         <div
           ref={scrollRef}
-          className="flex gap-5 overflow-x-auto pb-6 px-4 md:px-8 scrollbar-hide snap-x snap-mandatory"
+          className="flex gap-5 overflow-x-auto pb-10 px-4 md:px-8 scrollbar-hide snap-x snap-mandatory"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {/* Spacer for centering */}
-          <div className="flex-shrink-0 w-[calc((100vw-320px)/2-20px)] hidden md:block" />
+          <div className="flex-shrink-0 w-[calc((100vw-300px)/2-20px)] hidden md:block" />
 
-          {projects.map((project, index) => (
+          {testimonials.map((item, index) => (
             <motion.div
-              key={project.id}
+              key={item.id}
               initial={{ opacity: 0, x: 50 }}
               animate={isInView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.6, delay: index * 0.1 }}
-              className={`flex-shrink-0 w-[300px] md:w-[340px] snap-center cursor-pointer group transition-all duration-300 ${currentIndex === index ? 'scale-100' : 'scale-95 opacity-70'
+              className={`flex-shrink-0 w-[280px] md:w-[340px] snap-center cursor-pointer group transition-all duration-500 ${currentIndex === index ? 'scale-100' : 'scale-90 opacity-40 blur-[1px]'
                 }`}
               onClick={() => setCurrentIndex(index)}
             >
-              <div className={`h-full bg-gradient-to-br ${project.gradient} rounded-2xl p-6 relative overflow-hidden`}>
-                {/* Background pattern */}
-                <div className="absolute inset-0 opacity-20">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-white/20 rounded-full -translate-y-1/2 translate-x-1/2" />
-                  <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2" />
-                </div>
+              <div className="h-full bg-white/[0.03] border border-white/10 rounded-2xl p-6 md:p-8 relative overflow-hidden backdrop-blur-sm">
+                {/* Quote Icon */}
+                <div className="absolute top-4 right-6 text-white/10 text-6xl font-serif">"</div>
 
                 <div className="relative z-10">
-                  <span className="text-4xl mb-3 block">{project.icon}</span>
-                  <h3 className="text-xl font-bold text-white mb-2">
-                    {project.name}
-                  </h3>
-                  <p className="text-white/90 text-xs md:text-sm leading-relaxed">
-                    {project.description}
-                  </p>
-                </div>
+                  <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${item.gradient} flex items-center justify-center text-2xl mb-6 shadow-lg`}>
+                    {item.icon}
+                  </div>
 
-                {/* Hover effect */}
-                <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors duration-300 rounded-2xl" />
+                  <p className="text-white/90 text-sm md:text-base leading-relaxed mb-8 font-medium italic">
+                    "{item.review}"
+                  </p>
+
+                  <div className="flex items-center border-t border-white/10 pt-6">
+                    <div>
+                      <h4 className="text-white font-bold text-base">{item.name} 학생</h4>
+                      <p className="text-gray-500 text-xs mt-1">{item.school}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </motion.div>
           ))}
 
           {/* Spacer for centering */}
-          <div className="flex-shrink-0 w-[calc((100vw-360px)/2-24px)] hidden md:block" />
+          <div className="flex-shrink-0 w-[calc((100vw-300px)/2-20px)] hidden md:block" />
         </div>
 
         {/* Progress dots */}
-        <div className="flex justify-center mt-8 space-x-2">
-          {projects.map((_, index) => (
+        <div className="flex justify-center space-x-2">
+          {testimonials.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
-              className={`h-2 rounded-full transition-all duration-300 ${currentIndex === index
-                ? 'bg-cyan-500 w-8'
-                : 'bg-gray-600 w-2 hover:bg-gray-500'
+              className={`h-1.5 rounded-full transition-all duration-300 ${currentIndex === index
+                ? 'bg-brand w-8'
+                : 'bg-white/20 w-1.5 hover:bg-white/40'
                 }`}
-              aria-label={`프로젝트 ${index + 1}`}
+              aria-label={`후기 ${index + 1}`}
             />
           ))}
         </div>
@@ -161,10 +168,10 @@ export default function Projects() {
       {/* View more link */}
       <div className="text-center mt-12">
         <a
-          href="#all-projects"
+          href="/activities"
           className="inline-flex items-center text-gray-400 hover:text-white font-medium transition-colors group"
         >
-          프로젝트 더보기
+          활동 후기 더보기
           <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
         </a>
       </div>
