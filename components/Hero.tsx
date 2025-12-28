@@ -1,21 +1,9 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { useInView } from 'framer-motion'
-import { useRef, useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 
-interface StatItem {
-  label: string
-  value: string
-  suffix?: string
-}
 
-const stats: StatItem[] = [
-  { label: '멘토링 참여 학생', value: '100', suffix: '+' },
-  { label: '제작 프로젝트', value: '30', suffix: '+' },
-  { label: '교육 만족도', value: '4.85', suffix: '/5' },
-  { label: '재참여 의향', value: '4.9', suffix: '/5' },
-]
 
 const backgroundImages = [
   '/img/main_img_1.jpg',
@@ -26,8 +14,6 @@ const backgroundImages = [
 ]
 
 export default function Hero() {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: '-100px' })
   const [currentIndex, setCurrentIndex] = useState(0)
 
   useEffect(() => {
@@ -127,33 +113,6 @@ export default function Hero() {
           >
             대학생들이 직접 운영하는 비영리 IT 교육봉사, 팀코드브릿지!
           </motion.p>
-
-          {/* Statistics Section */}
-          <motion.div
-            ref={ref}
-            initial={{ opacity: 0, y: 40 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 max-w-4xl mx-auto mb-16"
-          >
-            {stats.map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
-                className="text-center"
-              >
-                <div className="text-3xl md:text-4xl font-bold text-white mb-2 drop-shadow-lg">
-                  {stat.value}
-                  <span className="text-primary-400 text-xl md:text-2xl">{stat.suffix}</span>
-                </div>
-                <div className="text-gray-300 text-sm md:text-base font-semibold drop-shadow-md">
-                  {stat.label}
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
 
           {/* CTA Buttons */}
           <motion.div
