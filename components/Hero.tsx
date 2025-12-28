@@ -134,7 +134,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-20"
           >
             <a
               href="#recruit"
@@ -148,6 +148,38 @@ export default function Hero() {
             >
               더 알아보기
             </a>
+          </motion.div>
+
+          {/* Activity Photo Slider (Infinite Marquee) */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 0.8 }}
+            className="relative w-full overflow-hidden"
+          >
+            <div className="flex space-x-4 animate-marquee whitespace-nowrap">
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="flex space-x-4 shrink-0">
+                  {[1, 2, 3, 4, 5].map((num) => (
+                    <div
+                      key={num}
+                      className="relative w-64 h-40 md:w-80 md:h-52 rounded-2xl overflow-hidden border border-white/10 shrink-0 group"
+                    >
+                      <img
+                        src={`/img/main_img_${num}.jpg`}
+                        alt={`Activity ${num}`}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+
+            {/* Gradient Overlays for smooth edges */}
+            <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-black to-transparent z-10" />
+            <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-black to-transparent z-10" />
           </motion.div>
         </div>
       </div>
