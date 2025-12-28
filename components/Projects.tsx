@@ -173,16 +173,7 @@ export default function Projects() {
         </div>
       </div>
 
-      {/* View more link */}
-      <div className="text-center mt-12">
-        <a
-          href="/activities"
-          className="inline-flex items-center text-gray-400 hover:text-white font-medium transition-colors group"
-        >
-          활동 후기 더보기
-          <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
-        </a>
-      </div>
+
     </section>
   )
 }
