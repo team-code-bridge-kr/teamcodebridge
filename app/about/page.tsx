@@ -71,24 +71,7 @@ export default function AboutPage() {
                         </div>
                     </div>
 
-                    {/* Section 2 */}
-                    <div className="mb-20">
-                        <div className="flex items-center mb-8">
-                            <div className="w-12 h-12 bg-cyan-100 rounded-xl flex items-center justify-center text-2xl mr-4">
-                                🎓
-                            </div>
-                            <h2 className="text-xl md:text-2xl font-bold text-gray-900">참여 대학</h2>
-                        </div>
-                        <div className="bg-gray-50 rounded-2xl p-8">
-                            <p className="text-gray-600 leading-relaxed">
-                                연세대학교 · 고려대학교 · 포항공과대학교 · 숭실대학교 · 동국대학교 ·
-                                광운대학교 · 명지대학교 · 삼육대학교 · 가천대학교
-                            </p>
-                            <p className="text-gray-500 text-sm mt-4">
-                                컴퓨터 관련 학과 학생들이 모인 연합 봉사 동아리입니다.
-                            </p>
-                        </div>
-                    </div>
+
 
                     {/* Section 3: Values */}
                     <div>

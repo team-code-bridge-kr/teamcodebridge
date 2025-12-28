@@ -100,9 +100,9 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-gray-400 text-base md:text-lg max-w-3xl mx-auto mb-10"
           >
-            연세대·고려대·포항공대·숭실대·동국대·광운대·명지대·삼육대·가천대
+            컴퓨터 관련 학과 학생들이 모인 연합 IT 교육팀
             <br className="hidden md:block" />
-            컴퓨터 관련 학과 학생들이 모인 연합 봉사 동아리
+            미래 인재를 위한 실전적인 IT 교육과 멘토링을 제공합니다
           </motion.p>
 
           <motion.div

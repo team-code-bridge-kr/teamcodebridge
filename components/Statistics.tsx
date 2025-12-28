@@ -37,9 +37,9 @@ export default function Statistics() {
             지금 TeamCodeBridge는 이렇게 움직여요
           </h2>
           <p className="text-xl text-gray-600">
-            연세대·고려대·포항공대·숭실대·동국대·광운대·명지대·삼육대·가천대
+            컴퓨터 관련 학과 학생들이 모인 연합 IT 교육팀
             <br />
-            컴퓨터 관련 학과 학생들이 모인 연합 봉사 동아리
+            미래 인재를 위한 실전적인 IT 교육과 멘토링을 제공합니다
           </p>
         </motion.div>
 
