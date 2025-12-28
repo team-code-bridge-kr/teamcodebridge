@@ -3,9 +3,15 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-export default function Navigation() {
+interface NavigationProps {
+  variant?: 'light' | 'dark'
+}
+
+export default function Navigation({ variant = 'dark' }: NavigationProps) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+  const isDark = variant === 'dark'
 
   useEffect(() => {
     const handleScroll = () => {
@@ -24,17 +30,21 @@ export default function Navigation() {
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-        ? 'bg-black/90 backdrop-blur-md border-b border-white/10'
+        ? isDark
+          ? 'bg-black/90 backdrop-blur-md border-b border-white/10'
+          : 'bg-white/90 backdrop-blur-md border-b border-gray-200'
         : 'bg-transparent'
         }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <a href="/" className="flex items-center space-x-2">
-            <span className="text-xl md:text-2xl font-bold text-white">
-              TeamCodeBridge
-            </span>
+          <a href="/" className="flex items-center">
+            <img
+              src={isDark ? "/img/TeamCodeBridge_Logo_White_Web.png" : "/img/TeamCodeBridge_Logo_Black_Web.png"}
+              alt="TeamCodeBridge"
+              className="h-8 md:h-10 w-auto object-contain"
+            />
           </a>
 
           {/* Desktop Navigation */}
@@ -43,7 +53,7 @@ export default function Navigation() {
               <a
                 key={item.name}
                 href={item.href}
-                className="text-gray-300 hover:text-white font-medium transition-colors text-sm tracking-wide"
+                className={`${isDark ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-black'} font-medium transition-colors text-sm tracking-wide`}
               >
                 {item.name}
               </a>
@@ -64,15 +74,15 @@ export default function Navigation() {
           >
             <div className="w-6 h-6 flex flex-col justify-center space-y-1.5">
               <span
-                className={`block h-0.5 w-6 bg-white transition-all ${isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''
+                className={`block h-0.5 w-6 transition-all ${isDark ? 'bg-white' : 'bg-black'} ${isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''
                   }`}
               />
               <span
-                className={`block h-0.5 w-6 bg-white transition-all ${isMobileMenuOpen ? 'opacity-0' : ''
+                className={`block h-0.5 w-6 transition-all ${isDark ? 'bg-white' : 'bg-black'} ${isMobileMenuOpen ? 'opacity-0' : ''
                   }`}
               />
               <span
-                className={`block h-0.5 w-6 bg-white transition-all ${isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''
+                className={`block h-0.5 w-6 transition-all ${isDark ? 'bg-white' : 'bg-black'} ${isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''
                   }`}
               />
             </div>
@@ -87,14 +97,14 @@ export default function Navigation() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-black/95 backdrop-blur-md border-t border-white/10"
+            className={`md:hidden backdrop-blur-md border-t ${isDark ? 'bg-black/95 border-white/10' : 'bg-white/95 border-gray-200'}`}
           >
             <div className="px-4 py-6 space-y-4">
               {navItems.map((item) => (
                 <a
                   key={item.name}
                   href={item.href}
-                  className="block text-gray-300 hover:text-white font-medium py-2"
+                  className={`block font-medium py-2 ${isDark ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-black'}`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {item.name}

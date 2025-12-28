@@ -1,3 +1,4 @@
+import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 
 export const metadata = {
@@ -55,24 +56,7 @@ const activities = [
 export default function ActivitiesPage() {
     return (
         <main className="min-h-screen bg-white">
-            {/* Navigation */}
-            <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-14">
-                        <a href="/" className="text-xl font-bold text-gray-900">
-                            TeamCodeBridge
-                        </a>
-                        <div className="hidden md:flex items-center space-x-8">
-                            <a href="/about" className="text-gray-600 hover:text-gray-900 text-sm">팀코드브릿지 소개</a>
-                            <a href="/projects" className="text-gray-600 hover:text-gray-900 text-sm">프로젝트</a>
-                            <a href="/activities" className="text-gray-900 font-medium text-sm">활동</a>
-                            <a href="/#recruit" className="bg-gray-900 text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-gray-800">
-                                26 시즌 신청
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </nav>
+            <Navigation variant="light" />
 
             {/* Hero Section */}
             <section className="pt-24 pb-12 px-4">
