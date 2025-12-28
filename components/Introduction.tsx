@@ -21,7 +21,7 @@ export default function Introduction() {
                         transition={{ duration: 0.8 }}
                         className="text-3xl md:text-5xl font-bold text-gray-900 mb-12 leading-tight"
                     >
-                        가능성과 현실을 잇는 <span className="text-brand">다리</span>
+                        가능성과 현실을 잇는 <span className="gradient-text">다리</span>
                     </motion.h2>
 
                     <motion.div
