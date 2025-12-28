@@ -10,6 +10,9 @@ export default function CTA() {
 
   return (
     <section id="recruit" className="py-24 bg-gradient-to-r from-black via-slate-900 to-primary-900 relative overflow-hidden">
+      {/* Section Divider */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+
       {/* Background decorations */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-0 left-0 w-96 h-96 bg-primary-500/10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl" />

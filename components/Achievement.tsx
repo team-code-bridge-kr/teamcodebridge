@@ -55,15 +55,29 @@ export default function Achievement() {
 
     return (
         <section className="py-24 bg-black relative overflow-hidden">
+            {/* Section Divider */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+
             {/* Background Glow */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary-500/10 blur-[120px] rounded-full z-0" />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div className="text-center mb-20">
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={isInView ? { opacity: 1, y: 0 } : {}}
+                        transition={{ duration: 0.5 }}
+                        className="inline-flex items-center space-x-2 mb-6"
+                    >
+                        <span className="w-8 h-px bg-primary-500" />
+                        <span className="text-primary-500 font-bold tracking-widest text-xs uppercase">01 Achievement</span>
+                        <span className="w-8 h-px bg-primary-500" />
+                    </motion.div>
+
                     <motion.h2
                         initial={{ opacity: 0, y: 20 }}
                         animate={isInView ? { opacity: 1, y: 0 } : {}}
-                        transition={{ duration: 0.6 }}
+                        transition={{ duration: 0.6, delay: 0.1 }}
                         className="text-3xl md:text-5xl font-bold text-white mb-6"
                     >
                         우리의 성과는 <span className="gradient-text">현재진행형</span>입니다
