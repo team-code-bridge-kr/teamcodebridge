@@ -1,8 +1,8 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useInView } from 'framer-motion'
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 
 interface StatItem {
   label: string
@@ -17,19 +17,42 @@ const stats: StatItem[] = [
   { label: '재참여 의향', value: '4.9', suffix: '/5' },
 ]
 
+const backgroundImages = [
+  '/img/main_img_1.jpg',
+  '/img/main_img_2.jpg',
+  '/img/main_img_3.jpg',
+  '/img/main_img_4.jpg',
+  '/img/main_img_5.jpg',
+]
+
 export default function Hero() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-100px' })
+  const [currentIndex, setCurrentIndex] = useState(0)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % backgroundImages.length)
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [])
 
   return (
     <section className="relative min-h-screen bg-black overflow-hidden flex items-center">
-      {/* Background Image with Overlay */}
+      {/* Background Image Slider with Overlay */}
       <div className="absolute inset-0 z-0">
-        <img
-          src="/img/main_img_1.jpg"
-          alt="TeamCodeBridge Activity"
-          className="w-full h-full object-cover opacity-80"
-        />
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={currentIndex}
+            src={backgroundImages[currentIndex]}
+            alt="TeamCodeBridge Activity"
+            initial={{ opacity: 0, scale: 1.1 }}
+            animate={{ opacity: 0.8, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.5, ease: "easeInOut" }}
+            className="w-full h-full object-cover"
+          />
+        </AnimatePresence>
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/90" />
       </div>
 
@@ -134,7 +157,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12"
           >
             <a
               href="#recruit"
@@ -149,6 +172,19 @@ export default function Hero() {
               더 알아보기
             </a>
           </motion.div>
+
+          {/* Slider Navigation Dots */}
+          <div className="flex justify-center space-x-3">
+            {backgroundImages.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`h-1.5 transition-all duration-300 rounded-full ${currentIndex === index ? 'w-8 bg-brand' : 'w-2 bg-white/30 hover:bg-white/50'
+                  }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
