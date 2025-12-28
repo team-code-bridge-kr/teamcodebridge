@@ -69,11 +69,14 @@ export default function Projects() {
   const scrollRef = useRef<HTMLDivElement>(null)
   const isInView = useInView(ref, { once: true, margin: '-100px' })
   const [currentIndex, setCurrentIndex] = useState(0)
+  const isProgrammaticScroll = useRef(false) // Flag to prevent scroll event conflict
 
   // Auto scroll effect
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % testimonials.length)
+      if (!isProgrammaticScroll.current) {
+        handleNext()
+      }
     }, 5000)
     return () => clearInterval(interval)
   }, [])
@@ -81,14 +84,49 @@ export default function Projects() {
   // Scroll to current testimonial
   useEffect(() => {
     if (scrollRef.current) {
-      const cardWidth = 340
-      const gap = 20
+      const isMobile = window.innerWidth < 768
+      let cardWidth
+      let gap
+
+      if (isMobile) {
+        cardWidth = window.innerWidth * 0.85
+        if (cardWidth > 320) cardWidth = 320
+        gap = 16
+      } else {
+        cardWidth = 340
+        gap = 20
+      }
+
+      const scrollPos = currentIndex * (cardWidth + gap)
+
       scrollRef.current.scrollTo({
-        left: currentIndex * (cardWidth + gap),
+        left: scrollPos,
         behavior: 'smooth'
       })
+
+      // Reset flag after animation
+      const timeout = setTimeout(() => {
+        isProgrammaticScroll.current = false
+      }, 600) // Slightly longer than smooth scroll duration
+
+      return () => clearTimeout(timeout)
     }
   }, [currentIndex])
+
+  const handlePrev = () => {
+    isProgrammaticScroll.current = true
+    setCurrentIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length)
+  }
+
+  const handleNext = () => {
+    isProgrammaticScroll.current = true
+    setCurrentIndex((prev) => (prev + 1) % testimonials.length)
+  }
+
+  const handleDotClick = (index: number) => {
+    isProgrammaticScroll.current = true
+    setCurrentIndex(index)
+  }
 
   return (
     <section id="projects" className="py-20 bg-black relative overflow-hidden">
@@ -110,13 +148,63 @@ export default function Projects() {
       </div>
 
       {/* Horizontal Scroll Container */}
-      <div className="relative">
+      <div className="relative group">
+        {/* Navigation Buttons - Hidden on mobile */}
+        <button
+          onClick={handlePrev}
+          className="hidden md:flex absolute left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-black/50 hover:bg-black/80 border border-white/20 rounded-full items-center justify-center text-white transition-all backdrop-blur-sm opacity-0 group-hover:opacity-100 disabled:opacity-0"
+          aria-label="Previous slide"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
+
+        <button
+          onClick={handleNext}
+          className="hidden md:flex absolute right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-black/50 hover:bg-black/80 border border-white/20 rounded-full items-center justify-center text-white transition-all backdrop-blur-sm opacity-0 group-hover:opacity-100 disabled:opacity-0"
+          aria-label="Next slide"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </button>
+
         <div
           ref={scrollRef}
-          className="flex gap-5 overflow-x-auto pb-10 px-4 md:px-8 scrollbar-hide snap-x snap-mandatory"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          className="flex gap-4 md:gap-5 overflow-x-auto pb-10 px-[50vw] md:px-8 scrollbar-hide snap-x snap-mandatory"
+          style={{
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+          }}
+          onScroll={(e) => {
+            if (isProgrammaticScroll.current) return // Ignore scroll events during programmatic scroll
+
+            const container = e.currentTarget
+            const scrollLeft = container.scrollLeft
+
+            // Calculate item width dynamically
+            // Mobile: 85vw, Desktop: 340px
+            let itemWidth
+            if (window.innerWidth < 768) {
+              itemWidth = window.innerWidth * 0.85
+              if (itemWidth > 320) itemWidth = 320 // max-w-[320px]
+            } else {
+              itemWidth = 340
+            }
+            // Add gap
+            const gap = window.innerWidth < 768 ? 16 : 20 // gap-4 or gap-5
+            const totalItemWidth = itemWidth + gap
+
+            const newIndex = Math.round(scrollLeft / totalItemWidth)
+
+            if (newIndex !== currentIndex && newIndex >= 0 && newIndex < testimonials.length) {
+              setCurrentIndex(newIndex)
+            }
+          }}
         >
-          {/* Spacer for centering */}
+          {/* Spacer for centering - Adjusted for mobile */}
+          <div className="flex-shrink-0 w-[calc((100vw-85vw)/2)] md:w-[calc((100vw-300px)/2-20px)] md:hidden" />
           <div className="flex-shrink-0 w-[calc((100vw-300px)/2-20px)] hidden md:block" />
 
           {testimonials.map((item, index) => (
@@ -125,9 +213,9 @@ export default function Projects() {
               initial={{ opacity: 0, x: 50 }}
               animate={isInView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.6, delay: index * 0.1 }}
-              className={`flex-shrink-0 w-[280px] md:w-[340px] snap-center cursor-pointer group transition-all duration-500 ${currentIndex === index ? 'scale-100' : 'scale-90 opacity-40 blur-[1px]'
+              className={`flex-shrink-0 w-[85vw] max-w-[320px] md:w-[340px] snap-center cursor-pointer group transition-all duration-500 ${currentIndex === index ? 'scale-100 opacity-100' : 'scale-95 opacity-40 blur-[1px]'
                 }`}
-              onClick={() => setCurrentIndex(index)}
+              onClick={() => handleDotClick(index)}
             >
               <div className="h-full bg-white/[0.03] border border-white/10 rounded-2xl p-6 md:p-8 relative overflow-hidden backdrop-blur-sm">
                 {/* Quote Icon */}
@@ -154,6 +242,7 @@ export default function Projects() {
           ))}
 
           {/* Spacer for centering */}
+          <div className="flex-shrink-0 w-[calc((100vw-85vw)/2)] md:w-[calc((100vw-300px)/2-20px)] md:hidden" />
           <div className="flex-shrink-0 w-[calc((100vw-300px)/2-20px)] hidden md:block" />
         </div>
 
@@ -162,7 +251,7 @@ export default function Projects() {
           {testimonials.map((_, index) => (
             <button
               key={index}
-              onClick={() => setCurrentIndex(index)}
+              onClick={() => handleDotClick(index)}
               className={`h-1.5 rounded-full transition-all duration-300 ${currentIndex === index
                 ? 'bg-brand w-8'
                 : 'bg-white/20 w-1.5 hover:bg-white/40'
@@ -172,8 +261,6 @@ export default function Projects() {
           ))}
         </div>
       </div>
-
-
     </section>
   )
 }
