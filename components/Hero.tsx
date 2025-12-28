@@ -11,11 +11,11 @@ interface StatItem {
 }
 
 const stats: StatItem[] = [
-  { label: '참여 대학', value: '10', suffix: '개' },
   { label: '멘토링 횟수', value: '200', suffix: '+' },
-  { label: '참여 학생', value: '1000', suffix: '+' },
-  { label: '협력 학교', value: '30', suffix: '+' },
-  { label: '프로젝트', value: '100', suffix: '+' },
+  { label: '참여 학생', value: '100', suffix: '+' },
+  { label: '제작 프로젝트', value: '30', suffix: '+' },
+  { label: '교육 만족도', value: '4.85', suffix: '/5' },
+  { label: '재참여 의향', value: '4.9', suffix: '/5' },
 ]
 
 export default function Hero() {

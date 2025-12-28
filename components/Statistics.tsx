@@ -13,10 +13,10 @@ interface StatItem {
 const stats: StatItem[] = [
   { label: '참여 대학', value: '10', suffix: '개' },
   { label: '멘토링 횟수', value: '200', suffix: '+회' },
-  { label: '참여 학생', value: '1000', suffix: '+명' },
-  { label: '멘토 수', value: '50', suffix: '+명' },
-  { label: '협력 학교', value: '30', suffix: '+개' },
-  { label: '프로젝트', value: '100', suffix: '+개' },
+  { label: '참여 학생', value: '100', suffix: '+명' },
+  { label: '제작 프로젝트', value: '30', suffix: '+개' },
+  { label: '교육 만족도', value: '4.85', suffix: '/5.0' },
+  { label: '재참여 의향', value: '4.9', suffix: '/5.0' },
 ]
 
 export default function Statistics() {
