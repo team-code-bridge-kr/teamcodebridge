@@ -36,7 +36,7 @@ export default function About() {
             viewport={{ once: true }}
             className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6"
           >
-            TeamCodeBridge 멘토, <span className="text-cyan-400">왜 특별할까요?</span>
+            TeamCodeBridge 멘토, <span className="text-primary-500">왜 특별할까요?</span>
           </motion.h2>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
             단순히 코딩을 잘하는 것을 넘어, 실전 경험과 교육 철학을 겸비한
@@ -75,7 +75,7 @@ export default function About() {
             initial={{ opacity: 0, scale: 0.9 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="inline-block p-[1px] rounded-3xl bg-gradient-to-r from-cyan-500 to-teal-500"
+            className="inline-block p-[1px] rounded-3xl bg-gradient-to-r from-primary-500 to-primary-700"
           >
             <div className="bg-black rounded-[23px] px-8 py-12 md:px-16 md:py-20">
               <h3 className="text-2xl md:text-3xl font-bold text-white mb-6">

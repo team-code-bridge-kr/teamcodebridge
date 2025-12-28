@@ -76,7 +76,7 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <p className="text-cyan-400 text-base md:text-lg font-bold mb-4 tracking-widest uppercase">
+            <p className="text-primary-500 text-base md:text-lg font-bold mb-4 tracking-widest uppercase">
               At the Edge of Possibility, IT Education Begins
             </p>
           </motion.div>
@@ -89,7 +89,7 @@ export default function Hero() {
           >
             가능성의 끝에서
             <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-teal-500">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-primary-600">
               IT 교육이 시작되는 곳
             </span>
           </motion.h1>
@@ -113,7 +113,7 @@ export default function Hero() {
           >
             <a
               href="#recruit"
-              className="bg-gradient-to-r from-cyan-500 to-teal-600 text-white px-8 py-4 rounded-full font-semibold text-lg hover:from-cyan-600 hover:to-teal-700 transition-all transform hover:scale-105 shadow-lg shadow-cyan-500/25"
+              className="bg-gradient-to-r from-brand to-brand-dark text-white px-8 py-4 rounded-full font-semibold text-lg hover:from-brand-light hover:to-brand transition-all transform hover:scale-105 shadow-lg shadow-brand/25"
             >
               26 시즌 멘토링 신청 →
             </a>
@@ -144,7 +144,7 @@ export default function Hero() {
             >
               <div className="text-3xl md:text-4xl font-bold text-white mb-2">
                 {stat.value}
-                <span className="text-cyan-400 text-xl md:text-2xl">{stat.suffix}</span>
+                <span className="text-primary-500 text-xl md:text-2xl">{stat.suffix}</span>
               </div>
               <div className="text-gray-500 text-sm md:text-base font-medium">
                 {stat.label}

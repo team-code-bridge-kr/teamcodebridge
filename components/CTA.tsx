@@ -9,11 +9,11 @@ export default function CTA() {
   const isInView = useInView(ref, { once: true, margin: '-100px' })
 
   return (
-    <section id="recruit" className="py-24 bg-gradient-to-r from-black via-slate-900 to-cyan-900 relative overflow-hidden">
+    <section id="recruit" className="py-24 bg-gradient-to-r from-black via-slate-900 to-primary-900 relative overflow-hidden">
       {/* Background decorations */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-cyan-500/10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-teal-500/10 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl" />
+        <div className="absolute top-0 left-0 w-96 h-96 bg-primary-500/10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary-700/10 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -37,13 +37,13 @@ export default function CTA() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
               href="#apply-mentoring"
-              className="bg-gradient-to-r from-cyan-500 to-teal-600 text-white px-10 py-4 rounded-full font-bold text-lg hover:from-cyan-600 hover:to-teal-700 transition-all transform hover:scale-105 shadow-lg shadow-cyan-500/20"
+              className="bg-gradient-to-r from-brand to-brand-dark text-white px-10 py-4 rounded-full font-bold text-lg hover:from-brand-light hover:to-brand transition-all transform hover:scale-105 shadow-lg shadow-brand/20"
             >
               26 시즌 멘토링 신청 →
             </a>
             <a
               href="#apply-school"
-              className="border-2 border-cyan-400/50 text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-cyan-500/10 hover:border-cyan-400 transition-all"
+              className="border-2 border-primary-400/50 text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-primary-500/10 hover:border-primary-400 transition-all"
             >
               26 시즌 스쿨어택 신청 →
             </a>
