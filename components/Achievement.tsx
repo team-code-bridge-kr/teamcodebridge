@@ -4,26 +4,40 @@ import { motion, useSpring, useTransform, animate } from 'framer-motion'
 import { useInView } from 'framer-motion'
 import { useRef, useEffect, useState } from 'react'
 
-function Counter({ value, suffix, decimals = 0 }: { value: number, suffix?: string, decimals?: number }) {
+function Counter({ value, decimals = 0 }: { value: number, decimals?: number }) {
     const [displayValue, setDisplayValue] = useState(0)
     const ref = useRef(null)
     const isInView = useInView(ref, { once: true })
 
     useEffect(() => {
         if (isInView) {
-            const controls = animate(0, value, {
-                duration: 2,
-                ease: "easeOut",
-                onUpdate: (latest) => setDisplayValue(latest)
-            })
-            return () => controls.stop()
+            let start = 0
+            const end = value
+            const duration = 2000 // 2 seconds
+            const startTime = performance.now()
+
+            const updateCounter = (currentTime: number) => {
+                const elapsed = currentTime - startTime
+                const progress = Math.min(elapsed / duration, 1)
+
+                // Linear increment logic similar to user's request
+                const currentCount = progress * end
+                setDisplayValue(currentCount)
+
+                if (progress < 1) {
+                    requestAnimationFrame(updateCounter)
+                } else {
+                    setDisplayValue(end)
+                }
+            }
+
+            requestAnimationFrame(updateCounter)
         }
     }, [isInView, value])
 
     return (
         <span ref={ref}>
             {displayValue.toFixed(decimals)}
-            {suffix}
         </span>
     )
 }
@@ -60,20 +74,21 @@ export default function Achievement() {
                     </p>
                 </div>
 
-                {/* Statistics Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-24">
+                {/* Statistics Grid - Reverted to simple style */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 max-w-4xl mx-auto mb-24">
                     {stats.map((stat, index) => (
                         <motion.div
                             key={stat.label}
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                            transition={{ duration: 0.5, delay: index * 0.1 }}
-                            className="text-center p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-sm"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={isInView ? { opacity: 1, y: 0 } : {}}
+                            transition={{ duration: 0.6, delay: index * 0.1 }}
+                            className="text-center"
                         >
-                            <div className="text-4xl md:text-5xl font-bold text-white mb-3">
-                                <Counter value={stat.value} suffix={stat.suffix} decimals={stat.decimals} />
+                            <div className="text-3xl md:text-4xl font-bold text-white mb-2 drop-shadow-lg">
+                                <Counter value={stat.value} decimals={stat.decimals} />
+                                <span className="text-primary-400 text-xl md:text-2xl">{stat.suffix}</span>
                             </div>
-                            <div className="text-gray-400 font-medium text-sm md:text-base">
+                            <div className="text-gray-300 text-sm md:text-base font-semibold drop-shadow-md">
                                 {stat.label}
                             </div>
                         </motion.div>
