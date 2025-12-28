@@ -213,7 +213,9 @@ export default function Projects() {
               initial={{ opacity: 0, x: 50 }}
               animate={isInView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.6, delay: index * 0.1 }}
-              className={`flex-shrink-0 w-[85vw] max-w-[320px] md:w-[340px] snap-center cursor-pointer group transition-all duration-500 ${currentIndex === index ? 'scale-100 opacity-100' : 'scale-95 opacity-40 blur-[1px]'
+              className={`flex-shrink-0 w-[85vw] max-w-[320px] md:w-[340px] snap-center cursor-pointer group transition-all duration-500 ${currentIndex === index 
+                ? 'scale-100 opacity-100' 
+                : 'scale-95 opacity-40 md:blur-[1px] blur-0'
                 }`}
               onClick={() => handleDotClick(index)}
             >

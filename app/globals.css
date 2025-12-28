@@ -22,8 +22,6 @@ body {
   font-family: var(--font-pretendard);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #000;
-  color: #fff;
 }
 
 @layer utilities {
@@ -121,14 +119,35 @@ body {
   }
 
   100% {
-    transform: translateX(calc(-50% - 0.5rem));
+    transform: translateX(calc(-50% - 1rem));
   }
 }
 
 .animate-marquee {
-  animation: marquee 30s linear infinite;
+  animation: marquee 40s linear infinite;
+  will-change: transform;
 }
 
 .animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* 고민 카드 마퀴 애니메이션 (더 느리게) */
+@keyframes marquee-slow {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(calc(-50% - 1rem));
+  }
+}
+
+.animate-marquee-slow {
+  animation: marquee-slow 60s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-slow:hover {
   animation-play-state: paused;
 }
