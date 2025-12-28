@@ -100,7 +100,7 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-gray-400 text-base md:text-lg max-w-3xl mx-auto mb-10"
           >
-            대학생들이 직접 운영하는 비영리 IT 교육봉사
+            대학생들이 직접 운영하는 비영리 IT 교육봉사, 팀코드브릿지!
           </motion.p>
 
           <motion.div

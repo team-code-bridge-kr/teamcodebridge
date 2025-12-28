@@ -37,7 +37,7 @@ export default function Statistics() {
             지금 TeamCodeBridge는 이렇게 움직여요
           </h2>
           <p className="text-xl text-gray-600">
-            대학생들이 직접 운영하는 비영리 IT 교육봉사
+            대학생들이 직접 운영하는 비영리 IT 교육봉사, 팀코드브릿지!
           </p>
         </motion.div>
 
