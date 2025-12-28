@@ -12,8 +12,7 @@ interface StatItem {
 
 const stats: StatItem[] = [
   { label: '참여 대학', value: '10', suffix: '개' },
-  { label: '멘토링 횟수', value: '200', suffix: '+회' },
-  { label: '참여 학생', value: '100', suffix: '+명' },
+  { label: '멘토링 참여 학생', value: '100', suffix: '+명' },
   { label: '제작 프로젝트', value: '30', suffix: '+개' },
   { label: '교육 만족도', value: '4.85', suffix: '/5.0' },
   { label: '재참여 의향', value: '4.9', suffix: '/5.0' },
@@ -41,7 +40,7 @@ export default function Statistics() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
           {stats.map((stat, index) => (
             <motion.div
               key={stat.label}

@@ -11,8 +11,7 @@ interface StatItem {
 }
 
 const stats: StatItem[] = [
-  { label: '멘토링 횟수', value: '200', suffix: '+' },
-  { label: '참여 학생', value: '100', suffix: '+' },
+  { label: '멘토링 참여 학생', value: '100', suffix: '+' },
   { label: '제작 프로젝트', value: '30', suffix: '+' },
   { label: '교육 만족도', value: '4.85', suffix: '/5' },
   { label: '재참여 의향', value: '4.9', suffix: '/5' },
@@ -130,7 +129,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 40 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-4 max-w-5xl mx-auto"
+          className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 max-w-4xl mx-auto"
         >
           {stats.map((stat, index) => (
             <motion.div
