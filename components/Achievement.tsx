@@ -95,31 +95,31 @@ export default function Achievement() {
                     ))}
                 </div>
 
-                <div ref={ref} className="grid md:grid-cols-2 gap-8 items-center">
+                <div ref={ref} className="grid md:grid-cols-2 gap-6 items-center max-w-5xl mx-auto">
                     {/* Minister Award */}
                     <motion.div
                         initial={{ opacity: 0, x: -50 }}
                         animate={isInView ? { opacity: 1, x: 0 } : {}}
                         transition={{ duration: 0.8 }}
-                        className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 md:p-12 relative overflow-hidden group h-full"
+                        className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 md:p-8 relative overflow-hidden group h-full"
                     >
-                        <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <span className="text-8xl">🏆</span>
+                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <span className="text-6xl">🏆</span>
                         </div>
                         <div className="relative z-10">
-                            <div className="inline-block px-4 py-1 bg-primary-500/20 text-primary-500 rounded-full text-sm font-bold mb-6">
+                            <div className="inline-block px-3 py-0.5 bg-primary-500/20 text-primary-500 rounded-full text-xs font-bold mb-4">
                                 Achievement
                             </div>
-                            <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">교육부장관상 수상</h3>
-                            <p className="text-gray-400 leading-relaxed mb-6">
+                            <h3 className="text-xl md:text-2xl font-bold text-white mb-3">교육부장관상 수상</h3>
+                            <p className="text-gray-400 text-sm md:text-base leading-relaxed mb-5">
                                 IT 교육의 혁신성과 공익성을 인정받아 교육부장관상을 수상하였습니다.
-                                우리는 단순히 코딩을 가르치는 것을 넘어, 학생들의 미래를 설계하는 교육의 가치를 증명했습니다.
+                                학생들의 미래를 설계하는 교육의 가치를 증명했습니다.
                             </p>
-                            <div className="flex items-center space-x-4">
-                                <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center">
-                                    <span className="text-white font-bold text-xl">01</span>
+                            <div className="flex items-center space-x-3">
+                                <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
+                                    <span className="text-white font-bold text-lg">01</span>
                                 </div>
-                                <span className="text-white font-medium">대한민국 IT 교육의 표준</span>
+                                <span className="text-white font-medium text-sm md:text-base">대한민국 IT 교육의 표준</span>
                             </div>
                         </div>
                     </motion.div>
@@ -129,25 +129,25 @@ export default function Achievement() {
                         initial={{ opacity: 0, x: 50 }}
                         animate={isInView ? { opacity: 1, x: 0 } : {}}
                         transition={{ duration: 0.8, delay: 0.2 }}
-                        className="bg-gradient-to-br from-primary-500/20 to-primary-700/20 backdrop-blur-xl border border-primary-500/30 rounded-3xl p-8 md:p-12 relative overflow-hidden group h-full"
+                        className="bg-gradient-to-br from-primary-500/20 to-primary-700/20 backdrop-blur-xl border border-primary-500/30 rounded-2xl p-6 md:p-8 relative overflow-hidden group h-full"
                     >
-                        <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:opacity-40 transition-opacity">
-                            <span className="text-8xl">✨</span>
+                        <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-40 transition-opacity">
+                            <span className="text-6xl">✨</span>
                         </div>
                         <div className="relative z-10">
-                            <div className="inline-block px-4 py-1 bg-white/20 text-white rounded-full text-sm font-bold mb-6">
+                            <div className="inline-block px-3 py-0.5 bg-white/20 text-white rounded-full text-xs font-bold mb-4">
                                 Vision
                             </div>
-                            <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">더 넓은 세상으로</h3>
-                            <p className="text-white/80 leading-relaxed mb-6">
+                            <h3 className="text-xl md:text-2xl font-bold text-white mb-3">더 넓은 세상으로</h3>
+                            <p className="text-white/80 text-sm md:text-base leading-relaxed mb-5">
                                 우리의 목표는 멈추지 않습니다. 더 많은 학생들에게 꿈을 심어주고,
-                                IT 기술을 통해 세상의 문제를 해결할 수 있는 미래 인재를 양성하기 위해 끊임없이 도전합니다.
+                                미래 인재를 양성하기 위해 끊임없이 도전합니다.
                             </p>
-                            <div className="flex items-center space-x-4">
-                                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                                    <span className="text-white font-bold text-xl">02</span>
+                            <div className="flex items-center space-x-3">
+                                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                                    <span className="text-white font-bold text-lg">02</span>
                                 </div>
-                                <span className="text-white font-medium">글로벌 IT 인재 양성의 허브</span>
+                                <span className="text-white font-medium text-sm md:text-base">글로벌 IT 인재 양성의 허브</span>
                             </div>
                         </div>
                     </motion.div>
