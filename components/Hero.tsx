@@ -53,7 +53,9 @@ export default function Hero() {
             className="w-full h-full object-cover"
           />
         </AnimatePresence>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/90" />
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/90" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.4)_0%,rgba(0,0,0,0.7)_100%)]" />
       </div>
 
       {/* Animated background particles */}
@@ -82,7 +84,10 @@ export default function Hero() {
 
       {/* Main content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20">
-        <div className="text-center">
+        <div className="text-center relative">
+          {/* Subtle glow behind text for readability */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-black/20 blur-[100px] -z-10 pointer-events-none" />
+
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -98,7 +103,7 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <p className="gradient-text text-base md:text-lg font-bold mb-4 tracking-widest uppercase">
+            <p className="gradient-text text-base md:text-lg font-bold mb-4 tracking-widest uppercase drop-shadow-md">
               At the Edge of Possibility, IT Education Begins
             </p>
           </motion.div>
@@ -107,7 +112,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight drop-shadow-2xl"
+            className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
           >
             가능성의 끝에서
             <br />
@@ -120,7 +125,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-gray-200 text-base md:text-lg max-w-3xl mx-auto mb-12 font-medium drop-shadow-lg"
+            className="text-gray-100 text-base md:text-lg max-w-3xl mx-auto mb-12 font-medium drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]"
           >
             대학생들이 직접 운영하는 비영리 IT 교육봉사, 팀코드브릿지!
           </motion.p>

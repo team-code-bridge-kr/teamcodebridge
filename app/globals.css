@@ -89,6 +89,7 @@ body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: gradient-move 4s linear infinite;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 @keyframes gradient-move {
