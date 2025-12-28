@@ -2,8 +2,8 @@ import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 
 export const metadata = {
-    title: '활동 | TeamCodeBridge',
-    description: 'TeamCodeBridge에서 진행하는 다양한 프로그램을 소개합니다',
+    title: '활동 | 대학생들이 직접 운영하는 비영리 IT 교육봉사',
+    description: '대학생들이 직접 운영하는 비영리 IT 교육봉사, 팀코드브릿지!',
 }
 
 const activities = [
