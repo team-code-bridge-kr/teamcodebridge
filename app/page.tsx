@@ -7,6 +7,7 @@ import About from '@/components/About'
 import CTA from '@/components/CTA'
 import FAQ from '@/components/FAQ'
 import Footer from '@/components/Footer'
+import FloatingChat from '@/components/FloatingChat'
 
 export default function Home() {
   return (
@@ -20,6 +21,7 @@ export default function Home() {
       <FAQ />
       <CTA />
       <Footer variant="dark" />
+      <FloatingChat />
     </main>
   )
 }
