@@ -9,7 +9,7 @@ export default function Introduction() {
     const isInView = useInView(ref, { once: true, margin: "-100px" })
 
     return (
-        <section ref={ref} className="py-24 bg-white relative overflow-hidden">
+        <section ref={ref} className="py-16 bg-white relative overflow-hidden">
             {/* Background decoration */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
 
@@ -40,13 +40,6 @@ export default function Introduction() {
                             함께 성장하는 즐거움을 만들어갑니다.
                         </p>
                     </motion.div>
-
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={isInView ? { opacity: 1, scale: 1 } : {}}
-                        transition={{ duration: 1, delay: 0.4 }}
-                        className="mt-16 w-20 h-1.5 bg-brand rounded-full"
-                    />
                 </div>
             </div>
 
