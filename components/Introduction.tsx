@@ -33,7 +33,7 @@ export default function Introduction() {
                         <p className="text-gray-600 text-lg md:text-xl leading-relaxed font-medium">
                             팀코드브릿지는 단순한 지식 전달을 넘어,<br className="hidden md:block" />
                             멘티들이 스스로 문제를 정의하고 해결하는 <span className="text-gray-900 font-bold">'메이커'</span>로<br className="hidden md:block" />
-                            성장할 수 있도록 돕는 대학생 비영리 단체입니다.
+                            성장할 수 있도록 돕는 <span className="text-gray-900 font-bold">대학생 비영리 단체</span>입니다.
                         </p>
                         <p className="text-gray-600 text-lg md:text-xl leading-relaxed font-medium">
                             우리는 기술이라는 도구로 세상과 소통하고,<br className="hidden md:block" />
