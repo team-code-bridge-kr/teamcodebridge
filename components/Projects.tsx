@@ -17,7 +17,7 @@ const testimonials: Testimonial[] = [
   {
     id: 1,
     name: '이OO',
-    school: '고등학생 멘티',
+    school: '중학생 멘티',
     review: 'AI가 나의 목소리를 학습해 노래를 부르게 하는 활동이 정말 신기했어요. AI를 어떻게 활용하는지 알게 되었고, 열정적으로 가르쳐주시는 선생님들이 너무 멋져 보였습니다! 🥺',
     gradient: 'from-purple-500 to-pink-500',
     icon: '✨',
@@ -33,7 +33,7 @@ const testimonials: Testimonial[] = [
   {
     id: 3,
     name: '박OO',
-    school: '중학생 멘티',
+    school: '고등학생 멘티',
     review: '단순히 원리를 배우는 것을 넘어 실제 데이터로 사회적 문제를 해결하는 경험을 했습니다. 데이터 전처리와 변수 설정의 중요성을 실감하며 기술의 가능성을 직접 확인했어요.',
     gradient: 'from-orange-500 to-red-500',
     icon: '🎯',
@@ -49,7 +49,7 @@ const testimonials: Testimonial[] = [
   {
     id: 5,
     name: '정OO',
-    school: '해커톤 참여 학생',
+    school: '고등학생 멘티',
     review: '팀원들과 밤을 지새우며 서로 격려하고 협동했던 과정이 가장 기억에 남아요. 기획부터 개발까지 제대로 부딪혀보며 기술 그 이상의 가치와 소중한 추억을 만들었습니다.',
     gradient: 'from-indigo-500 to-purple-500',
     icon: '❤️',
