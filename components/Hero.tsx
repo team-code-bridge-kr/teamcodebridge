@@ -87,14 +87,11 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.1 }}
             className="text-3xl md:text-4xl lg:text-[40px] font-bold text-white mb-6 leading-tight"
           >
-            아이디어와 열정, 실행력을 가진
-            <br />
-            사람들이 함께
+            가능성의 끝에서
             <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-teal-500">
-              세상을 바꾸는 프로젝트
+              IT 교육이 시작되는 곳
             </span>
-            를 만들어요
           </motion.h1>
 
           <motion.p
