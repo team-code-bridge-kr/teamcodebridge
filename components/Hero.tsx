@@ -73,14 +73,8 @@ export default function Hero() {
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            animate={{
-              opacity: 1,
-              y: [0, -3, 0],
-            }}
-            transition={{
-              opacity: { duration: 0.8, delay: 0.2 },
-              y: { duration: 5, repeat: Infinity, ease: "easeInOut" }
-            }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
           >
             <p className="gradient-text text-base md:text-lg font-bold mb-4 tracking-widest uppercase">
               At the Edge of Possibility, IT Education Begins
@@ -89,14 +83,8 @@ export default function Hero() {
 
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
-            animate={{
-              opacity: 1,
-              y: [0, -5, 0],
-            }}
-            transition={{
-              opacity: { duration: 0.8, delay: 0.1 },
-              y: { duration: 4, repeat: Infinity, ease: "easeInOut" }
-            }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1 }}
             className="text-3xl md:text-4xl lg:text-[40px] font-bold text-white mb-6 leading-tight"
           >
             가능성의 끝에서

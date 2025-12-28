@@ -78,12 +78,17 @@ body {
 
 /* Gradient text */
 .gradient-text {
-  background: linear-gradient(135deg, #0f52ba 0%, #1e6be6 50%, #0f52ba 100%);
+  background: linear-gradient(to right,
+      #0f52ba 20%,
+      #1e6be6 40%,
+      #60a5fa 50%,
+      #1e6be6 60%,
+      #0f52ba 80%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: gradient-move 3s linear infinite;
+  animation: gradient-move 4s linear infinite;
 }
 
 @keyframes gradient-move {
@@ -92,7 +97,7 @@ body {
   }
 
   100% {
-    background-position: 200% center;
+    background-position: -200% center;
   }
 }
 
