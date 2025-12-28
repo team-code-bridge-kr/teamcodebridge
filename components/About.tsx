@@ -27,9 +27,9 @@ export default function About() {
   ]
 
   return (
-    <section id="about" className="py-16 bg-[#08080a] relative overflow-hidden">
+    <section id="about" className="py-20 bg-white relative overflow-hidden">
       {/* Section Divider */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
 
       {/* Subtle background glow */}
       <div className="absolute top-0 left-1/4 w-[300px] h-[300px] bg-brand/5 blur-[80px] rounded-full" />
@@ -52,11 +52,11 @@ export default function About() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-2xl md:text-3xl font-bold text-white mb-3"
+            className="text-2xl md:text-3xl font-bold text-gray-900 mb-3"
           >
             TeamCodeBridge 멘토, <span className="gradient-text">왜 특별할까요?</span>
           </motion.h2>
-          <p className="text-gray-400 text-sm md:text-base max-w-xl mx-auto leading-relaxed">
+          <p className="text-gray-600 text-sm md:text-base max-w-xl mx-auto leading-relaxed">
             단순히 코딩을 잘하는 것을 넘어, 실전 경험과 교육 철학을 겸비한<br className="hidden md:block" />
             상위 1%의 대학생 멘토진이 함께합니다.
           </p>
@@ -77,18 +77,16 @@ export default function About() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.05 }}
-              className="bg-white/[0.02] backdrop-blur-md border border-white/5 rounded-xl p-5 hover:bg-white/[0.05] transition-all group"
+              className="bg-gray-50 backdrop-blur-md border border-gray-100 rounded-xl p-5 hover:shadow-lg hover:shadow-brand/5 transition-all group"
             >
               <div className="text-2xl mb-3 group-hover:scale-110 transition-transform duration-300">
                 {item.icon}
               </div>
-              <h3 className="text-base font-bold text-white mb-1.5">{item.title}</h3>
-              <p className="text-gray-400 text-xs md:text-sm leading-relaxed">{item.desc}</p>
+              <h3 className="text-base font-bold text-gray-900 mb-1.5">{item.title}</h3>
+              <p className="text-gray-600 text-xs md:text-sm leading-relaxed">{item.desc}</p>
             </motion.div>
           ))}
         </div>
-
-
       </div>
     </section>
   )
