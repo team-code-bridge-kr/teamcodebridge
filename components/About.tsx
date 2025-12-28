@@ -28,30 +28,15 @@ export default function About() {
 
   return (
     <section id="about" className="py-20 bg-white relative overflow-hidden">
-      {/* Section Divider */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
-
       {/* Subtle background glow */}
       <div className="absolute top-0 left-1/4 w-[300px] h-[300px] bg-brand/5 blur-[80px] rounded-full" />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-12">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="inline-flex items-center space-x-2 mb-4"
-          >
-            <span className="w-8 h-px bg-brand" />
-            <span className="text-brand font-bold tracking-widest text-xs uppercase">02 Mentors</span>
-            <span className="w-8 h-px bg-brand" />
-          </motion.div>
-
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
             className="text-2xl md:text-3xl font-bold text-gray-900 mb-3"
           >
             TeamCodeBridge 멘토, <span className="gradient-text">왜 특별할까요?</span>

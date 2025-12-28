@@ -78,9 +78,6 @@ export default function Projects() {
 
   return (
     <section id="projects" className="py-16 bg-black relative overflow-hidden">
-      {/* Section Divider */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <motion.div
           ref={ref}
@@ -89,17 +86,6 @@ export default function Projects() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center space-x-2 mb-4"
-          >
-            <span className="w-8 h-px bg-cyan-500" />
-            <span className="text-cyan-500 font-bold tracking-widest text-xs uppercase">03 Activities</span>
-            <span className="w-8 h-px bg-cyan-500" />
-          </motion.div>
-
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
             활동 사례 모아보기
           </h2>
