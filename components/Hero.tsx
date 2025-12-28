@@ -26,11 +26,11 @@ export default function Hero() {
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
         <img
-          src="/Users/activejang/.gemini/antigravity/brain/cdbe3d7f-c4f6-49c2-8a1b-913e3922433a/tcb_hero_premium_illustration_1766587384682.png"
-          alt="TCB Hero Background"
-          className="w-full h-full object-cover opacity-40"
+          src="/img/main_img_1.jpg"
+          alt="TeamCodeBridge Activity"
+          className="w-full h-full object-cover opacity-60"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-black/80 to-black" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black" />
       </div>
 
       {/* Animated background particles */}
@@ -38,7 +38,7 @@ export default function Hero() {
         {[...Array(20)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-1 h-1 bg-white/10 rounded-full"
+            className="absolute w-1 h-1 bg-white/20 rounded-full"
             initial={{
               x: Math.random() * 100 + '%',
               y: Math.random() * 100 + '%',
@@ -84,7 +84,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-3xl md:text-4xl lg:text-[40px] font-bold text-white mb-6 leading-tight"
+            className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight drop-shadow-2xl"
           >
             가능성의 끝에서
             <br />
@@ -97,7 +97,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-gray-400 text-base md:text-lg max-w-3xl mx-auto mb-10"
+            className="text-gray-200 text-base md:text-lg max-w-3xl mx-auto mb-12 font-medium drop-shadow-lg"
           >
             대학생들이 직접 운영하는 비영리 IT 교육봉사, 팀코드브릿지!
           </motion.p>
@@ -118,11 +118,11 @@ export default function Hero() {
                 transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
                 className="text-center"
               >
-                <div className="text-3xl md:text-4xl font-bold text-white mb-2">
+                <div className="text-3xl md:text-4xl font-bold text-white mb-2 drop-shadow-lg">
                   {stat.value}
-                  <span className="text-primary-500 text-xl md:text-2xl">{stat.suffix}</span>
+                  <span className="text-primary-400 text-xl md:text-2xl">{stat.suffix}</span>
                 </div>
-                <div className="text-gray-500 text-sm md:text-base font-medium">
+                <div className="text-gray-300 text-sm md:text-base font-semibold drop-shadow-md">
                   {stat.label}
                 </div>
               </motion.div>
@@ -134,52 +134,20 @@ export default function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-20"
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           >
             <a
               href="#recruit"
-              className="bg-gradient-to-r from-brand to-brand-dark text-white px-8 py-4 rounded-full font-semibold text-lg hover:from-brand-light hover:to-brand transition-all transform hover:scale-105 shadow-lg shadow-brand/25"
+              className="bg-brand text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-brand-light transition-all transform hover:scale-105 shadow-2xl shadow-brand/40"
             >
               26 시즌 멘토링 신청 →
             </a>
             <a
               href="#about"
-              className="border border-white/30 text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white/10 transition-all backdrop-blur-sm"
+              className="bg-white/10 border border-white/30 text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-white/20 transition-all backdrop-blur-md"
             >
               더 알아보기
             </a>
-          </motion.div>
-
-          {/* Activity Photo Slider (Infinite Marquee) */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.8 }}
-            className="relative w-full overflow-hidden"
-          >
-            <div className="flex space-x-4 animate-marquee whitespace-nowrap">
-              {[...Array(2)].map((_, i) => (
-                <div key={i} className="flex space-x-4 shrink-0">
-                  {[1, 2, 3, 4, 5].map((num) => (
-                    <div
-                      key={num}
-                      className="relative w-64 h-40 md:w-80 md:h-52 rounded-2xl overflow-hidden border border-white/10 shrink-0 group"
-                    >
-                      <img
-                        src={`/img/main_img_${num}.jpg`}
-                        alt={`Activity ${num}`}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
-
-            {/* Gradient Overlays for smooth edges */}
-            <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-black to-transparent z-10" />
-            <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-black to-transparent z-10" />
           </motion.div>
         </div>
       </div>
