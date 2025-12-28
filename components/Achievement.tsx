@@ -7,7 +7,7 @@ import { useRef, useEffect, useState } from 'react'
 function Counter({ value, decimals = 0 }: { value: number, decimals?: number }) {
     const [displayValue, setDisplayValue] = useState(0)
     const ref = useRef(null)
-    const isInView = useInView(ref, { once: true })
+    const isInView = useInView(ref, { once: false })
 
     useEffect(() => {
         if (isInView) {
@@ -32,6 +32,9 @@ function Counter({ value, decimals = 0 }: { value: number, decimals?: number }) 
             }
 
             requestAnimationFrame(updateCounter)
+        } else {
+            // Reset value when out of view to restart animation next time
+            setDisplayValue(0)
         }
     }, [isInView, value])
 
@@ -51,7 +54,7 @@ const stats = [
 
 export default function Achievement() {
     const ref = useRef(null)
-    const isInView = useInView(ref, { once: true, margin: '-100px' })
+    const isInView = useInView(ref, { once: false, margin: '-100px' })
 
     return (
         <section className="py-24 bg-black relative overflow-hidden">
