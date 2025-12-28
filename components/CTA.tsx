@@ -39,7 +39,7 @@ export default function CTA() {
               href="#apply-mentoring"
               className="bg-gradient-to-r from-brand to-brand-dark text-white px-10 py-4 rounded-full font-bold text-lg hover:from-brand-light hover:to-brand transition-all transform hover:scale-105 shadow-lg shadow-brand/20"
             >
-              26 시즌 멘토링 신청 →
+              26 시즌 멘토 신청 →
             </a>
             <a
               href="#apply-school"
