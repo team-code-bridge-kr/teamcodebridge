@@ -21,7 +21,7 @@ export default function Footer({ variant = 'light' }: FooterProps) {
     {
       title: '지원하기',
       links: [
-        { name: '26 시즌 멘토링', href: '/#recruit' },
+        { name: '26 시즌 멘토', href: '/#recruit' },
         { name: '스쿨어택 신청', href: '/#recruit' },
         { name: '파트너십 문의', href: 'mailto:support@teamcodebridge.dev' },
       ],

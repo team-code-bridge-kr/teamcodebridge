@@ -100,10 +100,10 @@ export default function Projects() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-3 break-keep">
             함께 성장한 <span className="gradient-text">학생들의 이야기</span>
           </h2>
-          <p className="text-sm md:text-base text-gray-400">
+          <p className="text-sm md:text-base text-gray-400 break-keep">
             팀코드브릿지와 함께 꿈을 현실로 만든 멘티들의 생생한 후기입니다
           </p>
         </motion.div>
@@ -138,14 +138,14 @@ export default function Projects() {
                     {item.icon}
                   </div>
 
-                  <p className="text-white/90 text-sm md:text-base leading-relaxed mb-8 font-medium italic">
+                  <p className="text-white/90 text-sm md:text-base leading-relaxed mb-8 font-medium italic break-keep">
                     "{item.review}"
                   </p>
 
                   <div className="flex items-center border-t border-white/10 pt-6">
                     <div>
-                      <h4 className="text-white font-bold text-base">{item.name} 학생</h4>
-                      <p className="text-gray-500 text-xs mt-1">{item.school}</p>
+                      <h4 className="text-white font-bold text-base break-keep">{item.name} 학생</h4>
+                      <p className="text-gray-500 text-xs mt-1 break-keep">{item.school}</p>
                     </div>
                   </div>
                 </div>

@@ -67,11 +67,11 @@ export default function Achievement() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={isInView ? { opacity: 1, y: 0 } : {}}
                         transition={{ duration: 0.6 }}
-                        className="text-3xl md:text-5xl font-bold text-white mb-6"
+                        className="text-3xl md:text-5xl font-bold text-white mb-6 break-keep"
                     >
                         우리의 성과는 <span className="gradient-text">현재진행형</span>입니다
                     </motion.h2>
-                    <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto">
+                    <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto break-keep">
                         숫자로 증명하는 팀코드브릿지의 진심과 열정,<br className="hidden md:block" />
                         우리는 매일 더 높은 교육의 가치를 만들어갑니다.
                     </p>
@@ -92,7 +92,7 @@ export default function Achievement() {
                                     <Counter value={stat.value} decimals={stat.decimals} />
                                     <span className="text-primary-400 text-xl md:text-2xl">{stat.suffix}</span>
                                 </div>
-                                <div className="text-gray-300 text-sm md:text-base font-semibold drop-shadow-md">
+                                <div className="text-gray-300 text-sm md:text-base font-semibold drop-shadow-md break-keep">
                                     {stat.label}
                                 </div>
                             </motion.div>
@@ -102,7 +102,7 @@ export default function Achievement() {
                         initial={{ opacity: 0 }}
                         animate={isInView ? { opacity: 1 } : {}}
                         transition={{ duration: 0.6, delay: 0.5 }}
-                        className="text-center text-gray-500 text-xs md:text-sm font-medium"
+                        className="text-center text-gray-500 text-xs md:text-sm font-medium break-keep"
                     >
                         * 2025.12.28 기준
                     </motion.div>
@@ -123,8 +123,8 @@ export default function Achievement() {
                             <div className="inline-block px-3 py-0.5 bg-primary-500/20 text-primary-500 rounded-full text-xs font-bold mb-4">
                                 Achievement
                             </div>
-                            <h3 className="text-xl md:text-2xl font-bold text-white mb-3">교육부장관상 수상</h3>
-                            <p className="text-gray-400 text-sm md:text-base leading-relaxed mb-5">
+                            <h3 className="text-xl md:text-2xl font-bold text-white mb-3 break-keep">교육부장관상 수상</h3>
+                            <p className="text-gray-400 text-sm md:text-base leading-relaxed mb-5 break-keep">
                                 IT 교육의 혁신성과 공익성을 인정받아 교육부장관상을 수상하였습니다.
                                 학생들의 미래를 설계하는 교육의 가치를 증명했습니다.
                             </p>
@@ -132,7 +132,7 @@ export default function Achievement() {
                                 <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
                                     <span className="text-white font-bold text-lg">01</span>
                                 </div>
-                                <span className="text-white font-medium text-sm md:text-base">대한민국 IT 교육의 표준</span>
+                                <span className="text-white font-medium text-sm md:text-base break-keep">대한민국 IT 교육의 표준</span>
                             </div>
                         </div>
                     </motion.div>
@@ -151,8 +151,8 @@ export default function Achievement() {
                             <div className="inline-block px-3 py-0.5 bg-white/20 text-white rounded-full text-xs font-bold mb-4">
                                 Vision
                             </div>
-                            <h3 className="text-xl md:text-2xl font-bold text-white mb-3">더 넓은 세상으로</h3>
-                            <p className="text-white/80 text-sm md:text-base leading-relaxed mb-5">
+                            <h3 className="text-xl md:text-2xl font-bold text-white mb-3 break-keep">더 넓은 세상으로</h3>
+                            <p className="text-white/80 text-sm md:text-base leading-relaxed mb-5 break-keep">
                                 우리의 목표는 멈추지 않습니다. 더 많은 학생들에게 꿈을 심어주고,
                                 미래 인재를 양성하기 위해 끊임없이 도전합니다.
                             </p>
@@ -160,7 +160,7 @@ export default function Achievement() {
                                 <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
                                     <span className="text-white font-bold text-lg">02</span>
                                 </div>
-                                <span className="text-white font-medium text-sm md:text-base">글로벌 IT 인재 양성의 허브</span>
+                                <span className="text-white font-medium text-sm md:text-base break-keep">글로벌 IT 인재 양성의 허브</span>
                             </div>
                         </div>
                     </motion.div>

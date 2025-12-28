@@ -24,12 +24,12 @@ export default function CTA() {
           transition={{ duration: 0.6 }}
           className="text-center"
         >
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-4 break-keep">
             TeamCodeBridge와 함께 할
             <br />
             여러분을 기다립니다
           </h2>
-          <p className="text-base md:text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
+          <p className="text-base md:text-lg text-gray-300 mb-8 max-w-2xl mx-auto break-keep">
             가능성의 끝에서 IT 교육의 시작!
             <br />
             함께 성장하고 함께 만들어가는 TeamCodeBridge

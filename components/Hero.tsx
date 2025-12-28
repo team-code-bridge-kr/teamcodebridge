@@ -96,7 +96,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]"
+            className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] break-keep"
           >
             가능성의 끝에서
             <br />
@@ -109,7 +109,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-gray-100 text-base md:text-lg max-w-3xl mx-auto mb-12 font-medium drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]"
+            className="text-gray-100 text-base md:text-lg max-w-3xl mx-auto mb-12 font-medium drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)] break-keep"
           >
             대학생들이 직접 운영하는 비영리 IT 교육봉사, 팀코드브릿지!
           </motion.p>
@@ -125,7 +125,7 @@ export default function Hero() {
               href="#recruit"
               className="bg-brand text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-brand-light transition-all transform hover:scale-105 shadow-2xl shadow-brand/40"
             >
-              26 시즌 멘토링 신청 →
+              26 시즌 멘토 신청 →
             </a>
             <a
               href="#about"

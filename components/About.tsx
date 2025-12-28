@@ -37,11 +37,11 @@ export default function About() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-2xl md:text-3xl font-bold text-gray-900 mb-3"
+            className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 break-keep"
           >
             TeamCodeBridge 멘토, <span className="gradient-text">왜 특별할까요?</span>
           </motion.h2>
-          <p className="text-gray-600 text-sm md:text-base max-w-xl mx-auto leading-relaxed">
+          <p className="text-gray-600 text-sm md:text-base max-w-xl mx-auto leading-relaxed break-keep">
             단순히 코딩을 잘하는 것을 넘어, 실전 경험과 교육 철학을 겸비한<br className="hidden md:block" />
             상위 1%의 대학생 멘토진이 함께합니다.
           </p>
@@ -67,8 +67,8 @@ export default function About() {
               <div className="text-2xl mb-3 group-hover:scale-110 transition-transform duration-300">
                 {item.icon}
               </div>
-              <h3 className="text-base font-bold text-gray-900 mb-1.5">{item.title}</h3>
-              <p className="text-gray-600 text-xs md:text-sm leading-relaxed">{item.desc}</p>
+              <h3 className="text-base font-bold text-gray-900 mb-1.5 break-keep">{item.title}</h3>
+              <p className="text-gray-600 text-xs md:text-sm leading-relaxed break-keep">{item.desc}</p>
             </motion.div>
           ))}
         </div>
