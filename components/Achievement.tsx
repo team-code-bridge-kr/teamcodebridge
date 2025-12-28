@@ -7,7 +7,7 @@ import { useRef, useEffect, useState } from 'react'
 function Counter({ value, decimals = 0 }: { value: number, decimals?: number }) {
     const [displayValue, setDisplayValue] = useState(0)
     const ref = useRef(null)
-    const isInView = useInView(ref, { once: false })
+    const isInView = useInView(ref, { once: true }) // Run animation only once
 
     useEffect(() => {
         if (isInView) {
@@ -32,9 +32,6 @@ function Counter({ value, decimals = 0 }: { value: number, decimals?: number }) 
             }
 
             requestAnimationFrame(updateCounter)
-        } else {
-            // Reset value when out of view to restart animation next time
-            setDisplayValue(0)
         }
     }, [isInView, value])
 
@@ -54,7 +51,7 @@ const stats = [
 
 export default function Achievement() {
     const ref = useRef(null)
-    const isInView = useInView(ref, { once: false, margin: '-100px' })
+    const isInView = useInView(ref, { once: true, margin: '-100px' }) // Run animation only once
 
     return (
         <section className="py-24 bg-black relative overflow-hidden">
@@ -88,9 +85,9 @@ export default function Achievement() {
                                 transition={{ duration: 0.6, delay: index * 0.1 }}
                                 className="text-center"
                             >
-                                <div className="text-3xl md:text-4xl font-bold text-white mb-2 drop-shadow-lg">
+                                <div className="text-3xl md:text-5xl font-bold text-white mb-2 drop-shadow-lg">
                                     <Counter value={stat.value} decimals={stat.decimals} />
-                                    <span className="text-primary-400 text-xl md:text-2xl">{stat.suffix}</span>
+                                    <span className="text-primary-400 text-xl md:text-3xl ml-1">{stat.suffix}</span>
                                 </div>
                                 <div className="text-gray-300 text-sm md:text-base font-semibold drop-shadow-md break-keep">
                                     {stat.label}
