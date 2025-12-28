@@ -62,7 +62,7 @@ export default function Navigation({ variant = 'dark' }: NavigationProps) {
               href="#recruit"
               className="bg-gradient-to-r from-brand to-brand-dark text-white px-6 py-2.5 rounded-full font-medium hover:from-brand-light hover:to-brand transition-all text-sm shadow-lg shadow-brand/20"
             >
-              26 시즌 신청
+              26시즌 멘토 신청
             </a>
           </div>
 
@@ -115,7 +115,7 @@ export default function Navigation({ variant = 'dark' }: NavigationProps) {
                 className="block bg-gradient-to-r from-brand to-brand-dark text-white px-6 py-3 rounded-full font-medium text-center mt-4"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                26 시즌 신청
+                26시즌 멘토 신청
               </a>
             </div>
           </motion.div>
