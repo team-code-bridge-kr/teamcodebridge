@@ -137,28 +137,76 @@ export default function AboutContent() {
                 </div>
             </section>
 
-            {/* Mission & Vision - Clean & Sharp */}
+            {/* Mission & Vision - Like Lion Style */}
             <section className="py-40 px-6 bg-white">
                 <div className="max-w-6xl mx-auto">
-                    <div className="grid md:grid-cols-2 gap-24">
-                        <motion.div {...fadeInUp} className="group">
-                            <div className="text-primary-600 font-black text-8xl mb-6 opacity-10 group-hover:opacity-20 transition-opacity">01</div>
-                            <h2 className="text-5xl font-black mb-8 text-black">OUR MISSION</h2>
-                            <p className="text-xl text-gray-600 leading-relaxed font-light mb-10">
-                                TeamCodeBridge는 단순히 '코딩을 가르치는 교육팀'이 아닙니다.
-                                우리는 학생들이 스스로 기획하고, 제작하고, 세상에 선보일 수 있는 <strong className="text-black font-bold">힘</strong>을 기르는 것을 목표로 합니다.
-                            </p>
-                            <div className="h-1 w-24 bg-primary-600 group-hover:w-full transition-all duration-700" />
+                    <motion.div {...fadeInUp} className="mb-16">
+                        <h2 className="text-2xl font-black text-primary-600 tracking-tight">핵심 가치</h2>
+                    </motion.div>
+
+                    <div className="grid md:grid-cols-2 gap-12">
+                        {/* Mission Card */}
+                        <motion.div {...fadeInUp} className="flex flex-col">
+                            <div className="aspect-[16/10] bg-[#111111] rounded-[32px] p-12 flex flex-col justify-center relative overflow-hidden mb-10 group">
+                                <div className="absolute top-8 left-10 flex items-center gap-2">
+                                    <div className="w-6 h-6 bg-primary-600 rounded-sm" />
+                                    <span className="text-[10px] font-bold text-white/40 tracking-widest uppercase">TeamCodeBridge Mission</span>
+                                </div>
+                                <div className="absolute top-8 right-10">
+                                    <span className="text-[10px] font-bold text-white/40 tracking-widest uppercase">Possibility to Reality</span>
+                                </div>
+
+                                <h3 className="text-5xl md:text-6xl font-black text-white leading-tight z-10">
+                                    완주의 <br />
+                                    <span className="text-primary-500">경험을</span> 선물하다
+                                </h3>
+
+                                {/* Decorative line like the image */}
+                                <div className="absolute bottom-16 left-0 w-full h-[2px] bg-primary-600/30">
+                                    <div className="w-1/3 h-full bg-primary-600" />
+                                </div>
+                            </div>
+
+                            <div className="px-4">
+                                <h4 className="text-2xl font-black text-black mb-6">우리는 완주의 힘을 믿습니다.</h4>
+                                <p className="text-lg text-gray-500 leading-relaxed font-light">
+                                    단순히 코딩 기술을 배우는 것을 넘어, 자신의 아이디어를 <br />
+                                    실제 결과물로 만들어내는 '완주'의 경험을 통해 <br />
+                                    학생들이 스스로 성장할 수 있는 동력을 제공합니다.
+                                </p>
+                            </div>
                         </motion.div>
 
-                        <motion.div {...fadeInUp} transition={{ delay: 0.2 }} className="group">
-                            <div className="text-primary-600 font-black text-8xl mb-6 opacity-10 group-hover:opacity-20 transition-opacity">02</div>
-                            <h2 className="text-5xl font-black mb-8 text-black">OUR VISION</h2>
-                            <p className="text-xl text-gray-600 leading-relaxed font-light mb-10">
-                                우리는 '코드'라는 도구로 세상과 연결되는 다리를 만들고 있습니다.
-                                누구든지 자신의 생각을 표현하고, 의미 있는 결과를 만들어내는 경험을 제공합니다.
-                            </p>
-                            <div className="h-1 w-24 bg-primary-600 group-hover:w-full transition-all duration-700" />
+                        {/* Vision Card */}
+                        <motion.div {...fadeInUp} transition={{ delay: 0.2 }} className="flex flex-col">
+                            <div className="aspect-[16/10] bg-[#111111] rounded-[32px] p-12 flex flex-col justify-center relative overflow-hidden mb-10 group">
+                                <div className="absolute top-8 left-10 flex items-center gap-2">
+                                    <div className="w-6 h-6 bg-primary-600 rounded-sm" />
+                                    <span className="text-[10px] font-bold text-white/40 tracking-widest uppercase">TeamCodeBridge Vision</span>
+                                </div>
+                                <div className="absolute top-8 right-10">
+                                    <span className="text-[10px] font-bold text-white/40 tracking-widest uppercase">Possibility to Reality</span>
+                                </div>
+
+                                <h3 className="text-5xl md:text-6xl font-black text-white leading-tight z-10">
+                                    세상과 <br />
+                                    <span className="text-primary-500">연결되는</span> 다리
+                                </h3>
+
+                                {/* Decorative line like the image */}
+                                <div className="absolute bottom-16 left-0 w-full h-[2px] bg-primary-600/30">
+                                    <div className="w-2/3 h-full bg-primary-600" />
+                                </div>
+                            </div>
+
+                            <div className="px-4">
+                                <h4 className="text-2xl font-black text-black mb-6">우리는 기술로 세상을 잇습니다.</h4>
+                                <p className="text-lg text-gray-600 leading-relaxed font-light">
+                                    누구나 자신의 생각을 코드로 표현하고, <br />
+                                    그 결과물이 세상에 긍정적인 영향을 미치는 <br />
+                                    지속 가능한 교육 생태계를 만들어갑니다.
+                                </p>
+                            </div>
                         </motion.div>
                     </div>
                 </div>
