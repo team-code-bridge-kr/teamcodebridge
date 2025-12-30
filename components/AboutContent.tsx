@@ -66,27 +66,73 @@ export default function AboutContent() {
                 </div>
             </section>
 
-            {/* University Marquee - Bold Black & Blue */}
-            <section className="py-20 bg-black text-white overflow-hidden">
-                <div className="max-w-7xl mx-auto px-6 mb-12">
-                    <p className="text-xs font-bold text-primary-400 uppercase tracking-[0.4em]">
+            {/* University Marquee - Two Rows, Opposite Directions */}
+            <section className="py-24 bg-white border-y border-gray-100 overflow-hidden">
+                <div className="max-w-7xl mx-auto px-6 mb-16">
+                    <p className="text-xs font-bold text-primary-600 uppercase tracking-[0.4em]">
                         Partner Universities
                     </p>
                 </div>
-                <div className="relative flex overflow-x-hidden group">
-                    <div className="animate-marquee flex items-center gap-24 whitespace-nowrap">
-                        {['연세대', '고려대', '포항공대', '숭실대', '광운대', '명지대', '가천대'].map((uni) => (
-                            <span key={uni} className="text-4xl md:text-6xl font-black text-white/20 hover:text-primary-500 transition-all duration-500 cursor-default">
-                                {uni}
-                            </span>
-                        ))}
+
+                <div className="space-y-16">
+                    {/* Row 1: Moving Left */}
+                    <div className="relative flex overflow-hidden">
+                        <div className="animate-marquee flex items-center gap-16 md:gap-24 whitespace-nowrap">
+                            {[
+                                { name: '연세대학교', file: '연세대학교.png' },
+                                { name: '고려대학교', file: '고려대학교.svg' },
+                                { name: '포항공대', file: '포항공대.png' },
+                                { name: '숭실대학교', file: '숭실대학교.png' },
+                                { name: '광운대학교', file: '광운대학교.png' },
+                                { name: '명지대학교', file: '명지대학교.png' },
+                                { name: '가천대학교', file: '가천대학교.png' },
+                                // Duplicate for infinite loop
+                                { name: '연세대학교', file: '연세대학교.png' },
+                                { name: '고려대학교', file: '고려대학교.svg' },
+                                { name: '포항공대', file: '포항공대.png' },
+                                { name: '숭실대학교', file: '숭실대학교.png' },
+                                { name: '광운대학교', file: '광운대학교.png' },
+                                { name: '명지대학교', file: '명지대학교.png' },
+                                { name: '가천대학교', file: '가천대학교.png' },
+                            ].map((uni, idx) => (
+                                <img
+                                    key={`row1-${uni.name}-${idx}`}
+                                    src={`/img/university/${uni.file}`}
+                                    alt={uni.name}
+                                    className="h-12 md:h-16 w-auto object-contain transition-transform duration-300 hover:scale-110 cursor-default"
+                                />
+                            ))}
+                        </div>
                     </div>
-                    <div className="absolute top-0 animate-marquee2 flex items-center gap-24 whitespace-nowrap">
-                        {['연세대', '고려대', '포항공대', '숭실대', '광운대', '명지대', '가천대'].map((uni) => (
-                            <span key={uni} className="text-4xl md:text-6xl font-black text-white/20 hover:text-primary-500 transition-all duration-500 cursor-default">
-                                {uni}
-                            </span>
-                        ))}
+
+                    {/* Row 2: Moving Right (Reversed and Offset) */}
+                    <div className="relative flex overflow-hidden">
+                        <div className="animate-marquee-reverse flex items-center gap-16 md:gap-24 whitespace-nowrap">
+                            {[
+                                { name: '숭실대학교', file: '숭실대학교.png' },
+                                { name: '포항공대', file: '포항공대.png' },
+                                { name: '고려대학교', file: '고려대학교.svg' },
+                                { name: '연세대학교', file: '연세대학교.png' },
+                                { name: '가천대학교', file: '가천대학교.png' },
+                                { name: '명지대학교', file: '명지대학교.png' },
+                                { name: '광운대학교', file: '광운대학교.png' },
+                                // Duplicate for infinite loop
+                                { name: '숭실대학교', file: '숭실대학교.png' },
+                                { name: '포항공대', file: '포항공대.png' },
+                                { name: '고려대학교', file: '고려대학교.svg' },
+                                { name: '연세대학교', file: '연세대학교.png' },
+                                { name: '가천대학교', file: '가천대학교.png' },
+                                { name: '명지대학교', file: '명지대학교.png' },
+                                { name: '광운대학교', file: '광운대학교.png' },
+                            ].map((uni, idx) => (
+                                <img
+                                    key={`row2-${uni.name}-${idx}`}
+                                    src={`/img/university/${uni.file}`}
+                                    alt={uni.name}
+                                    className="h-12 md:h-16 w-auto object-contain transition-transform duration-300 hover:scale-110 cursor-default"
+                                />
+                            ))}
+                        </div>
                     </div>
                 </div>
             </section>
