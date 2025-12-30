@@ -36,7 +36,7 @@ export default function CTA() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="#apply-mentoring"
+              href="/recruit/mentor"
               className="bg-gradient-to-r from-brand to-brand-dark text-white px-10 py-4 rounded-full font-bold text-lg hover:from-brand-light hover:to-brand transition-all transform hover:scale-105 shadow-lg shadow-brand/20"
             >
               26 시즌 멘토 신청 →

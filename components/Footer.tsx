@@ -37,9 +37,9 @@ export default function Footer({ variant = 'light' }: FooterProps) {
     {
       title: '소셜',
       links: [
-        { name: '인스타그램', href: '#' },
-        { name: '카카오톡 채널', href: '#' },
-        { name: '깃허브', href: '#' },
+        { name: '인스타그램', href: 'https://www.instagram.com/teamcodebridge' },
+        { name: '카카오톡 채널', href: 'https://pf.kakao.com/_GJgxin/' },
+        { name: '깃허브', href: 'https://github.com/team-code-bridge-kr' },
       ],
     },
   ]
