@@ -66,6 +66,78 @@ export default function AboutContent() {
                 </div>
             </section>
 
+            {/* Concerns Section - Floating Dark Style */}
+            <section className="py-40 bg-[#050505] relative overflow-hidden">
+                {/* Background Glow */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary-900/20 rounded-full blur-[120px] pointer-events-none" />
+
+                <div className="max-w-6xl mx-auto px-6 relative z-10 text-center">
+                    <motion.div {...fadeInUp} className="mb-20">
+                        <h2 className="text-4xl md:text-6xl font-black mb-8 text-white tracking-tight leading-tight">
+                            우리는 이 질문들에 대한 <br className="md:hidden" />
+                            <span className="text-primary-500">답을 함께</span> 찾아갑니다.
+                        </h2>
+                    </motion.div>
+
+                    <div className="relative h-[500px] md:h-[400px] w-full max-w-5xl mx-auto">
+                        {[
+                            { text: "프로젝트를 해보고 싶은데 할 줄 아는 게 없어요.", x: "5%", y: "10%", rotate: -5, delay: 0 },
+                            { text: "효율적으로 프로젝트도 하고 세특도 남기고 싶어요.", x: "65%", y: "5%", rotate: 3, delay: 0.2 },
+                            { text: "아이디어는 있는데 어떻게 시작할지 막막해요.", x: "0%", y: "50%", rotate: 2, delay: 0.4 },
+                            { text: "제 프로젝트가 맞는 방향으로 가고 있는지 걱정돼요.", x: "70%", y: "45%", rotate: -2, delay: 0.1 },
+                            { text: "정보 교사인데 시간과 인프라가 부족해요.", x: "35%", y: "75%", rotate: 4, delay: 0.3 },
+                            { text: "생활기록부에 적을 내용이 고민이에요.", x: "20%", y: "35%", rotate: -3, delay: 0.5 }
+                        ].map((item, i) => (
+                            <motion.div
+                                key={i}
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                animate={{
+                                    y: [0, -15, 0],
+                                    transition: { duration: 4, repeat: Infinity, ease: "easeInOut", delay: item.delay }
+                                }}
+                                style={{
+                                    left: item.x,
+                                    top: item.y,
+                                    rotate: `${item.rotate}deg`
+                                }}
+                                className={`absolute p-6 md:p-8 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl md:rounded-3xl shadow-2xl whitespace-nowrap hidden md:block ${i === 2 || i === 4 ? 'z-20' : 'z-10'}`}
+                            >
+                                <p className="text-white/80 text-sm md:text-lg font-medium tracking-tight">
+                                    {item.text}
+                                </p>
+                            </motion.div>
+                        ))}
+
+                        {/* Mobile Version of Cards (Stacked/Simplified) */}
+                        <div className="md:hidden flex flex-col gap-4 items-center">
+                            {[
+                                "프로젝트를 해보고 싶은데 할 줄 아는 게 없어요.",
+                                "효율적으로 프로젝트도 하고 세특도 남기고 싶어요.",
+                                "아이디어는 있는데 어떻게 시작할지 막막해요.",
+                                "제 프로젝트가 맞는 방향으로 가고 있는지 걱정돼요."
+                            ].map((text, i) => (
+                                <motion.div
+                                    key={`mobile-${i}`}
+                                    {...fadeInUp}
+                                    transition={{ delay: i * 0.1 }}
+                                    className="p-5 bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl w-full max-w-[280px]"
+                                >
+                                    <p className="text-white/70 text-sm font-medium">{text}</p>
+                                </motion.div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Bottom Dots */}
+                    <div className="mt-20 flex flex-col items-center gap-2 opacity-30">
+                        <div className="w-1.5 h-1.5 bg-white rounded-full" />
+                        <div className="w-1.5 h-1.5 bg-white rounded-full" />
+                        <div className="w-1.5 h-1.5 bg-white rounded-full" />
+                    </div>
+                </div>
+            </section>
+
             {/* University Marquee - Two Rows, Opposite Directions */}
             <section className="py-24 bg-white border-y border-gray-100 overflow-hidden">
                 <div className="max-w-7xl mx-auto px-6 mb-16">
@@ -133,114 +205,6 @@ export default function AboutContent() {
                                 />
                             ))}
                         </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Mission & Vision - Like Lion Style */}
-            <section className="py-40 px-6 bg-white">
-                <div className="max-w-6xl mx-auto">
-                    <motion.div {...fadeInUp} className="mb-16">
-                        <h2 className="text-2xl font-black text-primary-600 tracking-tight">핵심 가치</h2>
-                    </motion.div>
-
-                    <div className="grid md:grid-cols-2 gap-12">
-                        {/* Mission Card */}
-                        <motion.div {...fadeInUp} className="flex flex-col">
-                            <div className="aspect-[16/10] bg-[#111111] rounded-[32px] p-12 flex flex-col justify-center relative overflow-hidden mb-10 group">
-                                <div className="absolute top-8 left-10 flex items-center gap-2">
-                                    <div className="w-6 h-6 bg-primary-600 rounded-sm" />
-                                    <span className="text-[10px] font-bold text-white/40 tracking-widest uppercase">TeamCodeBridge Mission</span>
-                                </div>
-                                <div className="absolute top-8 right-10">
-                                    <span className="text-[10px] font-bold text-white/40 tracking-widest uppercase">Possibility to Reality</span>
-                                </div>
-
-                                <h3 className="text-5xl md:text-6xl font-black text-white leading-tight z-10">
-                                    완주의 <br />
-                                    <span className="text-primary-500">경험을</span> 선물하다
-                                </h3>
-
-                                {/* Decorative line like the image */}
-                                <div className="absolute bottom-16 left-0 w-full h-[2px] bg-primary-600/30">
-                                    <div className="w-1/3 h-full bg-primary-600" />
-                                </div>
-                            </div>
-
-                            <div className="px-4">
-                                <h4 className="text-2xl font-black text-black mb-6">우리는 완주의 힘을 믿습니다.</h4>
-                                <p className="text-lg text-gray-500 leading-relaxed font-light">
-                                    단순히 코딩 기술을 배우는 것을 넘어, 자신의 아이디어를 <br />
-                                    실제 결과물로 만들어내는 '완주'의 경험을 통해 <br />
-                                    학생들이 스스로 성장할 수 있는 동력을 제공합니다.
-                                </p>
-                            </div>
-                        </motion.div>
-
-                        {/* Vision Card */}
-                        <motion.div {...fadeInUp} transition={{ delay: 0.2 }} className="flex flex-col">
-                            <div className="aspect-[16/10] bg-[#111111] rounded-[32px] p-12 flex flex-col justify-center relative overflow-hidden mb-10 group">
-                                <div className="absolute top-8 left-10 flex items-center gap-2">
-                                    <div className="w-6 h-6 bg-primary-600 rounded-sm" />
-                                    <span className="text-[10px] font-bold text-white/40 tracking-widest uppercase">TeamCodeBridge Vision</span>
-                                </div>
-                                <div className="absolute top-8 right-10">
-                                    <span className="text-[10px] font-bold text-white/40 tracking-widest uppercase">Possibility to Reality</span>
-                                </div>
-
-                                <h3 className="text-5xl md:text-6xl font-black text-white leading-tight z-10">
-                                    세상과 <br />
-                                    <span className="text-primary-500">연결되는</span> 다리
-                                </h3>
-
-                                {/* Decorative line like the image */}
-                                <div className="absolute bottom-16 left-0 w-full h-[2px] bg-primary-600/30">
-                                    <div className="w-2/3 h-full bg-primary-600" />
-                                </div>
-                            </div>
-
-                            <div className="px-4">
-                                <h4 className="text-2xl font-black text-black mb-6">우리는 기술로 세상을 잇습니다.</h4>
-                                <p className="text-lg text-gray-600 leading-relaxed font-light">
-                                    누구나 자신의 생각을 코드로 표현하고, <br />
-                                    그 결과물이 세상에 긍정적인 영향을 미치는 <br />
-                                    지속 가능한 교육 생태계를 만들어갑니다.
-                                </p>
-                            </div>
-                        </motion.div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Concerns Section - Dark Accents */}
-            <section className="py-40 bg-[#fafafa] relative overflow-hidden">
-                <div className="max-w-6xl mx-auto px-6 relative z-10">
-                    <motion.div {...fadeInUp} className="mb-24">
-                        <h2 className="text-5xl md:text-7xl font-black mb-8 text-black">
-                            WE SOLVE <br />
-                            <span className="text-primary-600">YOUR CONCERNS</span>
-                        </h2>
-                        <p className="text-gray-500 text-xl font-light">우리는 이 질문들에 대한 답을 함께 찾아갑니다.</p>
-                    </motion.div>
-
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {[
-                            "프로젝트를 해보고 싶은데 할 줄 아는 게 없어요.",
-                            "효율적으로 프로젝트도 하고 세특도 남기고 싶어요.",
-                            "아이디어는 있는데 어떻게 시작할지 막막해요.",
-                            "제 프로젝트가 맞는 방향으로 가고 있는지 걱정돼요.",
-                            "정보 교사인데 시간과 인프라가 부족해요.",
-                            "생활기록부에 적을 내용이 고민이에요."
-                        ].map((text, i) => (
-                            <motion.div
-                                key={i}
-                                {...fadeInUp}
-                                transition={{ delay: i * 0.05 }}
-                                className="p-10 bg-white border-l-4 border-transparent hover:border-primary-600 hover:shadow-2xl transition-all duration-500 group"
-                            >
-                                <p className="text-gray-800 text-lg font-medium leading-relaxed group-hover:text-black transition-colors">"{text}"</p>
-                            </motion.div>
-                        ))}
                     </div>
                 </div>
             </section>
