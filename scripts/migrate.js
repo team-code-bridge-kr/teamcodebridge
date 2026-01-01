@@ -10,13 +10,18 @@ async function main() {
         return;
     }
     const files = fs.readdirSync(todoDir).filter(f => f.endsWith(".md"));
+    console.log(`Found ${files.length} markdown files.`);
 
     let project = await prisma.project.findFirst({ where: { title: "TCB 메인 프로젝트" } });
     if (!project) {
+        console.log("Creating main project...");
         project = await prisma.project.create({ data: { title: "TCB 메인 프로젝트", description: "실제 업무 데이터" } });
+    } else {
+        console.log("Main project exists:", project.id);
     }
 
     for (const file of files) {
+        // console.log(`Processing file: ${file}`);
         const content = fs.readFileSync(path.join(todoDir, file), "utf-8");
         const nameMatch = content.match(/업무명:\s*(.*)/);
         const ownerMatch = content.match(/담당자:\s*(.*)/);

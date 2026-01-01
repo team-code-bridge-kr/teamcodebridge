@@ -1,7 +1,10 @@
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
+    console.log("GET /api/projects called")
     try {
         const projects = await prisma.project.findMany({
             include: {
