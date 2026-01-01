@@ -3,17 +3,20 @@
 import { motion } from 'framer-motion'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { signIn } from 'next-auth/react'
 
 export default function WorkspaceLogin() {
     const [isLoading, setIsLoading] = useState(false)
     const router = useRouter()
 
-    const handleGoogleLogin = () => {
+    const handleGoogleLogin = async () => {
         setIsLoading(true)
-        // 시뮬레이션을 위해 1.5초 후 이동
-        setTimeout(() => {
-            router.push('/workspace')
-        }, 1500)
+        try {
+            await signIn('google', { callbackUrl: '/workspace' })
+        } catch (error) {
+            console.error('Login failed:', error)
+            setIsLoading(false)
+        }
     }
 
     return (
@@ -25,9 +28,11 @@ export default function WorkspaceLogin() {
             >
                 {/* Logo */}
                 <div className="flex flex-col items-center mb-12">
-                    <div className="w-16 h-16 bg-primary-600 rounded-[20px] flex items-center justify-center mb-6 shadow-xl shadow-primary-600/20">
-                        <span className="text-white font-black text-2xl">T</span>
-                    </div>
+                    <img
+                        src="/img/TeamCodeBridge_Logo_Black_Web.png"
+                        alt="TeamCodeBridge"
+                        className="h-12 md:h-16 w-auto object-contain mb-6"
+                    />
                     <h1 className="text-3xl font-black text-black tracking-tighter">Workspace</h1>
                     <p className="text-gray-400 mt-2 font-medium">멘토 전용 차세대 업무 시스템</p>
                 </div>

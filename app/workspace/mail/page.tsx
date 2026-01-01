@@ -40,7 +40,7 @@ export default function WorkspaceMail() {
                         src="https://mail.teamcodebridge.dev"
                         className="w-full h-full border-none shadow-inner"
                         title="TeamCodeBridge Mail"
-                        allow="camera; microphone; fullscreen; display-capture; autoplay"
+                        allow="camera; microphone; fullscreen; display-capture; autoplay; autofocus"
                     />
                 </motion.div>
 

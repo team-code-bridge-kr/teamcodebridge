@@ -1,6 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
+import { useSession } from 'next-auth/react'
 import {
     CalendarIcon,
     CheckCircleIcon,
@@ -16,6 +17,9 @@ const stats = [
 ]
 
 export default function WorkspaceHome() {
+    const { data: session } = useSession()
+    const userName = session?.user?.name || '멘토'
+
     return (
         <div className="p-8 max-w-7xl mx-auto">
             <header className="mb-10">
@@ -24,7 +28,7 @@ export default function WorkspaceHome() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
                 >
-                    <h1 className="text-3xl font-black text-black mb-2">안녕하세요, 멘토님! 👋</h1>
+                    <h1 className="text-3xl font-black text-black mb-2">안녕하세요, {userName}님! 👋</h1>
                     <p className="text-gray-500">오늘도 TeamCodeBridge와 함께 미래를 만들어가요.</p>
                 </motion.div>
             </header>
