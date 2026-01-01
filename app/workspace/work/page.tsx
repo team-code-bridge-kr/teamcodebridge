@@ -33,16 +33,16 @@ const projects = [
 ]
 
 const statusStyles: { [key: string]: string } = {
-    "완료": "bg-green-500 text-white",
-    "진행 중": "bg-blue-500 text-white",
-    "대기": "bg-gray-400 text-white",
-    "지연": "bg-red-500 text-white",
+    "완료": "bg-[#00c875] text-white",
+    "진행 중": "bg-[#0086f0] text-white",
+    "대기": "bg-[#c4c4c4] text-white",
+    "지연": "bg-[#e2445c] text-white",
 }
 
 const priorityStyles: { [key: string]: string } = {
-    "높음": "text-red-600 bg-red-50",
-    "중간": "text-orange-600 bg-orange-50",
-    "낮음": "text-gray-600 bg-gray-50",
+    "높음": "text-[#e2445c] bg-[#ffebee] border border-[#ffcdd2]",
+    "중간": "text-[#fdab3d] bg-[#fff3e0] border border-[#ffe0b2]",
+    "낮음": "text-[#0086f0] bg-[#e3f2fd] border border-[#bbdefb]",
 }
 
 export default function WorkspaceWork() {
@@ -51,17 +51,17 @@ export default function WorkspaceWork() {
     return (
         <div className="p-8 max-w-7xl mx-auto">
             {/* Header */}
-            <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+            <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
                 <div>
-                    <h1 className="text-3xl font-black text-black mb-2 tracking-tighter">업무 보드</h1>
-                    <p className="text-gray-500 font-medium">먼데이닷컴 스타일의 직관적인 업무 관리 시스템</p>
+                    <h1 className="text-4xl font-black text-black mb-3 tracking-tight">업무 보드</h1>
+                    <p className="text-gray-600 text-lg font-medium">부서별 프로젝트 및 업무 진행 상황을 한눈에 관리하세요.</p>
                 </div>
-                <div className="flex items-center gap-3">
-                    <button className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-all shadow-sm">
-                        <DocumentPlusIcon className="w-5 h-5 text-primary-600" />
+                <div className="flex items-center gap-4">
+                    <button className="flex items-center gap-2 px-6 py-3 bg-white border-2 border-gray-100 text-gray-700 rounded-2xl font-bold hover:border-primary-600 hover:text-primary-600 transition-all shadow-sm">
+                        <DocumentPlusIcon className="w-5 h-5" />
                         Google Drive 연동
                     </button>
-                    <button className="flex items-center gap-2 px-6 py-2.5 bg-primary-600 text-white rounded-xl font-bold hover:bg-primary-500 transition-all shadow-lg shadow-primary-600/20">
+                    <button className="flex items-center gap-2 px-8 py-3 bg-primary-600 text-white rounded-2xl font-bold hover:bg-primary-700 transition-all shadow-xl shadow-primary-600/20">
                         <PlusIcon className="w-5 h-5" />
                         새 업무 추가
                     </button>
@@ -69,95 +69,96 @@ export default function WorkspaceWork() {
             </header>
 
             {/* Toolbar */}
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-6 bg-[#fafafa] p-4 rounded-2xl border border-gray-100">
-                <div className="flex items-center gap-4 flex-1 min-w-[300px]">
-                    <div className="relative flex-1">
-                        <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-8 bg-white p-5 rounded-[28px] border border-gray-100 shadow-sm">
+                <div className="flex items-center gap-6 flex-1 min-w-[300px]">
+                    <div className="relative flex-1 max-w-md">
+                        <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                         <input
                             type="text"
                             placeholder="업무 이름, 담당자 검색..."
-                            className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-600/20 transition-all"
+                            className="w-full pl-12 pr-4 py-3 bg-gray-50 border-none rounded-2xl text-base focus:ring-2 focus:ring-primary-600/20 transition-all placeholder:text-gray-400"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <button className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-gray-600 hover:bg-white hover:shadow-sm rounded-lg transition-all">
-                        <FunnelIcon className="w-4 h-4" />
+                    <div className="h-8 w-[1px] bg-gray-100 hidden md:block" />
+                    <button className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-gray-600 hover:text-black transition-all">
+                        <FunnelIcon className="w-5 h-5" />
                         필터
                     </button>
-                    <button className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-gray-600 hover:bg-white hover:shadow-sm rounded-lg transition-all">
-                        <ArrowsUpDownIcon className="w-4 h-4" />
+                    <button className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-gray-600 hover:text-black transition-all">
+                        <ArrowsUpDownIcon className="w-5 h-5" />
                         정렬
                     </button>
                 </div>
             </div>
 
             {/* Project Groups */}
-            <div className="space-y-12">
+            <div className="space-y-16">
                 {projects.map((project) => (
                     <motion.div
                         key={project.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="space-y-4"
+                        className="space-y-6"
                     >
-                        <div className="flex items-center gap-3 px-2">
-                            <div className="w-1.5 h-6 bg-primary-600 rounded-full" />
-                            <h2 className="text-xl font-black text-black tracking-tight">{project.title}</h2>
-                            <span className="text-xs font-bold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                        <div className="flex items-center gap-4 px-2">
+                            <div className="w-2 h-8 bg-primary-600 rounded-full" />
+                            <h2 className="text-2xl font-black text-black tracking-tight">{project.title}</h2>
+                            <span className="text-sm font-bold text-gray-400 bg-gray-50 px-3 py-1 rounded-full border border-gray-100">
                                 {project.tasks.length}개 업무
                             </span>
                         </div>
 
-                        <div className="bg-white border border-gray-100 rounded-[32px] overflow-hidden shadow-sm">
+                        <div className="bg-white border border-gray-100 rounded-[32px] overflow-hidden shadow-md">
                             <table className="w-full text-left border-collapse">
                                 <thead>
-                                    <tr className="bg-gray-50/50 border-b border-gray-100">
-                                        <th className="px-6 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest w-1/3">업무 이름</th>
-                                        <th className="px-6 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest">담당자</th>
-                                        <th className="px-6 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest text-center">상태</th>
-                                        <th className="px-6 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest text-center">우선순위</th>
-                                        <th className="px-6 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest">타임라인</th>
-                                        <th className="px-6 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest text-center">Drive</th>
+                                    <tr className="bg-gray-50/80 border-b border-gray-100">
+                                        <th className="px-8 py-5 text-xs font-black text-gray-500 uppercase tracking-widest w-1/3">업무 이름</th>
+                                        <th className="px-8 py-5 text-xs font-black text-gray-500 uppercase tracking-widest">담당자</th>
+                                        <th className="px-8 py-5 text-xs font-black text-gray-500 uppercase tracking-widest text-center">상태</th>
+                                        <th className="px-8 py-5 text-xs font-black text-gray-500 uppercase tracking-widest text-center">우선순위</th>
+                                        <th className="px-8 py-5 text-xs font-black text-gray-500 uppercase tracking-widest">타임라인</th>
+                                        <th className="px-8 py-5 text-xs font-black text-gray-500 uppercase tracking-widest text-center">Drive</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {project.tasks.map((task) => (
-                                        <tr key={task.id} className="group hover:bg-gray-50/50 transition-colors border-b border-gray-50 last:border-0">
-                                            <td className="px-6 py-5">
-                                                <span className="font-bold text-gray-800 text-sm group-hover:text-primary-600 transition-colors cursor-pointer">
+                                        <tr key={task.id} className="group hover:bg-gray-50/30 transition-colors border-b border-gray-50 last:border-0">
+                                            <td className="px-8 py-6">
+                                                <span className="font-bold text-gray-900 text-[15px] group-hover:text-primary-600 transition-colors cursor-pointer">
                                                     {task.name}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-5">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="w-7 h-7 bg-primary-100 rounded-full flex items-center justify-center text-[10px] font-black text-primary-600">
+                                            <td className="px-8 py-6">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center text-xs font-black text-primary-600 border-2 border-white shadow-sm">
                                                         {task.owner[0]}
                                                     </div>
-                                                    <span className="text-sm font-medium text-gray-600">{task.owner}</span>
+                                                    <span className="text-[15px] font-bold text-gray-700">{task.owner}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-5">
-                                                <div className={`mx-auto w-24 py-1.5 rounded-lg text-[11px] font-black text-center shadow-sm ${statusStyles[task.status]}`}>
+                                            <td className="px-8 py-6">
+                                                <div className={`mx-auto w-28 py-2 rounded-xl text-xs font-black text-center shadow-sm ${statusStyles[task.status]}`}>
                                                     {task.status}
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-5">
-                                                <div className={`mx-auto w-16 py-1 rounded-full text-[10px] font-black text-center ${priorityStyles[task.priority]}`}>
+                                            <td className="px-8 py-6">
+                                                <div className={`mx-auto w-20 py-1.5 rounded-full text-[11px] font-black text-center ${priorityStyles[task.priority]}`}>
                                                     {task.priority}
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-5">
-                                                <span className="text-xs font-medium text-gray-400">{task.timeline}</span>
+                                            <td className="px-8 py-6">
+                                                <span className="text-sm font-bold text-gray-500">{task.timeline}</span>
                                             </td>
-                                            <td className="px-6 py-5 text-center">
+                                            <td className="px-8 py-6 text-center">
                                                 {task.drive ? (
-                                                    <a href={task.drive} target="_blank" rel="noopener noreferrer" className="inline-flex p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors">
-                                                        <LinkIcon className="w-4 h-4" />
+                                                    <a href={task.drive} target="_blank" rel="noopener noreferrer" className="inline-flex p-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm">
+                                                        <LinkIcon className="w-5 h-5" />
                                                     </a>
                                                 ) : (
-                                                    <button className="inline-flex p-2 text-gray-300 hover:text-primary-600 transition-colors">
-                                                        <PlusIcon className="w-4 h-4" />
+                                                    <button className="inline-flex p-2.5 text-gray-300 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all">
+                                                        <PlusIcon className="w-5 h-5" />
                                                     </button>
                                                 )}
                                             </td>
@@ -167,9 +168,9 @@ export default function WorkspaceWork() {
                             </table>
 
                             {/* Add Task Row Placeholder */}
-                            <div className="px-6 py-4 bg-gray-50/30 flex items-center gap-2 text-gray-400 hover:text-gray-600 cursor-pointer transition-colors group">
-                                <PlusIcon className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                                <span className="text-sm font-bold">+ 새로운 업무 추가</span>
+                            <div className="px-8 py-5 bg-gray-50/20 flex items-center gap-3 text-gray-400 hover:text-primary-600 hover:bg-primary-50/30 cursor-pointer transition-all group">
+                                <PlusIcon className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                                <span className="text-[15px] font-black">+ 새로운 업무 추가</span>
                             </div>
                         </div>
                     </motion.div>

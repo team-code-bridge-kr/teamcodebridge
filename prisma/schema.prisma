@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 멘토(사용자) 모델
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          String    @default("MENTOR")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  tasks         Task[]
+}
+
+// 프로젝트 모델
+model Project {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tasks       Task[]
+}
+
+// 업무(Task) 모델
+model Task {
+  id          String   @id @default(cuid())
+  name        String
+  status      String   @default("대기") // 대기, 진행 중, 완료, 지연
+  priority    String   @default("중간") // 낮음, 중간, 높음
+  timeline    String?
+  driveUrl    String?
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  ownerId     String?
+  owner       User?    @relation(fields: [ownerId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
