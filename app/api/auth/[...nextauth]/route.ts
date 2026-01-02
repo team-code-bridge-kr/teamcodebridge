@@ -85,24 +85,57 @@ const handler = NextAuth({
             if (!user.email) return false
 
             try {
-                // 1. 관리자 계정 확인 (admin@activejang.com, 2025teamcodebridge@gmail.com, yeonhj0507@gmail.com)
+                // 1. 관리자 계정 확인 및 이름 기반 매칭
                 if (user.email === 'admin@activejang.com' || user.email === '2025teamcodebridge@gmail.com' || user.email === 'yeonhj0507@gmail.com') {
-                    await prisma.user.upsert({
-                        where: { email: user.email },
-                        update: {
-                            role: 'ADMIN',
-                            isApproved: true,
-                            image: user.image,
-                            name: user.name
-                        },
-                        create: {
-                            email: user.email,
-                            name: user.name,
-                            image: user.image,
-                            role: 'ADMIN',
-                            isApproved: true
-                        }
+                    // 이름과 이메일 매칭 정의
+                    const adminMapping: Record<string, { name: string; position: string }> = {
+                        'admin@activejang.com': { name: '장원준', position: '대표이사' },
+                        '2025teamcodebridge@gmail.com': { name: 'TeamCodeBridge', position: '' },
+                        'yeonhj0507@gmail.com': { name: '연현중', position: '팀장' }
+                    }
+                    
+                    const mapping = adminMapping[user.email]
+                    
+                    // 이름으로 기존 사용자 찾기 (이메일이 다른 경우)
+                    const existingByName = await prisma.user.findFirst({
+                        where: { name: mapping.name }
                     })
+                    
+                    if (existingByName && existingByName.email !== user.email) {
+                        // 기존 사용자의 이메일을 업데이트하고 정보 병합
+                        await prisma.user.update({
+                            where: { id: existingByName.id },
+                            data: {
+                                email: user.email,
+                                role: 'ADMIN',
+                                isApproved: true,
+                                image: user.image,
+                                name: mapping.name,
+                                position: mapping.position || existingByName.position
+                            }
+                        })
+                        console.log(`Merged user ${mapping.name}: updated email from ${existingByName.email} to ${user.email}`)
+                    } else {
+                        // 일반 upsert
+                        await prisma.user.upsert({
+                            where: { email: user.email },
+                            update: {
+                                role: 'ADMIN',
+                                isApproved: true,
+                                image: user.image,
+                                name: mapping.name,
+                                position: mapping.position
+                            },
+                            create: {
+                                email: user.email,
+                                name: mapping.name,
+                                image: user.image,
+                                role: 'ADMIN',
+                                isApproved: true,
+                                position: mapping.position
+                            }
+                        })
+                    }
                     return true
                 }
 
