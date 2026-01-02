@@ -61,10 +61,25 @@ export default function FloatingChat() {
 
         socketRef.current.on('receive_message', (msg: Message) => {
             // 현재 보고 있는 채팅방의 메시지라면 추가
-            if (selectedUser && msg.senderId === selectedUser.id) {
-                setMessages(prev => [...prev, msg])
+            if (selectedUser && (msg.senderId === selectedUser.id || msg.receiverId === selectedUser.id)) {
+                setMessages(prev => {
+                    // 중복 방지
+                    if (prev.some(m => m.id === msg.id)) return prev
+                    return [...prev, msg]
+                })
             }
-            // TODO: 다른 사람에게 온 메시지라면 알림 표시
+            // 다른 사람에게 온 메시지라면 알림 표시 (추후 구현)
+        })
+
+        socketRef.current.on('message_sent', (msg: Message & { receiverId: string }) => {
+            // 내가 보낸 메시지가 성공적으로 전송되었을 때
+            if (selectedUser && msg.receiverId === selectedUser.id) {
+                setMessages(prev => {
+                    // 중복 방지
+                    if (prev.some(m => m.id === msg.id)) return prev
+                    return [...prev, { ...msg, isMyMessage: true }]
+                })
+            }
         })
 
         // 사용자 목록 가져오기
@@ -119,40 +134,53 @@ export default function FloatingChat() {
         e.preventDefault()
         if (!message.trim() || !selectedUser || !session?.user?.id) return
 
+        const messageContent = message.trim()
+        const tempId = Date.now().toString()
+        setMessage('') // 입력창 먼저 비우기
+
+        // 즉시 UI 업데이트 (낙관적 업데이트)
         const tempMessage: Message = {
-            id: Date.now().toString(),
-            content: message,
+            id: tempId,
+            content: messageContent,
             senderId: session.user.id,
             senderName: session.user.name || '나',
             createdAt: new Date().toISOString(),
             isMyMessage: true
         }
-
-        // UI 업데이트
         setMessages(prev => [...prev, tempMessage])
-        setMessage('')
 
-        // 소켓 전송
+        // 소켓으로 먼저 전송 (실시간)
         socketRef.current?.emit('send_message', {
-            content: tempMessage.content,
+            content: messageContent,
             receiverId: selectedUser.id,
             senderId: session.user.id,
-            senderName: session.user.name
+            senderName: session.user.name,
+            messageId: tempId
         })
 
-        // DB 저장 (API 호출)
+        // DB 저장 (백그라운드)
         try {
-            await fetch('/api/messages', {
+            const response = await fetch('/api/messages', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    content: tempMessage.content,
+                    content: messageContent,
                     receiverId: selectedUser.id,
                     senderId: session.user.id
                 })
             })
+            
+            if (response.ok) {
+                const savedMessage = await response.json()
+                // DB에 저장된 실제 메시지로 업데이트
+                setMessages(prev => prev.map(msg => 
+                    msg.id === tempId ? { ...msg, id: savedMessage.id } : msg
+                ))
+            }
         } catch (error) {
             console.error('Error sending message:', error)
+            // 에러 발생 시 임시 메시지 제거
+            setMessages(prev => prev.filter(msg => msg.id !== tempId))
         }
     }
 

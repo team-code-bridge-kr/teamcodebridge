@@ -26,17 +26,32 @@ io.on("connection", (socket) => {
 
     // 메시지 전송
     socket.on("send_message", (data) => {
-        const { receiverId, content, senderId, senderName } = data;
+        const { receiverId, content, senderId, senderName, messageId } = data;
         const receiverSocketId = onlineUsers.get(receiverId);
+        const senderSocketId = onlineUsers.get(senderId);
 
+        const messageData = {
+            id: messageId || Date.now().toString(),
+            content,
+            senderId,
+            senderName,
+            createdAt: new Date().toISOString(),
+        };
+
+        // 받는 사람에게 메시지 전송
         if (receiverSocketId) {
             io.to(receiverSocketId).emit("receive_message", {
-                id: Date.now().toString(),
-                content,
-                senderId,
-                senderName,
-                createdAt: new Date().toISOString(),
+                ...messageData,
                 isMyMessage: false
+            });
+        }
+
+        // 보낸 사람에게도 확인 메시지 전송 (실시간 업데이트용)
+        if (senderSocketId) {
+            io.to(senderSocketId).emit("message_sent", {
+                ...messageData,
+                receiverId,
+                isMyMessage: true
             });
         }
     });
