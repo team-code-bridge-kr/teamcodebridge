@@ -32,12 +32,17 @@ const handler = NextAuth({
     callbacks: {
         async jwt({ token, user, account }) {
             if (account && user) {
+                // Prisma에서 실제 User ID 가져오기
+                const dbUser = await prisma.user.findUnique({
+                    where: { email: user.email! }
+                })
+                
                 return {
                     ...token,
                     accessToken: account.access_token,
                     refreshToken: account.refresh_token,
-                    id: user.id, // User ID 저장
-                    role: (user as any).role, // Role 저장
+                    id: dbUser?.id || user.id, // Prisma User ID 사용
+                    role: dbUser?.role || (user as any).role, // Role 저장
                 }
             }
             return token
