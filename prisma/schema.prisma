@@ -15,6 +15,12 @@ model User {
   emailVerified DateTime?
   image         String?
   role          String    @default("MENTOR")
+  team          String?   // 소속팀
+  position      String?   // 직책
+  phone         String?   // 전화번호
+  university    String?   // 학교
+  joinDate      String?   // 입사일
+  status        String?   // 재직여부
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   tasks         Task[]

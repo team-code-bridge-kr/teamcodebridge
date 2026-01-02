@@ -10,6 +10,7 @@ import {
     ChatBubbleLeftRightIcon,
     EnvelopeIcon,
     UserIcon,
+    UsersIcon,
     ChevronLeftIcon,
     Bars3Icon,
     ShieldCheckIcon
@@ -19,6 +20,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 const menuItems = [
     { name: '홈', href: '/workspace', icon: HomeIcon },
     { name: '업무', href: '/workspace/work', icon: BriefcaseIcon },
+    { name: '인사', href: '/workspace/hr', icon: UsersIcon },
     { name: '피드백', href: '/workspace/feedback', icon: ChatBubbleLeftRightIcon },
     { name: '팀메일', href: '/workspace/mail', icon: EnvelopeIcon },
     { name: 'MY', href: '/workspace/my', icon: UserIcon },
@@ -43,6 +45,8 @@ export default function WorkspaceLayoutClient({
         <div className="min-h-screen bg-white flex">
             {/* Sidebar for Desktop */}
             <aside
+                onMouseEnter={() => setIsCollapsed(false)}
+                onMouseLeave={() => setIsCollapsed(true)}
                 className={`hidden md:flex flex-col bg-white border-r border-gray-100 transition-all duration-300 ease-in-out relative ${isCollapsed ? 'w-20' : 'w-64'}`}
             >
                 <div className="p-6 flex items-center justify-between">
@@ -135,15 +139,6 @@ export default function WorkspaceLayoutClient({
                             <ShieldCheckIcon className="w-5 h-5" />
                         </div>
                     )}
-                </div>
-
-                <div className="p-4 border-t border-gray-100">
-                    <button
-                        onClick={() => setIsCollapsed(!isCollapsed)}
-                        className="w-full flex items-center justify-center p-2 rounded-lg hover:bg-gray-50 text-gray-400 transition-colors"
-                    >
-                        <ChevronLeftIcon className={`w-5 h-5 transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`} />
-                    </button>
                 </div>
             </aside>
 

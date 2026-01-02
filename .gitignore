@@ -34,4 +34,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# migragtinon 
 TCB ToDoList.env
+멤버DB 215f614f5cac800ca079ef4f5e728d0e_all.csv
+.env
