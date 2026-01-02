@@ -54,8 +54,8 @@ const handler = NextAuth({
             if (!user.email) return false
 
             try {
-                // 1. 관리자 계정 확인 (admin@activejang.com, 2025teamcodebridge@gmail.com)
-                if (user.email === 'admin@activejang.com' || user.email === '2025teamcodebridge@gmail.com') {
+                // 1. 관리자 계정 확인 (admin@activejang.com, 2025teamcodebridge@gmail.com, yeonhj0507@gmail.com)
+                if (user.email === 'admin@activejang.com' || user.email === '2025teamcodebridge@gmail.com' || user.email === 'yeonhj0507@gmail.com') {
                     await prisma.user.upsert({
                         where: { email: user.email },
                         update: {
