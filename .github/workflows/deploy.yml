@@ -1,57 +1,29 @@
-name: Deploy to Server
+name: Deploy to Production
 
 on:
   push:
     branches:
-      - main
-  workflow_dispatch:  # 수동 실행 가능
+      - feat/mentor-workspace-next
 
 jobs:
   deploy:
-    name: Deploy Team Code Bridge
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.0
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }}
-          port: 22
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
           script: |
-            set -e
-            echo "🚀 GitHub Actions 배포 시작..."
-            
-            # 프로젝트 디렉토리로 이동
             cd /root/teamcodebridge
+            # Ensure we are on the correct branch
+            git fetch --all
+            git checkout feat/mentor-workspace-next
+            git reset --hard origin/feat/mentor-workspace-next
             
-            # Git 충돌 방지 및 최신 코드 가져오기
-            echo "📥 최신 코드를 가져옵니다..."
-            git fetch origin main
-            git reset --hard origin/main
-            
-            # Docker 정리 (디스크 공간 확보)
-            echo "🧹 Docker 정리 중..."
-            docker system prune -f || true
-            docker builder prune -f || true
-            
-            # Docker 배포
-            echo "🐳 Docker 배포를 시작합니다..."
-            docker-compose down || true
-            docker-compose build --no-cache
-            docker-compose up -d
-            
-            # 상태 확인
-            echo "⏳ 컨테이너 상태 확인 중..."
-            sleep 10
-            
-            if docker ps | grep -q teamcodebridge-web; then
-              echo "✅ 배포 완료!"
-              echo "🌐 https://next.teamcodebridge.dev"
-              docker ps | grep teamcodebridge-web
-            else
-              echo "❌ 배포 실패"
-              docker-compose logs --tail=50
-              exit 1
-            fi
+            # Rebuild and restart containers
+            docker-compose down --rmi all
+            docker system prune -f
+            docker-compose up -d --build
