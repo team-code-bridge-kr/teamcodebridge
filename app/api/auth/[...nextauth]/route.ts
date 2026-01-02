@@ -30,7 +30,8 @@ const handler = NextAuth({
         error: '/workspace/login', // 에러 발생 시 로그인 페이지로
     },
     callbacks: {
-        async jwt({ token, user, account }) {
+        async jwt({ token, user, account, trigger }) {
+            // 로그인 시 또는 세션 업데이트 시
             if (account && user) {
                 // Prisma에서 실제 User ID 가져오기
                 const dbUser = await prisma.user.findUnique({
@@ -43,8 +44,25 @@ const handler = NextAuth({
                     refreshToken: account.refresh_token,
                     id: dbUser?.id || user.id, // Prisma User ID 사용
                     role: dbUser?.role || (user as any).role, // Role 저장
+                    email: user.email, // email도 저장
                 }
             }
+            
+            // 기존 토큰에서 email이 있고 id가 없거나 잘못된 경우 업데이트
+            if (token.email && (!token.id || typeof token.id !== 'string' || token.id.length < 10)) {
+                try {
+                    const dbUser = await prisma.user.findUnique({
+                        where: { email: token.email as string }
+                    })
+                    if (dbUser) {
+                        token.id = dbUser.id
+                        token.role = dbUser.role
+                    }
+                } catch (error) {
+                    console.error('Error updating token:', error)
+                }
+            }
+            
             return token
         },
         async session({ session, token }) {
