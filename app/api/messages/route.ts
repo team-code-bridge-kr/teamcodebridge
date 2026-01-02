@@ -11,7 +11,16 @@ export async function GET(request: Request) {
     }
 
     try {
-        const messages = await (prisma as any).message.findMany({
+        // ID 검증
+        const sender = await prisma.user.findUnique({ where: { id: senderId } })
+        const receiver = await prisma.user.findUnique({ where: { id: receiverId } })
+
+        if (!sender || !receiver) {
+            console.error(`User not found - sender: ${senderId}, receiver: ${receiverId}`)
+            return NextResponse.json({ error: 'User not found' }, { status: 404 })
+        }
+
+        const messages = await prisma.message.findMany({
             where: {
                 OR: [
                     { senderId: senderId, receiverId: receiverId },
@@ -52,7 +61,24 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
         }
 
-        const message = await (prisma as any).message.create({
+        // ID 검증: 실제로 User 테이블에 존재하는지 확인
+        const sender = await prisma.user.findUnique({
+            where: { id: senderId }
+        })
+        const receiver = await prisma.user.findUnique({
+            where: { id: receiverId }
+        })
+
+        if (!sender) {
+            console.error(`Sender ID not found: ${senderId}`)
+            return NextResponse.json({ error: 'Sender not found' }, { status: 404 })
+        }
+        if (!receiver) {
+            console.error(`Receiver ID not found: ${receiverId}`)
+            return NextResponse.json({ error: 'Receiver not found' }, { status: 404 })
+        }
+
+        const message = await prisma.message.create({
             data: {
                 content,
                 senderId,
@@ -61,8 +87,16 @@ export async function POST(request: Request) {
         })
 
         return NextResponse.json(message)
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error sending message:', error)
-        return NextResponse.json({ error: 'Failed to send message' }, { status: 500 })
+        console.error('Error details:', {
+            code: error.code,
+            meta: error.meta,
+            message: error.message
+        })
+        return NextResponse.json({ 
+            error: 'Failed to send message',
+            details: error.message 
+        }, { status: 500 })
     }
 }
