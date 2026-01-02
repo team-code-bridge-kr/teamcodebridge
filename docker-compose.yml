@@ -16,3 +16,17 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+
+  socket:
+    build:
+      context: .
+      dockerfile: Dockerfile.socket
+    container_name: teamcodebridge-socket
+    restart: always
+    ports:
+      - "4000:4000"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

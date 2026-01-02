@@ -11,6 +11,7 @@
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@prisma/client": "^5.22.0",
+    "cookies-next": "^4.3.0",
     "csv-parse": "^6.1.0",
     "framer-motion": "^10.16.4",
     "next": "^14.0.0",
@@ -18,7 +19,9 @@
     "prisma": "^5.22.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "sharp": "^0.33.0"
+    "sharp": "^0.33.0",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3"
   },
   "devDependencies": {
     "@types/node": "^20.8.0",
@@ -30,3 +33,4 @@
     "typescript": "^5.2.2"
   }
 }
+

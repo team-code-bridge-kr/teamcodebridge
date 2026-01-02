@@ -1,6 +1,5 @@
 'use client'
 
-import { Providers } from '@/components/Providers'
 import WorkspaceLayoutClient from '@/components/WorkspaceLayoutClient'
 
 export default function WorkspaceLayout({
@@ -9,10 +8,8 @@ export default function WorkspaceLayout({
     children: React.ReactNode
 }) {
     return (
-        <Providers>
-            <WorkspaceLayoutClient>
-                {children}
-            </WorkspaceLayoutClient>
-        </Providers>
+        <WorkspaceLayoutClient>
+            {children}
+        </WorkspaceLayoutClient>
     )
 }

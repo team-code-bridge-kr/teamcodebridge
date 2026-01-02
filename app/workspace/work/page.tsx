@@ -50,7 +50,7 @@ export default function WorkspaceWork() {
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const response = await fetch('https://api.teamcodebridge.dev/projects')
+                const response = await fetch('/api/projects')
                 const data = await response.json()
                 setProjects(data)
             } catch (error) {

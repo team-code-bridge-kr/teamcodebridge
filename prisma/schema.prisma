@@ -21,9 +21,12 @@ model User {
   university    String?   // 학교
   joinDate      String?   // 입사일
   status        String?   // 재직여부
+  isApproved    Boolean   @default(false) // 관리자 승인 여부
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   tasks         Task[]
+  sentMessages     Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
 }
 
 // 프로젝트 모델
@@ -50,4 +53,16 @@ model Task {
   owner       User?    @relation(fields: [ownerId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// 채팅 메시지 모델
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  senderId  String
+  sender    User     @relation("SentMessages", fields: [senderId], references: [id])
+  receiverId String
+  receiver  User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
 }

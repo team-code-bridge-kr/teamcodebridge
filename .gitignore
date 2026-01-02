@@ -38,3 +38,7 @@ next-env.d.ts
 TCB ToDoList.env
 멤버DB 215f614f5cac800ca079ef4f5e728d0e_all.csv
 .env
+
+# server scripts with sensitive info
+*.exp
+socket.log

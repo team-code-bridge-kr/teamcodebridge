@@ -1,13 +1,23 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 
-export default function WorkspaceLogin() {
+function LoginContent() {
     const [isLoading, setIsLoading] = useState(false)
-    const router = useRouter()
+    const searchParams = useSearchParams()
+    const error = searchParams.get('error')
+    const [errorMessage, setErrorMessage] = useState('')
+
+    useEffect(() => {
+        if (error === 'PendingApproval') {
+            setErrorMessage('관리자 승인 대기 중인 계정입니다. 승인 후 이용 가능합니다.')
+        } else if (error) {
+            setErrorMessage('로그인 중 오류가 발생했습니다.')
+        }
+    }, [error])
 
     const handleGoogleLogin = async () => {
         setIsLoading(true)
@@ -46,6 +56,12 @@ export default function WorkspaceLogin() {
                             구글 계정으로 로그인해 주세요.
                         </p>
                     </div>
+
+                    {errorMessage && (
+                        <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm font-medium text-center">
+                            {errorMessage}
+                        </div>
+                    )}
 
                     <button
                         onClick={handleGoogleLogin}
@@ -91,5 +107,13 @@ export default function WorkspaceLogin() {
                 </p>
             </motion.div>
         </div>
+    )
+}
+
+export default function WorkspaceLogin() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-white flex items-center justify-center"><div className="w-6 h-6 border-2 border-gray-200 border-t-primary-600 rounded-full animate-spin" /></div>}>
+            <LoginContent />
+        </Suspense>
     )
 }
