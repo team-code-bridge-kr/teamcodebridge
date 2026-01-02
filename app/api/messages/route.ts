@@ -43,7 +43,8 @@ export async function GET(request: Request) {
             senderId: msg.senderId,
             senderName: msg.sender.name,
             createdAt: msg.createdAt,
-            isMyMessage: msg.senderId === senderId
+            isMyMessage: msg.senderId === senderId,
+            read: msg.read
         }))
 
         return NextResponse.json(formattedMessages)

@@ -5,7 +5,12 @@ import {
     ChatBubbleLeftRightIcon,
     XMarkIcon,
     PaperAirplaneIcon,
-    UserCircleIcon
+    UserCircleIcon,
+    ChevronLeftIcon,
+    MagnifyingGlassIcon,
+    FunnelIcon,
+    XCircleIcon,
+    CheckIcon
 } from '@heroicons/react/24/outline'
 import { motion, AnimatePresence } from 'framer-motion'
 import { io, Socket } from 'socket.io-client'
@@ -19,6 +24,7 @@ interface Message {
     createdAt: string
     isMyMessage: boolean
     receiverId?: string
+    read?: boolean
 }
 
 interface User {
@@ -26,23 +32,36 @@ interface User {
     name: string
     image: string | null
     team: string | null
+    position: string | null
     isOnline?: boolean
+    unreadCount?: number
 }
+
+type FilterType = 'all' | 'online' | 'team'
+type ViewMode = 'minimized' | 'normal' | 'expanded'
 
 export default function FloatingChat() {
     const [isOpen, setIsOpen] = useState(false)
+    const [viewMode, setViewMode] = useState<ViewMode>('normal')
     const [message, setMessage] = useState('')
     const [messages, setMessages] = useState<Message[]>([])
     const [users, setUsers] = useState<User[]>([])
     const [selectedUser, setSelectedUser] = useState<User | null>(null)
     const [onlineUserIds, setOnlineUserIds] = useState<string[]>([])
     const [searchQuery, setSearchQuery] = useState('')
+    const [filter, setFilter] = useState<FilterType>('all')
+    const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({})
+    const [totalUnread, setTotalUnread] = useState(0)
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const socketRef = useRef<Socket | null>(null)
     const { data: session } = useSession()
+    const chatContainerRef = useRef<HTMLDivElement>(null)
+
+    // 크기 조절 관련
+    const [isResizing, setIsResizing] = useState(false)
+    const [chatSize, setChatSize] = useState({ width: 400, height: 600 })
 
     useEffect(() => {
-        // 소켓 연결 (HTTPS를 통해 Nginx 프록시 사용)
         const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || (typeof window !== 'undefined' ? window.location.origin : 'https://e2g.teamcodebridge.dev')
         socketRef.current = io(socketUrl, {
             path: '/socket.io/',
@@ -61,53 +80,55 @@ export default function FloatingChat() {
         })
 
         socketRef.current.on('receive_message', (msg: Message & { receiverId?: string }) => {
-            // 내가 받은 메시지인지 확인 (receiverId가 내 ID와 일치)
             if (session?.user?.id && msg.receiverId === session.user.id) {
                 console.log('Real-time message received:', msg)
-                // 현재 보고 있는 채팅방의 메시지라면 즉시 추가
+                // 읽지 않은 메시지 개수 업데이트
+                fetchUnreadCounts()
+                
                 if (selectedUser && msg.senderId === selectedUser.id) {
                     setMessages(prev => {
-                        // 중복 방지
-                        if (prev.some(m => m.id === msg.id)) {
-                            console.log('Duplicate message ignored:', msg.id)
-                            return prev
-                        }
-                        console.log('Adding message to chat:', msg)
-                        return [...prev, msg]
+                        if (prev.some(m => m.id === msg.id)) return prev
+                        return [...prev, { ...msg, read: false }]
                     })
+                    // 메시지를 읽음 처리
+                    markAsRead(selectedUser.id)
                 } else {
-                    // 다른 채팅방의 메시지라면 나중에 보이도록 처리
-                    // (채팅방을 열면 fetchMessages에서 가져옴)
-                    console.log('Message received from different chat, will show when chat is opened:', msg.senderId)
+                    // 다른 채팅방의 메시지 - 알림 표시
+                    setUnreadCounts(prev => ({
+                        ...prev,
+                        [msg.senderId]: (prev[msg.senderId] || 0) + 1
+                    }))
+                    setTotalUnread(prev => prev + 1)
                 }
             }
         })
 
         socketRef.current.on('message_sent', (msg: Message & { receiverId: string }) => {
-            // 내가 보낸 메시지가 성공적으로 전송되었을 때
             if (selectedUser && msg.receiverId === selectedUser.id) {
                 setMessages(prev => {
-                    // 중복 방지
                     if (prev.some(m => m.id === msg.id)) return prev
-                    return [...prev, { ...msg, isMyMessage: true }]
+                    return [...prev, { ...msg, isMyMessage: true, read: false }]
                 })
             }
         })
 
-        // 사용자 목록 가져오기
         fetchUsers()
+        fetchUnreadCounts()
+
+        // 주기적으로 읽지 않은 메시지 개수 갱신
+        const unreadInterval = setInterval(fetchUnreadCounts, 5000)
 
         return () => {
             socketRef.current?.disconnect()
+            clearInterval(unreadInterval)
         }
     }, [session])
 
     useEffect(() => {
         if (isOpen && selectedUser) {
-            // 채팅방을 열 때마다 최신 메시지 가져오기
             fetchMessages(selectedUser.id)
+            markAsRead(selectedUser.id)
         } else if (!isOpen) {
-            // 채팅창이 닫혀있을 때는 메시지 목록 초기화
             setMessages([])
         }
     }, [isOpen, selectedUser, session?.user?.id])
@@ -115,6 +136,33 @@ export default function FloatingChat() {
     useEffect(() => {
         scrollToBottom()
     }, [messages])
+
+    // 크기 조절 핸들러
+    useEffect(() => {
+        if (!isResizing) return
+
+        const handleMouseMove = (e: MouseEvent) => {
+            if (!chatContainerRef.current) return
+            
+            const rect = chatContainerRef.current.getBoundingClientRect()
+            const newWidth = Math.max(400, Math.min(1200, e.clientX - rect.left))
+            const newHeight = Math.max(400, Math.min(800, e.clientY - rect.top))
+            
+            setChatSize({ width: newWidth, height: newHeight })
+        }
+
+        const handleMouseUp = () => {
+            setIsResizing(false)
+        }
+
+        window.addEventListener('mousemove', handleMouseMove)
+        window.addEventListener('mouseup', handleMouseUp)
+
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove)
+            window.removeEventListener('mouseup', handleMouseUp)
+        }
+    }, [isResizing])
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -125,11 +173,53 @@ export default function FloatingChat() {
             const res = await fetch('/api/members')
             if (res.ok) {
                 const data = await res.json()
-                // 나를 제외한 사용자 목록
-                setUsers(data.filter((u: User) => u.id !== session?.user?.id))
+                const filteredUsers = data.filter((u: User) => u.id !== session?.user?.id)
+                // 읽지 않은 메시지 개수와 함께 설정
+                const usersWithUnread = filteredUsers.map((u: User) => ({
+                    ...u,
+                    unreadCount: unreadCounts[u.id] || 0
+                }))
+                setUsers(usersWithUnread)
             }
         } catch (error) {
             console.error('Failed to fetch users:', error)
+        }
+    }
+
+    const fetchUnreadCounts = async () => {
+        if (!session?.user?.id) return
+        try {
+            const res = await fetch(`/api/messages/unread?userId=${session.user.id}`)
+            if (res.ok) {
+                const data = await res.json()
+                setUnreadCounts(data.byUser || {})
+                setTotalUnread(data.total || 0)
+                // 사용자 목록 업데이트
+                setUsers(prev => prev.map(u => ({
+                    ...u,
+                    unreadCount: data.byUser[u.id] || 0
+                })))
+            }
+        } catch (error) {
+            console.error('Failed to fetch unread counts:', error)
+        }
+    }
+
+    const markAsRead = async (senderId: string) => {
+        if (!session?.user?.id) return
+        try {
+            await fetch('/api/messages/read', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: session.user.id,
+                    senderId: senderId
+                })
+            })
+            // 읽지 않은 메시지 개수 갱신
+            fetchUnreadCounts()
+        } catch (error) {
+            console.error('Failed to mark as read:', error)
         }
     }
 
@@ -152,20 +242,19 @@ export default function FloatingChat() {
 
         const messageContent = message.trim()
         const tempId = Date.now().toString()
-        setMessage('') // 입력창 먼저 비우기
+        setMessage('')
 
-        // 즉시 UI 업데이트 (낙관적 업데이트)
         const tempMessage: Message = {
             id: tempId,
             content: messageContent,
             senderId: session.user.id,
             senderName: session.user.name || '나',
             createdAt: new Date().toISOString(),
-            isMyMessage: true
+            isMyMessage: true,
+            read: false
         }
         setMessages(prev => [...prev, tempMessage])
 
-        // 소켓으로 먼저 전송 (실시간)
         socketRef.current?.emit('send_message', {
             content: messageContent,
             receiverId: selectedUser.id,
@@ -174,7 +263,6 @@ export default function FloatingChat() {
             messageId: tempId
         })
 
-        // DB 저장 (백그라운드)
         try {
             const response = await fetch('/api/messages', {
                 method: 'POST',
@@ -188,15 +276,80 @@ export default function FloatingChat() {
             
             if (response.ok) {
                 const savedMessage = await response.json()
-                // DB에 저장된 실제 메시지로 업데이트
                 setMessages(prev => prev.map(msg => 
                     msg.id === tempId ? { ...msg, id: savedMessage.id } : msg
                 ))
             }
         } catch (error) {
             console.error('Error sending message:', error)
-            // 에러 발생 시 임시 메시지 제거
             setMessages(prev => prev.filter(msg => msg.id !== tempId))
+        }
+    }
+
+    const formatTime = (dateString: string) => {
+        const date = new Date(dateString)
+        const now = new Date()
+        const diff = now.getTime() - date.getTime()
+        const minutes = Math.floor(diff / 60000)
+        const hours = Math.floor(diff / 3600000)
+        const days = Math.floor(diff / 86400000)
+
+        if (minutes < 1) return '방금 전'
+        if (minutes < 60) return `${minutes}분 전`
+        if (hours < 24) return `${hours}시간 전`
+        if (days < 7) return `${days}일 전`
+        
+        return date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })
+    }
+
+    const formatMessageTime = (dateString: string) => {
+        const date = new Date(dateString)
+        const now = new Date()
+        const isToday = date.toDateString() === now.toDateString()
+        
+        if (isToday) {
+            return date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })
+        }
+        return date.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }) + ' ' + 
+               date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false })
+    }
+
+    const filteredUsers = users.filter(user => {
+        // 검색 필터
+        const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                              (user.team && user.team.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                              (user.position && user.position.toLowerCase().includes(searchQuery.toLowerCase()))
+        
+        if (!matchesSearch) return false
+
+        // 필터 타입
+        if (filter === 'online') {
+            return onlineUserIds.includes(user.id)
+        }
+        if (filter === 'team') {
+            return user.team && user.team.trim() !== ''
+        }
+        return true
+    })
+
+    // 부서별 그룹화
+    const groupedUsers = filteredUsers.reduce((acc, user) => {
+        const team = user.team || '기타'
+        if (!acc[team]) acc[team] = []
+        acc[team].push(user)
+        return acc
+    }, {} as Record<string, User[]>)
+
+    const getViewModeStyles = () => {
+        switch (viewMode) {
+            case 'minimized':
+                return { width: '400px', height: '500px' }
+            case 'normal':
+                return { width: '400px', height: '600px' }
+            case 'expanded':
+                return { width: `${chatSize.width}px`, height: `${chatSize.height}px` }
+            default:
+                return { width: '400px', height: '600px' }
         }
     }
 
@@ -205,106 +358,252 @@ export default function FloatingChat() {
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
+                        ref={chatContainerRef}
                         initial={{ opacity: 0, y: 20, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                        className="absolute bottom-16 right-0 w-80 md:w-96 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden flex flex-col h-[500px]"
+                        style={getViewModeStyles()}
+                        className="absolute bottom-16 right-0 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden flex flex-col"
                     >
                         {/* Header */}
-                        <div className="bg-primary-600 p-4 flex items-center justify-between text-white shrink-0">
-                            <h3 className="font-bold text-lg">
-                                {selectedUser ? selectedUser.name : '팀원 채팅'}
-                            </h3>
-                            {selectedUser && (
+                        <div className="bg-gradient-to-r from-primary-600 to-primary-700 p-4 flex items-center justify-between text-white shrink-0">
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                                {selectedUser ? (
+                                    <>
+                                        <button
+                                            onClick={() => {
+                                                setSelectedUser(null)
+                                                markAsRead(selectedUser.id)
+                                            }}
+                                            className="p-1.5 hover:bg-white/20 rounded-lg transition-colors shrink-0"
+                                        >
+                                            <ChevronLeftIcon className="w-5 h-5" />
+                                        </button>
+                                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                                            <div className="relative w-10 h-10 rounded-full bg-white/20 flex items-center justify-center overflow-hidden shrink-0">
+                                                {selectedUser.image ? (
+                                                    <img src={selectedUser.image} alt={selectedUser.name} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <UserCircleIcon className="w-6 h-6 text-white" />
+                                                )}
+                                                {onlineUserIds.includes(selectedUser.id) && (
+                                                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-white"></div>
+                                                )}
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <p className="font-bold text-sm truncate">{selectedUser.name}</p>
+                                                <p className="text-xs text-white/80 truncate">
+                                                    {selectedUser.position && `${selectedUser.position} · `}
+                                                    {selectedUser.team || '소속팀 미정'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <h3 className="font-bold text-lg">팀원 채팅</h3>
+                                )}
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                                {viewMode === 'expanded' && (
+                                    <button
+                                        onClick={() => setViewMode('normal')}
+                                        className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
+                                        title="일반 크기"
+                                    >
+                                        <XCircleIcon className="w-5 h-5" />
+                                    </button>
+                                )}
+                                {viewMode !== 'expanded' && (
+                                    <button
+                                        onClick={() => setViewMode('expanded')}
+                                        className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
+                                        title="크게 보기"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                                        </svg>
+                                    </button>
+                                )}
                                 <button
-                                    onClick={() => setSelectedUser(null)}
-                                    className="text-xs bg-white/20 px-2 py-1 rounded hover:bg-white/30 transition-colors"
+                                    onClick={() => setIsOpen(false)}
+                                    className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
                                 >
-                                    목록으로
+                                    <XMarkIcon className="w-5 h-5" />
                                 </button>
-                            )}
+                            </div>
                         </div>
 
                         {/* Content */}
-                        <div className="flex-1 overflow-y-auto bg-gray-50 p-4">
+                        <div className="flex-1 overflow-y-auto bg-gray-50">
                             {!selectedUser ? (
                                 // User List
-                                <div className="space-y-2">
-                                    {/* Search Input */}
-                                    <div className="mb-4">
-                                        <input
-                                            type="text"
-                                            placeholder="이름으로 검색..."
-                                            value={searchQuery}
-                                            onChange={(e) => setSearchQuery(e.target.value)}
-                                            className="w-full px-4 py-2 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
-                                        />
+                                <div className="p-4 space-y-4">
+                                    {/* Search and Filter */}
+                                    <div className="space-y-3">
+                                        <div className="relative">
+                                            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                            <input
+                                                type="text"
+                                                placeholder="이름, 부서, 직책으로 검색..."
+                                                value={searchQuery}
+                                                onChange={(e) => setSearchQuery(e.target.value)}
+                                                className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+                                            />
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <FunnelIcon className="w-4 h-4 text-gray-400" />
+                                            <div className="flex gap-2 flex-1">
+                                                {(['all', 'online', 'team'] as FilterType[]).map((filterType) => (
+                                                    <button
+                                                        key={filterType}
+                                                        onClick={() => setFilter(filterType)}
+                                                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                                                            filter === filterType
+                                                                ? 'bg-primary-600 text-white'
+                                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                                        }`}
+                                                    >
+                                                        {filterType === 'all' ? '전체' : filterType === 'online' ? '온라인' : '부서별'}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    {(() => {
-                                        const filteredUsers = users.filter(user =>
-                                            user.name.toLowerCase().includes(searchQuery.toLowerCase())
-                                        )
-
-                                        return filteredUsers.length === 0 ? (
-                                            <div className="text-center text-gray-400 text-sm py-8">
-                                                {searchQuery ? '검색 결과가 없습니다.' : '표시할 팀원이 없습니다.'}
+                                    {/* User List - Grouped by Team */}
+                                    {Object.keys(groupedUsers).length === 0 ? (
+                                        <div className="text-center text-gray-400 text-sm py-12">
+                                            {searchQuery ? '검색 결과가 없습니다.' : '표시할 팀원이 없습니다.'}
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-4">
+                                            {Object.entries(groupedUsers).map(([team, teamUsers]) => (
+                                                <div key={team}>
+                                                    <h4 className="text-xs font-bold text-gray-500 uppercase mb-2 px-2">{team}</h4>
+                                                    <div className="space-y-2">
+                                                        {teamUsers.map(user => {
+                                                            const isOnline = onlineUserIds.includes(user.id)
+                                                            const unreadCount = unreadCounts[user.id] || 0
+                                                            return (
+                                                                <div
+                                                                    key={user.id}
+                                                                    onClick={() => setSelectedUser(user)}
+                                                                    className="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-100 cursor-pointer hover:shadow-md hover:border-primary-200 transition-all group"
+                                                                >
+                                                                    <div className="relative w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden shrink-0">
+                                                                        {user.image ? (
+                                                                            <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
+                                                                        ) : (
+                                                                            <UserCircleIcon className="w-7 h-7 text-gray-400" />
+                                                                        )}
+                                                                        {isOnline && (
+                                                                            <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white"></div>
+                                                                        )}
+                                                                    </div>
+                                                                    <div className="flex-1 min-w-0">
+                                                                        <div className="flex items-center gap-2 mb-0.5">
+                                                                            <p className="font-bold text-gray-900 text-sm truncate">{user.name}</p>
+                                                                            {user.position && (
+                                                                                <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded shrink-0">
+                                                                                    {user.position}
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                        <p className="text-xs text-gray-500 truncate">{user.team || '소속팀 미정'}</p>
+                                                                    </div>
+                                                                    {unreadCount > 0 && (
+                                                                        <div className="bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5 shrink-0">
+                                                                            {unreadCount > 99 ? '99+' : unreadCount}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            )
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                // Chat Room
+                                <div className="flex flex-col h-full">
+                                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                                        {messages.length === 0 ? (
+                                            <div className="text-center text-gray-400 text-sm py-12">
+                                                메시지가 없습니다. 대화를 시작해보세요!
                                             </div>
                                         ) : (
-                                            filteredUsers.map(user => {
-                                                const isOnline = onlineUserIds.includes(user.id)
+                                            messages.map((msg, index) => {
+                                                const prevMsg = index > 0 ? messages[index - 1] : null
+                                                const showTime = !prevMsg || 
+                                                    new Date(msg.createdAt).getTime() - new Date(prevMsg.createdAt).getTime() > 300000 // 5분
+                                                const showDate = !prevMsg || 
+                                                    new Date(msg.createdAt).toDateString() !== new Date(prevMsg.createdAt).toDateString()
+                                                
                                                 return (
-                                                    <div
-                                                        key={user.id}
-                                                        onClick={() => setSelectedUser(user)}
-                                                        className="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-100 cursor-pointer hover:shadow-md hover:border-primary-100 transition-all"
-                                                    >
-                                                        <div className="relative w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden shrink-0">
-                                                            {user.image ? (
-                                                                <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
-                                                            ) : (
-                                                                <UserCircleIcon className="w-6 h-6 text-gray-400" />
-                                                            )}
-                                                            {isOnline && (
-                                                                <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                                                            )}
-                                                        </div>
-                                                        <div>
-                                                            <p className="font-bold text-gray-900 text-sm">{user.name}</p>
-                                                            <p className="text-xs text-gray-500">{user.team || '소속팀 미정'}</p>
+                                                    <div key={msg.id}>
+                                                        {showDate && (
+                                                            <div className="text-center text-xs text-gray-400 my-4">
+                                                                {new Date(msg.createdAt).toLocaleDateString('ko-KR', { 
+                                                                    year: 'numeric', 
+                                                                    month: 'long', 
+                                                                    day: 'numeric',
+                                                                    weekday: 'short'
+                                                                })}
+                                                            </div>
+                                                        )}
+                                                        <div className={`flex ${msg.isMyMessage ? 'justify-end' : 'justify-start'} mb-1`}>
+                                                            <div className={`flex items-end gap-2 max-w-[75%] ${msg.isMyMessage ? 'flex-row-reverse' : 'flex-row'}`}>
+                                                                {!msg.isMyMessage && (
+                                                                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden shrink-0">
+                                                                        {selectedUser?.image ? (
+                                                                            <img src={selectedUser.image} alt={selectedUser.name} className="w-full h-full object-cover" />
+                                                                        ) : (
+                                                                            <UserCircleIcon className="w-5 h-5 text-gray-400" />
+                                                                        )}
+                                                                    </div>
+                                                                )}
+                                                                <div className={`flex flex-col ${msg.isMyMessage ? 'items-end' : 'items-start'}`}>
+                                                                    <div
+                                                                        className={`p-3 rounded-2xl text-sm ${
+                                                                            msg.isMyMessage
+                                                                                ? 'bg-primary-600 text-white rounded-tr-none'
+                                                                                : 'bg-white text-gray-800 border border-gray-200 rounded-tl-none'
+                                                                        }`}
+                                                                    >
+                                                                        {msg.content}
+                                                                    </div>
+                                                                    {showTime && (
+                                                                        <div className={`text-xs text-gray-400 mt-1 px-1 flex items-center gap-1 ${msg.isMyMessage ? 'flex-row-reverse' : 'flex-row'}`}>
+                                                                            <span>{formatMessageTime(msg.createdAt)}</span>
+                                                                            {msg.isMyMessage && (
+                                                                                <span>
+                                                                                    {msg.read ? (
+                                                                                        <CheckIcon className="w-3 h-3 text-blue-500" />
+                                                                                    ) : (
+                                                                                        <CheckIcon className="w-3 h-3 text-gray-400" />
+                                                                                    )}
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 )
                                             })
-                                        )
-                                    })()}
-                                </div>
-                            ) : (
-                                // Chat Room
-                                <div className="space-y-4">
-                                    {messages.map((msg) => (
-                                        <div
-                                            key={msg.id}
-                                            className={`flex ${msg.isMyMessage ? 'justify-end' : 'justify-start'}`}
-                                        >
-                                            <div
-                                                className={`max-w-[80%] p-3 rounded-2xl text-sm ${msg.isMyMessage
-                                                    ? 'bg-primary-600 text-white rounded-tr-none'
-                                                    : 'bg-white text-gray-800 border border-gray-200 rounded-tl-none'
-                                                    }`}
-                                            >
-                                                {msg.content}
-                                            </div>
-                                        </div>
-                                    ))}
-                                    <div ref={messagesEndRef} />
+                                        )}
+                                        <div ref={messagesEndRef} />
+                                    </div>
                                 </div>
                             )}
                         </div>
 
                         {/* Input Area */}
                         {selectedUser && (
-                            <form onSubmit={sendMessage} className="p-3 bg-white border-t border-gray-100 shrink-0">
+                            <form onSubmit={sendMessage} className="p-4 bg-white border-t border-gray-100 shrink-0">
                                 <div className="relative">
                                     <input
                                         type="text"
@@ -316,12 +615,21 @@ export default function FloatingChat() {
                                     <button
                                         type="submit"
                                         disabled={!message.trim()}
-                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                     >
-                                        <PaperAirplaneIcon className="w-4 h-4" />
+                                        <PaperAirplaneIcon className="w-5 h-5" />
                                     </button>
                                 </div>
                             </form>
+                        )}
+
+                        {/* 크기 조절 핸들 */}
+                        {viewMode === 'expanded' && (
+                            <div
+                                onMouseDown={() => setIsResizing(true)}
+                                className="absolute bottom-0 right-0 w-4 h-4 cursor-nwse-resize bg-gray-200 hover:bg-primary-500 transition-colors"
+                                style={{ clipPath: 'polygon(100% 0, 0 100%, 100% 100%)' }}
+                            />
                         )}
                     </motion.div>
                 )}
@@ -332,12 +640,21 @@ export default function FloatingChat() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-14 h-14 bg-primary-600 text-white rounded-full shadow-lg shadow-primary-600/30 flex items-center justify-center hover:bg-primary-700 transition-colors"
+                className="relative w-14 h-14 bg-primary-600 text-white rounded-full shadow-lg shadow-primary-600/30 flex items-center justify-center hover:bg-primary-700 transition-colors"
             >
                 {isOpen ? (
                     <XMarkIcon className="w-7 h-7" />
                 ) : (
                     <ChatBubbleLeftRightIcon className="w-7 h-7" />
+                )}
+                {totalUnread > 0 && !isOpen && (
+                    <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5"
+                    >
+                        {totalUnread > 99 ? '99+' : totalUnread}
+                    </motion.div>
                 )}
             </motion.button>
         </div>
