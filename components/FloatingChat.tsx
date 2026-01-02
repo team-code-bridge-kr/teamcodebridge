@@ -63,17 +63,22 @@ export default function FloatingChat() {
         socketRef.current.on('receive_message', (msg: Message & { receiverId?: string }) => {
             // 내가 받은 메시지인지 확인 (receiverId가 내 ID와 일치)
             if (session?.user?.id && msg.receiverId === session.user.id) {
+                console.log('Real-time message received:', msg)
                 // 현재 보고 있는 채팅방의 메시지라면 즉시 추가
                 if (selectedUser && msg.senderId === selectedUser.id) {
                     setMessages(prev => {
                         // 중복 방지
-                        if (prev.some(m => m.id === msg.id)) return prev
+                        if (prev.some(m => m.id === msg.id)) {
+                            console.log('Duplicate message ignored:', msg.id)
+                            return prev
+                        }
+                        console.log('Adding message to chat:', msg)
                         return [...prev, msg]
                     })
                 } else {
                     // 다른 채팅방의 메시지라면 나중에 보이도록 처리
                     // (채팅방을 열면 fetchMessages에서 가져옴)
-                    console.log('Message received from different chat:', msg.senderId)
+                    console.log('Message received from different chat, will show when chat is opened:', msg.senderId)
                 }
             }
         })
@@ -99,12 +104,13 @@ export default function FloatingChat() {
 
     useEffect(() => {
         if (isOpen && selectedUser) {
+            // 채팅방을 열 때마다 최신 메시지 가져오기
             fetchMessages(selectedUser.id)
         } else if (!isOpen) {
             // 채팅창이 닫혀있을 때는 메시지 목록 초기화
             setMessages([])
         }
-    }, [isOpen, selectedUser])
+    }, [isOpen, selectedUser, session?.user?.id])
 
     useEffect(() => {
         scrollToBottom()
