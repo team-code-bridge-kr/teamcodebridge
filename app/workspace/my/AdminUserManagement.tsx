@@ -1,19 +1,21 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { 
     PlusIcon, 
     PencilIcon, 
     TrashIcon,
     UserCircleIcon,
     ShieldCheckIcon,
-    XMarkIcon
+    XMarkIcon,
+    FunnelIcon
 } from '@heroicons/react/24/outline'
 
 interface User {
     id: string
     name: string | null
     email: string | null
+    teamcodebridgeEmail: string | null
     role: string
     isApproved: boolean
     team: string | null
@@ -22,10 +24,12 @@ interface User {
     university: string | null
     joinDate: string | null
     status: string | null
+    image: string | null
 }
 
 interface UserFormData {
     email: string
+    teamcodebridgeEmail: string
     name: string
     role: 'ADMIN' | 'MENTOR'
     isApproved: boolean
@@ -37,6 +41,24 @@ interface UserFormData {
     status: string
 }
 
+// 전화번호 자동 포맷팅 함수
+const formatPhoneNumber = (value: string): string => {
+    // 숫자만 추출
+    const numbers = value.replace(/\D/g, '')
+    
+    // 11자리 제한
+    const limited = numbers.slice(0, 11)
+    
+    // 포맷팅
+    if (limited.length <= 3) {
+        return limited
+    } else if (limited.length <= 7) {
+        return `${limited.slice(0, 3)}-${limited.slice(3)}`
+    } else {
+        return `${limited.slice(0, 3)}-${limited.slice(3, 7)}-${limited.slice(7)}`
+    }
+}
+
 export default function AdminUserManagement() {
     const [users, setUsers] = useState<User[]>([])
     const [loading, setLoading] = useState(true)
@@ -44,6 +66,7 @@ export default function AdminUserManagement() {
     const [editingUser, setEditingUser] = useState<User | null>(null)
     const [formData, setFormData] = useState<UserFormData>({
         email: '',
+        teamcodebridgeEmail: '',
         name: '',
         role: 'MENTOR',
         isApproved: false,
@@ -54,6 +77,11 @@ export default function AdminUserManagement() {
         joinDate: '',
         status: ''
     })
+
+    // 필터 상태
+    const [positionFilter, setPositionFilter] = useState('전체')
+    const [roleFilter, setRoleFilter] = useState('전체')
+    const [approvalFilter, setApprovalFilter] = useState('전체')
 
     useEffect(() => {
         fetchUsers()
@@ -73,10 +101,30 @@ export default function AdminUserManagement() {
         }
     }
 
+    // 필터링된 사용자 목록
+    const filteredUsers = useMemo(() => {
+        return users.filter(user => {
+            if (positionFilter !== '전체' && user.position !== positionFilter) return false
+            if (roleFilter !== '전체' && user.role !== roleFilter) return false
+            if (approvalFilter !== '전체') {
+                if (approvalFilter === '승인됨' && !user.isApproved) return false
+                if (approvalFilter === '대기중' && user.isApproved) return false
+            }
+            return true
+        })
+    }, [users, positionFilter, roleFilter, approvalFilter])
+
+    // 고유한 직책 목록
+    const positions = useMemo(() => {
+        const allPositions = users.map(u => u.position).filter(Boolean) as string[]
+        return ['전체', ...Array.from(new Set(allPositions)).sort()]
+    }, [users])
+
     const handleAdd = () => {
         setEditingUser(null)
         setFormData({
             email: '',
+            teamcodebridgeEmail: '',
             name: '',
             role: 'MENTOR',
             isApproved: false,
@@ -94,6 +142,7 @@ export default function AdminUserManagement() {
         setEditingUser(user)
         setFormData({
             email: user.email || '',
+            teamcodebridgeEmail: user.teamcodebridgeEmail || '',
             name: user.name || '',
             role: (user.role as 'ADMIN' | 'MENTOR') || 'MENTOR',
             isApproved: user.isApproved,
@@ -125,6 +174,11 @@ export default function AdminUserManagement() {
         }
     }
 
+    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const formatted = formatPhoneNumber(e.target.value)
+        setFormData({ ...formData, phone: formatted })
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
@@ -143,6 +197,7 @@ export default function AdminUserManagement() {
                 body: JSON.stringify({
                     ...formData,
                     email: formData.email || null,
+                    teamcodebridgeEmail: formData.teamcodebridgeEmail || null,
                     name: formData.name || null,
                     team: formData.team || null,
                     position: formData.position || null,
@@ -186,6 +241,48 @@ export default function AdminUserManagement() {
                 </button>
             </div>
 
+            {/* 필터 영역 */}
+            <div className="bg-white p-4 rounded-2xl border border-gray-100 flex flex-wrap gap-3">
+                <div className="relative">
+                    <select
+                        value={positionFilter}
+                        onChange={(e) => setPositionFilter(e.target.value)}
+                        className="appearance-none bg-gray-50 border border-gray-200 text-gray-700 py-2 pl-4 pr-10 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm font-medium"
+                    >
+                        {positions.map(pos => (
+                            <option key={pos} value={pos}>{pos}</option>
+                        ))}
+                    </select>
+                    <FunnelIcon className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+
+                <div className="relative">
+                    <select
+                        value={roleFilter}
+                        onChange={(e) => setRoleFilter(e.target.value)}
+                        className="appearance-none bg-gray-50 border border-gray-200 text-gray-700 py-2 pl-4 pr-10 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm font-medium"
+                    >
+                        <option value="전체">전체</option>
+                        <option value="ADMIN">관리자</option>
+                        <option value="MENTOR">멘토</option>
+                    </select>
+                    <FunnelIcon className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+
+                <div className="relative">
+                    <select
+                        value={approvalFilter}
+                        onChange={(e) => setApprovalFilter(e.target.value)}
+                        className="appearance-none bg-gray-50 border border-gray-200 text-gray-700 py-2 pl-4 pr-10 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm font-medium"
+                    >
+                        <option value="전체">전체</option>
+                        <option value="승인됨">승인됨</option>
+                        <option value="대기중">대기중</option>
+                    </select>
+                    <FunnelIcon className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+            </div>
+
             <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
@@ -200,15 +297,34 @@ export default function AdminUserManagement() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
-                            {users.map((user) => (
+                            {filteredUsers.map((user) => (
                                 <tr key={user.id} className="hover:bg-gray-50 transition-colors">
                                     <td className="p-4">
                                         <div className="flex items-center gap-3">
-                                            <UserCircleIcon className="w-8 h-8 text-gray-400" />
+                                            {user.image ? (
+                                                <img 
+                                                    src={user.image} 
+                                                    alt={user.name || ''} 
+                                                    className="w-8 h-8 rounded-full object-cover"
+                                                />
+                                            ) : (
+                                                <img 
+                                                    src="/img/TeamCodeBridge_Logo_Black_Web.png" 
+                                                    alt="TCB" 
+                                                    className="w-8 h-8 rounded-full object-contain p-1 bg-gray-100"
+                                                />
+                                            )}
                                             <span className="font-bold text-gray-900">{user.name || '-'}</span>
                                         </div>
                                     </td>
-                                    <td className="p-4 text-sm text-gray-600">{user.email || '-'}</td>
+                                    <td className="p-4 text-sm text-gray-600">
+                                        <div>
+                                            <div>{user.email || '-'}</div>
+                                            {user.teamcodebridgeEmail && (
+                                                <div className="text-xs text-gray-400">{user.teamcodebridgeEmail}</div>
+                                            )}
+                                        </div>
+                                    </td>
                                     <td className="p-4">
                                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                                             user.role === 'ADMIN' 
@@ -250,6 +366,11 @@ export default function AdminUserManagement() {
                             ))}
                         </tbody>
                     </table>
+                    {filteredUsers.length === 0 && (
+                        <div className="p-12 text-center text-gray-400">
+                            필터 조건에 맞는 사용자가 없습니다.
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -281,6 +402,19 @@ export default function AdminUserManagement() {
                                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                         className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500"
                                         required
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                                        TeamCodeBridge 메일
+                                    </label>
+                                    <input
+                                        type="email"
+                                        value={formData.teamcodebridgeEmail}
+                                        onChange={(e) => setFormData({ ...formData, teamcodebridgeEmail: e.target.value })}
+                                        className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        placeholder="예: name@teamcodebridge.dev"
                                     />
                                 </div>
 
@@ -343,8 +477,10 @@ export default function AdminUserManagement() {
                                     <input
                                         type="tel"
                                         value={formData.phone}
-                                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                        onChange={handlePhoneChange}
                                         className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                        placeholder="010-1234-5678"
+                                        maxLength={13}
                                     />
                                 </div>
 
@@ -424,4 +560,3 @@ export default function AdminUserManagement() {
         </div>
     )
 }
-

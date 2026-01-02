@@ -61,7 +61,7 @@ export async function PUT(
         }
 
         const body = await request.json()
-        const { email, name, role, isApproved, team, position, phone, university, joinDate, status } = body
+        const { email, teamcodebridgeEmail, name, role, isApproved, team, position, phone, university, joinDate, status } = body
 
         // 이메일 중복 확인 (다른 사용자가 사용 중인지)
         if (email) {
@@ -77,6 +77,7 @@ export async function PUT(
             where: { id: params.id },
             data: {
                 ...(email !== undefined && { email }),
+                ...(teamcodebridgeEmail !== undefined && { teamcodebridgeEmail }),
                 ...(name !== undefined && { name }),
                 ...(role !== undefined && { role }),
                 ...(isApproved !== undefined && { isApproved }),

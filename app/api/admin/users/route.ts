@@ -53,7 +53,7 @@ export async function POST(request: Request) {
         }
 
         const body = await request.json()
-        const { email, name, role, isApproved, team, position, phone, university, joinDate, status } = body
+        const { email, teamcodebridgeEmail, name, role, isApproved, team, position, phone, university, joinDate, status } = body
 
         // 이메일 중복 확인
         if (email) {
@@ -68,6 +68,7 @@ export async function POST(request: Request) {
         const newUser = await prisma.user.create({
             data: {
                 email: email || null,
+                teamcodebridgeEmail: teamcodebridgeEmail || null,
                 name: name || null,
                 role: role || 'MENTOR',
                 isApproved: isApproved ?? false,
