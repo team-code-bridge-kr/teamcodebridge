@@ -41,9 +41,12 @@ export default function FloatingChat() {
     const { data: session } = useSession()
 
     useEffect(() => {
-        // 소켓 연결
-        const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://175.123.252.36:4000'
-        socketRef.current = io(socketUrl)
+        // 소켓 연결 (HTTPS를 통해 Nginx 프록시 사용)
+        const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || (typeof window !== 'undefined' ? window.location.origin : 'https://e2g.teamcodebridge.dev')
+        socketRef.current = io(socketUrl, {
+            path: '/socket.io/',
+            transports: ['websocket', 'polling']
+        })
 
         socketRef.current.on('connect', () => {
             console.log('Socket connected')
