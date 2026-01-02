@@ -60,16 +60,22 @@ export default function FloatingChat() {
             setOnlineUserIds(userIds)
         })
 
-        socketRef.current.on('receive_message', (msg: Message) => {
-            // 현재 보고 있는 채팅방의 메시지라면 추가
-            if (selectedUser && msg.senderId === selectedUser.id) {
-                setMessages(prev => {
-                    // 중복 방지
-                    if (prev.some(m => m.id === msg.id)) return prev
-                    return [...prev, msg]
-                })
+        socketRef.current.on('receive_message', (msg: Message & { receiverId?: string }) => {
+            // 내가 받은 메시지인지 확인 (receiverId가 내 ID와 일치)
+            if (session?.user?.id && msg.receiverId === session.user.id) {
+                // 현재 보고 있는 채팅방의 메시지라면 즉시 추가
+                if (selectedUser && msg.senderId === selectedUser.id) {
+                    setMessages(prev => {
+                        // 중복 방지
+                        if (prev.some(m => m.id === msg.id)) return prev
+                        return [...prev, msg]
+                    })
+                } else {
+                    // 다른 채팅방의 메시지라면 나중에 보이도록 처리
+                    // (채팅방을 열면 fetchMessages에서 가져옴)
+                    console.log('Message received from different chat:', msg.senderId)
+                }
             }
-            // 다른 사람에게 온 메시지라면 알림 표시 (추후 구현)
         })
 
         socketRef.current.on('message_sent', (msg: Message & { receiverId: string }) => {
@@ -94,6 +100,9 @@ export default function FloatingChat() {
     useEffect(() => {
         if (isOpen && selectedUser) {
             fetchMessages(selectedUser.id)
+        } else if (!isOpen) {
+            // 채팅창이 닫혀있을 때는 메시지 목록 초기화
+            setMessages([])
         }
     }, [isOpen, selectedUser])
 

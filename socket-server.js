@@ -42,8 +42,12 @@ io.on("connection", (socket) => {
         if (receiverSocketId) {
             io.to(receiverSocketId).emit("receive_message", {
                 ...messageData,
+                receiverId: receiverId,
                 isMyMessage: false
             });
+            console.log(`Message sent from ${senderId} to ${receiverId} via socket ${receiverSocketId}`);
+        } else {
+            console.log(`Receiver ${receiverId} is not online`);
         }
 
         // 보낸 사람에게도 확인 메시지 전송 (실시간 업데이트용)
