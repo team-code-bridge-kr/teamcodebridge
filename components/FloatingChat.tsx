@@ -18,6 +18,7 @@ interface Message {
     senderName: string
     createdAt: string
     isMyMessage: boolean
+    receiverId?: string
 }
 
 interface User {
@@ -61,7 +62,7 @@ export default function FloatingChat() {
 
         socketRef.current.on('receive_message', (msg: Message) => {
             // 현재 보고 있는 채팅방의 메시지라면 추가
-            if (selectedUser && (msg.senderId === selectedUser.id || msg.receiverId === selectedUser.id)) {
+            if (selectedUser && msg.senderId === selectedUser.id) {
                 setMessages(prev => {
                     // 중복 방지
                     if (prev.some(m => m.id === msg.id)) return prev
