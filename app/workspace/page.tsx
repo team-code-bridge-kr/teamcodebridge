@@ -2,26 +2,129 @@
 
 import { motion } from 'framer-motion'
 import { useSession } from 'next-auth/react'
+import { useState, useEffect } from 'react'
 import {
     CalendarIcon,
     CheckCircleIcon,
     ClockIcon,
-    BellIcon
+    BellIcon,
+    ExclamationTriangleIcon,
+    ArrowRightIcon,
+    FireIcon
 } from '@heroicons/react/24/outline'
+import NotificationBar from '@/components/NotificationBar'
 
-const stats = [
-    { name: '진행 중인 프로젝트', value: '12', icon: ClockIcon, color: 'text-blue-600', bg: 'bg-blue-50' },
-    { name: '대기 중인 피드백', value: '5', icon: BellIcon, color: 'text-orange-600', bg: 'bg-orange-50' },
-    { name: '이번 주 완료 업무', value: '28', icon: CheckCircleIcon, color: 'text-green-600', bg: 'bg-green-50' },
-    { name: '예정된 멘토링', value: '3', icon: CalendarIcon, color: 'text-purple-600', bg: 'bg-purple-50' },
-]
+interface Project {
+    id: string
+    title: string
+    description: string | null
+    tasks: Task[]
+}
+
+interface Task {
+    id: string
+    name: string
+    status: string
+    priority: string
+    timeline: string | null
+    ownerId: string | null
+    owner: {
+        id: string
+        name: string | null
+    } | null
+}
+
+interface Announcement {
+    id: string
+    title: string
+    content: string
+    date: string
+    category: string
+    isImportant: boolean
+}
 
 export default function WorkspaceHome() {
     const { data: session } = useSession()
     const userName = session?.user?.name || '멘토'
+    const userId = session?.user?.id
+    const [projects, setProjects] = useState<Project[]>([])
+    const [myTasks, setMyTasks] = useState<Task[]>([])
+    const [announcements, setAnnouncements] = useState<Announcement[]>([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                // 프로젝트 및 업무 가져오기
+                const projectsRes = await fetch('/api/projects')
+                const projectsData = await projectsRes.json()
+                setProjects(projectsData)
+
+                // 본인에게 할당된 업무 필터링
+                if (userId) {
+                    const allTasks = projectsData.flatMap((p: Project) => p.tasks || [])
+                    const assignedTasks = allTasks.filter((task: Task) => task.ownerId === userId)
+                    setMyTasks(assignedTasks)
+                }
+
+                // 공지사항 (실제로는 API에서 가져와야 함)
+                const mockAnnouncements: Announcement[] = [
+                    {
+                        id: '1',
+                        title: '26 시즌 멘토 모집 시작',
+                        content: '26 시즌 멘토 모집이 시작되었습니다. 주변의 인재들에게 많은 추천 부탁드립니다!',
+                        date: '2026.01.02',
+                        category: '공지',
+                        isImportant: true
+                    },
+                    {
+                        id: '2',
+                        title: '멘토 가이드라인 업데이트',
+                        content: '26 시즌 멘토 가이드라인이 업데이트되었습니다. 확인 부탁드립니다.',
+                        date: '2026.01.01',
+                        category: '업데이트',
+                        isImportant: false
+                    }
+                ]
+                setAnnouncements(mockAnnouncements)
+            } catch (error) {
+                console.error('Failed to fetch data:', error)
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchData()
+    }, [userId])
+
+    const getDaysUntilDeadline = (timeline: string | null) => {
+        if (!timeline) return null
+        try {
+            const deadline = new Date(timeline)
+            const now = new Date()
+            const diff = deadline.getTime() - now.getTime()
+            const days = Math.ceil(diff / (1000 * 60 * 60 * 24))
+            return days
+        } catch {
+            return null
+        }
+    }
+
+    const urgentTasks = myTasks.filter(task => {
+        const days = getDaysUntilDeadline(task.timeline)
+        return days !== null && days <= 3 && task.status !== '완료'
+    })
+
+    const stats = [
+        { name: '내 업무', value: myTasks.length.toString(), icon: ClockIcon, color: 'text-blue-600', bg: 'bg-blue-50' },
+        { name: '마감 임박', value: urgentTasks.length.toString(), icon: ExclamationTriangleIcon, color: 'text-red-600', bg: 'bg-red-50' },
+        { name: '완료된 업무', value: myTasks.filter(t => t.status === '완료').length.toString(), icon: CheckCircleIcon, color: 'text-green-600', bg: 'bg-green-50' },
+        { name: '진행 중', value: myTasks.filter(t => t.status === '진행 중').length.toString(), icon: CalendarIcon, color: 'text-purple-600', bg: 'bg-purple-50' },
+    ]
 
     return (
-        <div className="p-8 max-w-7xl mx-auto">
+        <div className="p-8 max-w-7xl mx-auto relative">
+            <NotificationBar />
+
             <header className="mb-10">
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}
@@ -32,6 +135,45 @@ export default function WorkspaceHome() {
                     <p className="text-gray-500">오늘도 TeamCodeBridge와 함께 미래를 만들어가요.</p>
                 </motion.div>
             </header>
+
+            {/* 공지사항 - 맨 위 (네이버 스타일) */}
+            {announcements.length > 0 && (
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-8 bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden"
+                >
+                    <div className="bg-primary-600 px-6 py-4 flex items-center gap-3">
+                        <BellIcon className="w-5 h-5 text-white" />
+                        <h2 className="text-white font-black text-sm">팀코드브릿지 공지사항</h2>
+                    </div>
+                    <div className="divide-y divide-gray-100">
+                        {announcements.map((announcement, i) => (
+                            <div
+                                key={announcement.id}
+                                className={`p-6 hover:bg-gray-50 transition-colors cursor-pointer ${announcement.isImportant ? 'bg-yellow-50/30' : ''}`}
+                            >
+                                <div className="flex items-start justify-between gap-4">
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            {announcement.isImportant && (
+                                                <span className="px-2 py-0.5 bg-red-500 text-white text-[10px] font-black rounded-full">중요</span>
+                                            )}
+                                            <span className="px-2 py-0.5 bg-primary-100 text-primary-600 text-[10px] font-bold rounded-full">
+                                                {announcement.category}
+                                            </span>
+                                            <span className="text-xs text-gray-400">{announcement.date}</span>
+                                        </div>
+                                        <h3 className="font-black text-black mb-1">{announcement.title}</h3>
+                                        <p className="text-sm text-gray-600">{announcement.content}</p>
+                                    </div>
+                                    <ArrowRightIcon className="w-5 h-5 text-gray-400 shrink-0" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </motion.div>
+            )}
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
@@ -55,47 +197,164 @@ export default function WorkspaceHome() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Recent Activity */}
+                {/* 내 업무 - 가장 중요 */}
                 <div className="lg:col-span-2 space-y-6">
                     <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm">
-                        <h2 className="text-xl font-black text-black mb-6">최근 업무 현황</h2>
-                        <div className="space-y-4">
-                            {[
-                                { title: '26 시즌 멘토 가이드라인 업데이트', time: '2시간 전', status: '완료', type: '공지' },
-                                { title: '고려대학교 프로젝트 피드백 제출', time: '5시간 전', status: '진행중', type: '업무' },
-                                { title: '신규 멘토 온보딩 세션 준비', time: '어제', status: '대기', type: '미팅' },
-                            ].map((item, i) => (
-                                <div key={i} className="flex items-center justify-between p-4 rounded-2xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-2 h-2 rounded-full bg-primary-600" />
-                                        <div>
-                                            <h4 className="font-bold text-black text-sm">{item.title}</h4>
-                                            <span className="text-xs text-gray-400">{item.time} • {item.type}</span>
-                                        </div>
-                                    </div>
-                                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold ${item.status === '완료' ? 'bg-green-50 text-green-600' :
-                                            item.status === '진행중' ? 'bg-blue-50 text-blue-600' : 'bg-gray-50 text-gray-500'
-                                        }`}>
-                                        {item.status}
-                                    </span>
-                                </div>
-                            ))}
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-xl font-black text-black">내가 할당된 업무</h2>
+                            <span className="text-sm font-bold text-gray-400 bg-gray-50 px-3 py-1 rounded-full">
+                                {myTasks.length}개
+                            </span>
                         </div>
+                        {loading ? (
+                            <div className="flex justify-center py-12">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+                            </div>
+                        ) : myTasks.length === 0 ? (
+                            <div className="text-center py-12 text-gray-400">
+                                <ClockIcon className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                                <p className="font-bold">할당된 업무가 없습니다</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                {myTasks.map((task) => {
+                                    const days = getDaysUntilDeadline(task.timeline)
+                                    const isUrgent = days !== null && days <= 3 && task.status !== '완료'
+                                    return (
+                                        <div
+                                            key={task.id}
+                                            className={`p-5 rounded-2xl border-2 transition-all hover:shadow-md ${
+                                                isUrgent
+                                                    ? 'border-red-200 bg-red-50/30'
+                                                    : task.status === '완료'
+                                                    ? 'border-green-200 bg-green-50/20'
+                                                    : 'border-gray-100 hover:border-primary-200'
+                                            }`}
+                                        >
+                                            <div className="flex items-start justify-between gap-4 mb-3">
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-2 mb-2">
+                                                        {isUrgent && (
+                                                            <span className="flex items-center gap-1 px-2 py-0.5 bg-red-500 text-white text-[10px] font-black rounded-full">
+                                                                <FireIcon className="w-3 h-3" />
+                                                                마감 임박
+                                                            </span>
+                                                        )}
+                                                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-black ${
+                                                            task.status === '완료' ? 'bg-green-100 text-green-700' :
+                                                            task.status === '진행 중' ? 'bg-blue-100 text-blue-700' :
+                                                            task.status === '지연' ? 'bg-red-100 text-red-700' :
+                                                            'bg-gray-100 text-gray-700'
+                                                        }`}>
+                                                            {task.status}
+                                                        </span>
+                                                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-black ${
+                                                            task.priority === '높음' ? 'bg-red-100 text-red-700' :
+                                                            task.priority === '중간' ? 'bg-yellow-100 text-yellow-700' :
+                                                            'bg-blue-100 text-blue-700'
+                                                        }`}>
+                                                            {task.priority}
+                                                        </span>
+                                                    </div>
+                                                    <h4 className="font-black text-black text-base mb-1">{task.name}</h4>
+                                                    {task.timeline && (
+                                                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                                                            <CalendarIcon className="w-4 h-4" />
+                                                            <span className="font-bold">
+                                                                {task.timeline}
+                                                                {days !== null && (
+                                                                    <span className={`ml-2 ${isUrgent ? 'text-red-600 font-black' : 'text-gray-500'}`}>
+                                                                        ({days > 0 ? `${days}일 남음` : days === 0 ? '오늘 마감' : '마감 지남'})
+                                                                    </span>
+                                                                )}
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* 전체 프로젝트 현황 */}
+                    <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm">
+                        <h2 className="text-xl font-black text-black mb-6">전체 프로젝트 현황</h2>
+                        {loading ? (
+                            <div className="flex justify-center py-12">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+                            </div>
+                        ) : projects.length === 0 ? (
+                            <div className="text-center py-12 text-gray-400">
+                                <p className="font-bold">프로젝트가 없습니다</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {projects.map((project) => {
+                                    const totalTasks = project.tasks?.length || 0
+                                    const completedTasks = project.tasks?.filter(t => t.status === '완료').length || 0
+                                    const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
+                                    return (
+                                        <div key={project.id} className="p-5 rounded-2xl border border-gray-100 hover:border-primary-200 hover:shadow-md transition-all">
+                                            <div className="flex items-center justify-between mb-3">
+                                                <h3 className="font-black text-black">{project.title}</h3>
+                                                <span className="text-sm font-bold text-gray-400">
+                                                    {completedTasks}/{totalTasks} 완료
+                                                </span>
+                                            </div>
+                                            <div className="w-full bg-gray-100 rounded-full h-2 mb-2">
+                                                <div
+                                                    className="bg-primary-600 h-2 rounded-full transition-all"
+                                                    style={{ width: `${progress}%` }}
+                                                />
+                                            </div>
+                                            <p className="text-xs text-gray-500">{project.description || '설명 없음'}</p>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        )}
                     </div>
                 </div>
 
-                {/* Quick Links / Calendar Mini */}
+                {/* 사이드바 - 빠른 링크 */}
                 <div className="space-y-6">
                     <div className="bg-primary-600 p-8 rounded-[32px] text-white shadow-xl shadow-primary-600/20">
-                        <h2 className="text-xl font-black mb-4">팀코드브릿지 소식</h2>
-                        <p className="text-primary-100 text-sm font-light leading-relaxed mb-6">
-                            26 시즌 멘토 모집이 시작되었습니다. <br />
-                            주변의 인재들에게 많은 추천 부탁드립니다!
-                        </p>
-                        <button className="w-full py-3 bg-white text-primary-600 rounded-xl font-bold text-sm hover:bg-primary-50 transition-colors">
-                            공지사항 전체보기
-                        </button>
+                        <h2 className="text-xl font-black mb-4">빠른 액션</h2>
+                        <div className="space-y-3">
+                            <button className="w-full py-3 bg-white text-primary-600 rounded-xl font-bold text-sm hover:bg-primary-50 transition-colors">
+                                새 업무 추가
+                            </button>
+                            <button className="w-full py-3 bg-white/10 text-white rounded-xl font-bold text-sm hover:bg-white/20 transition-colors border border-white/20">
+                                프로젝트 생성
+                            </button>
+                        </div>
                     </div>
+
+                    {/* 마감 임박 업무 요약 */}
+                    {urgentTasks.length > 0 && (
+                        <div className="bg-red-50 p-6 rounded-[32px] border-2 border-red-200">
+                            <div className="flex items-center gap-2 mb-4">
+                                <FireIcon className="w-5 h-5 text-red-600" />
+                                <h3 className="font-black text-red-900">마감 임박</h3>
+                            </div>
+                            <div className="space-y-2">
+                                {urgentTasks.slice(0, 3).map((task) => {
+                                    const days = getDaysUntilDeadline(task.timeline)
+                                    return (
+                                        <div key={task.id} className="p-3 bg-white rounded-xl border border-red-200">
+                                            <p className="font-bold text-sm text-red-900 mb-1">{task.name}</p>
+                                            <p className="text-xs text-red-600 font-medium">
+                                                {days !== null && (days > 0 ? `${days}일 남음` : '오늘 마감')}
+                                            </p>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
