@@ -48,18 +48,26 @@ const handler = NextAuth({
                 }
             }
             
-            // 기존 토큰에서 email이 있고 id가 없거나 잘못된 경우 업데이트
-            if (token.email && (!token.id || typeof token.id !== 'string' || token.id.length < 10)) {
-                try {
-                    const dbUser = await prisma.user.findUnique({
-                        where: { email: token.email as string }
-                    })
-                    if (dbUser) {
-                        token.id = dbUser.id
-                        token.role = dbUser.role
+            // 기존 토큰에서 email이 있고 id가 Google OAuth ID 형식인 경우 업데이트
+            // Google OAuth ID는 보통 숫자로만 구성되어 있음
+            if (token.email) {
+                const currentId = token.id as string
+                // Google OAuth ID는 숫자로만 구성되어 있고 길이가 20자 이상
+                const isGoogleOAuthId = currentId && /^\d+$/.test(currentId) && currentId.length > 15
+                
+                if (isGoogleOAuthId || !currentId) {
+                    try {
+                        const dbUser = await prisma.user.findUnique({
+                            where: { email: token.email as string }
+                        })
+                        if (dbUser) {
+                            console.log(`Updating token ID from ${currentId} to ${dbUser.id}`)
+                            token.id = dbUser.id
+                            token.role = dbUser.role
+                        }
+                    } catch (error) {
+                        console.error('Error updating token:', error)
                     }
-                } catch (error) {
-                    console.error('Error updating token:', error)
                 }
             }
             
