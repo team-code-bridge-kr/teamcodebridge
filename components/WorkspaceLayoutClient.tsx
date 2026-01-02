@@ -44,11 +44,11 @@ export default function WorkspaceLayoutClient({
 
     return (
         <div className="min-h-screen bg-white flex">
-            {/* Sidebar for Desktop */}
+            {/* Sidebar for Desktop - Fixed */}
             <aside
                 onMouseEnter={() => setIsCollapsed(false)}
                 onMouseLeave={() => setIsCollapsed(true)}
-                className={`hidden md:flex flex-col bg-white border-r border-gray-100 transition-all duration-300 ease-in-out relative ${isCollapsed ? 'w-20' : 'w-64'}`}
+                className={`hidden md:flex flex-col fixed left-0 top-0 h-screen bg-white border-r border-gray-100 transition-all duration-300 ease-in-out z-40 ${isCollapsed ? 'w-20' : 'w-64'}`}
             >
                 <div className="p-6 flex items-center justify-between">
                     {!isCollapsed && (
@@ -72,7 +72,7 @@ export default function WorkspaceLayoutClient({
                     )}
                 </div>
 
-                <nav className="flex-1 px-4 space-y-2 mt-4">
+                <nav className="flex-1 px-4 space-y-2 mt-4 overflow-y-auto">
                     {menuItems.map((item) => {
                         const isActive = pathname === item.href
                         return (
@@ -210,7 +210,7 @@ export default function WorkspaceLayoutClient({
             </AnimatePresence>
 
             {/* Main Content Area */}
-            <main className="flex-1 flex flex-col min-w-0 overflow-hidden pt-16 md:pt-0">
+            <main className={`flex-1 flex flex-col min-w-0 overflow-hidden pt-16 md:pt-0 ${isCollapsed ? 'md:ml-20' : 'md:ml-64'} transition-all duration-300`}>
                 <div className="flex-1 overflow-y-auto">
                     {children}
                 </div>
