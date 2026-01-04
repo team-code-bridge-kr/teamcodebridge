@@ -82,17 +82,11 @@ export function ContextSidebarProvider({ children }: { children: ReactNode }) {
             body: JSON.stringify({
                 taskId,
                 risks: data.risks,
-                // Mission is preserved from capsule if exists, or handled by backend? 
-                // Actually Backend POST updates fields. We should probably only send risks.
-                // But upsert needs all fields? No, prisma update can take partials.
-                // My API implementation takes body and updates everything.
-                // I should refine API or just send current mission back.
-                mission: capsule?.mission // Keep existing mission
+                mission: capsule?.mission, // Keep existing mission
+                status: '진행 중' // Explicitly set status to In Progress
             })
         })
         
-        // Optimistic update or refetch?
-        // Close sidebar handled by component? No, passed via props.
         closeSidebar()
         router.refresh()
     }
@@ -106,7 +100,8 @@ export function ContextSidebarProvider({ children }: { children: ReactNode }) {
             body: JSON.stringify({
                 taskId,
                 ...data,
-                mission: capsule?.mission // Keep existing mission
+                mission: capsule?.mission, // Keep existing mission
+                status: '대기' // Explicitly set status to Pending
             })
         })
         closeSidebar()
