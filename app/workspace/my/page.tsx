@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { UserIcon, Cog6ToothIcon, BellIcon, ShieldCheckIcon } from '@heroicons/react/24/outline'
 import AdminUserManagement from './AdminUserManagement'
+import AdminAnnouncementManagement from './AdminAnnouncementManagement'
 
 export default function WorkspaceMy() {
     const { data: session, status } = useSession()
@@ -62,6 +63,13 @@ export default function WorkspaceMy() {
                     </div>
                 )}
 
+                {/* 관리자 전용: 공지사항 관리 */}
+                {isAdmin && (
+                    <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm">
+                        <AdminAnnouncementManagement />
+                    </div>
+                )}
+
                 {/* Settings List */}
                 <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
                     {[
@@ -91,4 +99,5 @@ export default function WorkspaceMy() {
         </div>
     )
 }
+
 

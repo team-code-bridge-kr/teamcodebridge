@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { useSession } from 'next-auth/react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
     CalendarIcon,
     CheckCircleIcon,
@@ -38,9 +38,14 @@ interface Announcement {
     id: string
     title: string
     content: string
-    date: string
     category: string
     isImportant: boolean
+    createdAt: string
+    createdBy?: {
+        id: string
+        name: string | null
+        email: string | null
+    } | null
 }
 
 export default function WorkspaceHome() {
@@ -51,6 +56,7 @@ export default function WorkspaceHome() {
     const [myTasks, setMyTasks] = useState<Task[]>([])
     const [announcements, setAnnouncements] = useState<Announcement[]>([])
     const [loading, setLoading] = useState(true)
+    const announcementScrollRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -78,26 +84,12 @@ export default function WorkspaceHome() {
                     setMyTasks([])
                 }
 
-                // 공지사항 (실제로는 API에서 가져와야 함)
-                const mockAnnouncements: Announcement[] = [
-                    {
-                        id: '1',
-                        title: '26 시즌 멘토 모집 시작',
-                        content: '26 시즌 멘토 모집이 시작되었습니다. 주변의 인재들에게 많은 추천 부탁드립니다!',
-                        date: '2026.01.02',
-                        category: '공지',
-                        isImportant: true
-                    },
-                    {
-                        id: '2',
-                        title: '멘토 가이드라인 업데이트',
-                        content: '26 시즌 멘토 가이드라인이 업데이트되었습니다. 확인 부탁드립니다.',
-                        date: '2026.01.01',
-                        category: '업데이트',
-                        isImportant: false
-                    }
-                ]
-                setAnnouncements(mockAnnouncements)
+                // 공지사항 가져오기
+                const announcementsRes = await fetch('/api/announcements')
+                if (announcementsRes.ok) {
+                    const announcementsData = await announcementsRes.json()
+                    setAnnouncements(announcementsData)
+                }
             } catch (error) {
                 console.error('Failed to fetch data:', error)
             } finally {
@@ -147,41 +139,66 @@ export default function WorkspaceHome() {
                 </motion.div>
             </header>
 
-            {/* 공지사항 - 맨 위 (네이버 스타일) */}
+            {/* 공지사항 - 맨 위 (한 줄 슬라이더) */}
             {announcements.length > 0 && (
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="mb-8 bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden"
                 >
-                    <div className="bg-primary-600 px-6 py-4 flex items-center gap-3">
-                        <BellIcon className="w-5 h-5 text-white" />
-                        <h2 className="text-white font-black text-sm">팀코드브릿지 공지사항</h2>
+                    <div className="bg-primary-600 px-6 py-4 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <BellIcon className="w-5 h-5 text-white" />
+                            <h2 className="text-white font-black text-sm">팀코드브릿지 공지사항</h2>
+                        </div>
                     </div>
-                    <div className="divide-y divide-gray-100">
-                        {announcements.map((announcement, i) => (
-                            <div
-                                key={announcement.id}
-                                className={`p-6 hover:bg-gray-50 transition-colors cursor-pointer ${announcement.isImportant ? 'bg-yellow-50/30' : ''}`}
-                            >
-                                <div className="flex items-start justify-between gap-4">
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-2 mb-2">
+                    <div className="relative">
+                        <div
+                            ref={announcementScrollRef}
+                            className="flex gap-4 overflow-x-auto px-6 py-4 scrollbar-hide snap-x snap-mandatory"
+                            style={{
+                                scrollbarWidth: 'none',
+                                msOverflowStyle: 'none',
+                                WebkitOverflowScrolling: 'touch',
+                            }}
+                        >
+                            {announcements.map((announcement) => {
+                                const date = new Date(announcement.createdAt).toLocaleDateString('ko-KR', {
+                                    year: 'numeric',
+                                    month: '2-digit',
+                                    day: '2-digit',
+                                }).replace(/\./g, '.').replace(/\s/g, '')
+                                
+                                return (
+                                    <div
+                                        key={announcement.id}
+                                        className={`flex-shrink-0 w-[calc(100vw-4rem)] md:w-[400px] p-5 rounded-2xl border-2 cursor-pointer hover:shadow-md transition-all snap-start ${
+                                            announcement.isImportant 
+                                                ? 'border-red-200 bg-red-50/30' 
+                                                : 'border-gray-100 bg-white hover:border-primary-200'
+                                        }`}
+                                        onClick={() => {
+                                            // TODO: 공지사항 상세 페이지로 이동
+                                        }}
+                                    >
+                                        <div className="flex items-center gap-2 mb-3">
                                             {announcement.isImportant && (
                                                 <span className="px-2 py-0.5 bg-red-500 text-white text-[10px] font-black rounded-full">중요</span>
                                             )}
                                             <span className="px-2 py-0.5 bg-primary-100 text-primary-600 text-[10px] font-bold rounded-full">
                                                 {announcement.category}
                                             </span>
-                                            <span className="text-xs text-gray-400">{announcement.date}</span>
+                                            <span className="text-xs text-gray-400">{date}</span>
                                         </div>
-                                        <h3 className="font-black text-black mb-1">{announcement.title}</h3>
-                                        <p className="text-sm text-gray-600">{announcement.content}</p>
+                                        <h3 className="font-black text-black text-base mb-2 line-clamp-1">{announcement.title}</h3>
+                                        <p className="text-sm text-gray-600 line-clamp-2">{announcement.content}</p>
+                                        <div className="flex items-center justify-end mt-3">
+                                            <ArrowRightIcon className="w-4 h-4 text-gray-400" />
+                                        </div>
                                     </div>
-                                    <ArrowRightIcon className="w-5 h-5 text-gray-400 shrink-0" />
-                                </div>
-                            </div>
-                        ))}
+                                )
+                            })}
+                        </div>
                     </div>
                 </motion.div>
             )}
