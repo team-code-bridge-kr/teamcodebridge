@@ -92,13 +92,15 @@ export default function CreateTaskModal({ isOpen, onClose, projects, currentUser
                                                         프로젝트
                                                     </label>
                                                     <select
-                                                        className="w-full rounded-xl border-gray-200 focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                                                        className="w-full rounded-xl border-gray-200 bg-white text-gray-900 focus:border-primary-500 focus:ring-primary-500 sm:text-sm py-3"
                                                         value={projectId}
                                                         onChange={(e) => setProjectId(e.target.value)}
                                                         required
                                                     >
                                                         {projects.map((p) => (
-                                                            <option key={p.id} value={p.id}>{p.title}</option>
+                                                            <option key={p.id} value={p.id} className="text-gray-900 bg-white">
+                                                                {p.title}
+                                                            </option>
                                                         ))}
                                                     </select>
                                                 </div>
