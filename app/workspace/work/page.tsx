@@ -12,6 +12,7 @@ import {
 import { useState, useEffect } from 'react'
 import { useContextSidebar } from '@/components/ContextSidebar/ContextSidebarProvider'
 import CreateTaskModal from '@/components/CreateTaskModal'
+import CreateProjectModal from '@/components/CreateProjectModal'
 import { useSession } from 'next-auth/react'
 
 interface Task {
@@ -60,6 +61,7 @@ export default function WorkspaceWork() {
     const [projects, setProjects] = useState<Project[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+    const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] = useState(false)
     const { openIgnition, openClear } = useContextSidebar()
 
     const fetchProjects = async () => {
@@ -118,6 +120,13 @@ export default function WorkspaceWork() {
                     <button className="flex items-center gap-2 px-6 py-3 bg-white border-2 border-gray-100 text-gray-700 rounded-2xl font-bold hover:border-primary-600 hover:text-primary-600 transition-all shadow-sm">
                         <DocumentPlusIcon className="w-5 h-5" />
                         Google Drive 연동
+                    </button>
+                    <button
+                        onClick={() => setIsCreateProjectModalOpen(true)}
+                        className="flex items-center gap-2 px-6 py-3 bg-white border-2 border-primary-100 text-primary-600 rounded-2xl font-bold hover:bg-primary-50 transition-all shadow-sm"
+                    >
+                        <DocumentPlusIcon className="w-5 h-5" />
+                        새 프로젝트
                     </button>
                     <button 
                         onClick={() => setIsCreateModalOpen(true)}
@@ -260,6 +269,11 @@ export default function WorkspaceWork() {
                 projects={allProjects}
                 currentUserId={session?.user?.id}
                 onTaskCreated={fetchProjects}
+            />
+            <CreateProjectModal
+                isOpen={isCreateProjectModalOpen}
+                onClose={() => setIsCreateProjectModalOpen(false)}
+                onProjectCreated={fetchProjects}
             />
         </div>
     )
