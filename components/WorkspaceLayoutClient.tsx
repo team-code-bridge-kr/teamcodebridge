@@ -104,33 +104,35 @@ export default function WorkspaceLayoutClient({
 
                         return (
                             <div key={item.name}>
-                                <Link
-                                    href={item.href}
-                                    onClick={(e) => {
-                                        if (hasSubItems && !isCollapsed) {
-                                            e.preventDefault()
-                                            setExpandedMenu(isExpanded ? null : item.name)
-                                        }
-                                    }}
-                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all group ${isActive
-                                        ? 'bg-primary-50 text-primary-600'
-                                        : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
-                                        }`}
-                                >
-                                    <item.icon className={`w-6 h-6 shrink-0 ${isActive ? 'text-primary-600' : 'text-gray-400 group-hover:text-gray-900'}`} />
-                                    {!isCollapsed && <span className="font-bold text-sm flex-1">{item.name}</span>}
+                                <div className="flex items-center">
+                                    <Link
+                                        href={item.href}
+                                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all group flex-1 ${isActive
+                                            ? 'bg-primary-50 text-primary-600'
+                                            : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+                                            }`}
+                                    >
+                                        <item.icon className={`w-6 h-6 shrink-0 ${isActive ? 'text-primary-600' : 'text-gray-400 group-hover:text-gray-900'}`} />
+                                        {!isCollapsed && <span className="font-bold text-sm flex-1">{item.name}</span>}
+                                        {isActive && !isCollapsed && !hasSubItems && (
+                                            <motion.div
+                                                layoutId="activeNav"
+                                                className="ml-auto w-1.5 h-1.5 bg-primary-600 rounded-full"
+                                            />
+                                        )}
+                                    </Link>
                                     {hasSubItems && !isCollapsed && (
-                                        <ChevronDownIcon
-                                            className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
-                                        />
+                                        <button
+                                            onClick={() => setExpandedMenu(isExpanded ? null : item.name)}
+                                            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                                            aria-label="서브메뉴 토글"
+                                        >
+                                            <ChevronDownIcon
+                                                className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                                            />
+                                        </button>
                                     )}
-                                    {isActive && !isCollapsed && !hasSubItems && (
-                                        <motion.div
-                                            layoutId="activeNav"
-                                            className="ml-auto w-1.5 h-1.5 bg-primary-600 rounded-full"
-                                        />
-                                    )}
-                                </Link>
+                                </div>
                                 {hasSubItems && !isCollapsed && (
                                     <AnimatePresence>
                                         {isExpanded && (
