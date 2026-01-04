@@ -35,6 +35,7 @@ const menuItems: MenuItem[] = [
         href: '/workspace/work',
         icon: BriefcaseIcon,
         subItems: [
+            { name: 'Task', href: '/workspace/work', icon: BriefcaseIcon },
             { name: '회의 일정', href: '/workspace/meetings', icon: ClockIcon },
         ],
     },
@@ -269,35 +270,36 @@ export default function WorkspaceLayoutClient({
 
                                     return (
                                         <div key={item.name}>
-                                            <Link
-                                                href={item.href}
-                                                onClick={(e) => {
-                                                    if (hasSubItems) {
-                                                        e.preventDefault()
-                                                        setExpandedMenu(isExpanded ? null : item.name)
-                                                    } else {
-                                                        setIsMobileOpen(false)
-                                                    }
-                                                }}
-                                                className={`flex items-center gap-4 px-5 py-4 rounded-2xl transition-all ${isActive
-                                                    ? 'bg-primary-50 text-primary-600'
-                                                    : 'text-gray-500'
-                                                    }`}
-                                            >
-                                                <item.icon className={`w-6 h-6 shrink-0 ${isActive ? 'text-primary-600' : 'text-gray-400'}`} />
-                                                <span className="font-bold text-base flex-1">{item.name}</span>
+                                            <div className="flex items-center">
+                                                <Link
+                                                    href={item.href}
+                                                    onClick={() => setIsMobileOpen(false)}
+                                                    className={`flex items-center gap-4 px-5 py-4 rounded-2xl transition-all flex-1 ${isActive
+                                                        ? 'bg-primary-50 text-primary-600'
+                                                        : 'text-gray-500'
+                                                        }`}
+                                                >
+                                                    <item.icon className={`w-6 h-6 shrink-0 ${isActive ? 'text-primary-600' : 'text-gray-400'}`} />
+                                                    <span className="font-bold text-base flex-1">{item.name}</span>
+                                                    {isActive && !hasSubItems && (
+                                                        <motion.div
+                                                            layoutId="mobileActiveNav"
+                                                            className="ml-auto w-2 h-2 bg-primary-600 rounded-full"
+                                                        />
+                                                    )}
+                                                </Link>
                                                 {hasSubItems && (
-                                                    <ChevronDownIcon
-                                                        className={`w-5 h-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
-                                                    />
+                                                    <button
+                                                        onClick={() => setExpandedMenu(isExpanded ? null : item.name)}
+                                                        className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                                                        aria-label="서브메뉴 토글"
+                                                    >
+                                                        <ChevronDownIcon
+                                                            className={`w-5 h-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                                                        />
+                                                    </button>
                                                 )}
-                                                {isActive && !hasSubItems && (
-                                                    <motion.div
-                                                        layoutId="mobileActiveNav"
-                                                        className="ml-auto w-2 h-2 bg-primary-600 rounded-full"
-                                                    />
-                                                )}
-                                            </Link>
+                                            </div>
                                             {hasSubItems && (
                                                 <AnimatePresence>
                                                     {isExpanded && (
