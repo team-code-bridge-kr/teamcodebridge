@@ -701,92 +701,92 @@ export default function FloatingChat() {
                                     ) : (
                                         // User List
                                         <>
-                                    {/* Search and Filter */}
-                                    <div className="space-y-3">
-                                        <div className="relative">
-                                            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                            <input
-                                                type="text"
-                                                placeholder="이름, 부서, 직책으로 검색..."
-                                                value={searchQuery}
-                                                onChange={(e) => setSearchQuery(e.target.value)}
-                                                className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
-                                            />
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <FunnelIcon className="w-4 h-4 text-gray-400" />
-                                            <div className="flex gap-2 flex-1">
-                                                {(['all', 'online', 'team'] as FilterType[]).map((filterType) => (
-                                                    <button
-                                                        key={filterType}
-                                                        onClick={() => setFilter(filterType)}
-                                                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                                                            filter === filterType
-                                                                ? 'bg-primary-600 text-white'
-                                                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                                        }`}
-                                                    >
-                                                        {filterType === 'all' ? '전체' : filterType === 'online' ? '온라인' : '부서별'}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* User List - Grouped by Team */}
-                                    {Object.keys(groupedUsers).length === 0 ? (
-                                        <div className="text-center text-gray-400 text-sm py-12">
-                                            {searchQuery ? '검색 결과가 없습니다.' : '표시할 팀원이 없습니다.'}
-                                        </div>
-                                    ) : (
-                                        <div className="space-y-4">
-                                            {Object.entries(groupedUsers).map(([team, teamUsers]) => (
-                                                <div key={team}>
-                                                    <h4 className="text-xs font-bold text-gray-500 uppercase mb-2 px-2">{team}</h4>
-                                                    <div className="space-y-2">
-                                                        {teamUsers.map(user => {
-                                                            const isOnline = onlineUserIds.includes(user.id)
-                                                            const unreadCount = unreadCounts[user.id] || 0
-                                                            return (
-                                                                <div
-                                                                    key={user.id}
-                                                                    onClick={() => setSelectedUser(user)}
-                                                                    className="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-100 cursor-pointer hover:shadow-md hover:border-primary-200 transition-all group"
-                                                                >
-                                                                    <div className="relative w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden shrink-0">
-                                                                        {user.image ? (
-                                                                            <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
-                                                                        ) : (
-                                                                            <UserCircleIcon className="w-7 h-7 text-gray-400" />
-                                                                        )}
-                                                                        {isOnline && (
-                                                                            <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white z-10"></div>
-                                                                        )}
-                                                                    </div>
-                                                                    <div className="flex-1 min-w-0">
-                                                                        <div className="flex items-center gap-2 mb-0.5">
-                                                                            <p className="font-bold text-gray-900 text-sm truncate">{user.name}</p>
-                                                                            {user.position && (
-                                                                                <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded shrink-0">
-                                                                                    {user.position}
-                                                                                </span>
-                                                                            )}
-                                                                        </div>
-                                                                        <p className="text-xs text-gray-500 truncate">{user.team || '소속팀 미정'}</p>
-                                                                    </div>
-                                                                    {unreadCount > 0 && (
-                                                                        <div className="bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5 shrink-0">
-                                                                            {unreadCount > 99 ? '99+' : unreadCount}
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            )
-                                                        })}
+                                            {/* Search and Filter */}
+                                            <div className="space-y-3">
+                                                <div className="relative">
+                                                    <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                                    <input
+                                                        type="text"
+                                                        placeholder="이름, 부서, 직책으로 검색..."
+                                                        value={searchQuery}
+                                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                                        className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+                                                    />
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <FunnelIcon className="w-4 h-4 text-gray-400" />
+                                                    <div className="flex gap-2 flex-1">
+                                                        {(['all', 'online', 'team'] as FilterType[]).map((filterType) => (
+                                                            <button
+                                                                key={filterType}
+                                                                onClick={() => setFilter(filterType)}
+                                                                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                                                                    filter === filterType
+                                                                        ? 'bg-primary-600 text-white'
+                                                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                                                }`}
+                                                            >
+                                                                {filterType === 'all' ? '전체' : filterType === 'online' ? '온라인' : '부서별'}
+                                                            </button>
+                                                        ))}
                                                     </div>
                                                 </div>
-                                            ))}
-                                        </div>
-                                    )}
+                                            </div>
+
+                                            {/* User List - Grouped by Team */}
+                                            {Object.keys(groupedUsers).length === 0 ? (
+                                                <div className="text-center text-gray-400 text-sm py-12">
+                                                    {searchQuery ? '검색 결과가 없습니다.' : '표시할 팀원이 없습니다.'}
+                                                </div>
+                                            ) : (
+                                                <div className="space-y-4">
+                                                    {Object.entries(groupedUsers).map(([team, teamUsers]) => (
+                                                        <div key={team}>
+                                                            <h4 className="text-xs font-bold text-gray-500 uppercase mb-2 px-2">{team}</h4>
+                                                            <div className="space-y-2">
+                                                                {teamUsers.map(user => {
+                                                                    const isOnline = onlineUserIds.includes(user.id)
+                                                                    const unreadCount = unreadCounts[user.id] || 0
+                                                                    return (
+                                                                        <div
+                                                                            key={user.id}
+                                                                            onClick={() => setSelectedUser(user)}
+                                                                            className="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-100 cursor-pointer hover:shadow-md hover:border-primary-200 transition-all group"
+                                                                        >
+                                                                            <div className="relative w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden shrink-0">
+                                                                                {user.image ? (
+                                                                                    <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
+                                                                                ) : (
+                                                                                    <UserCircleIcon className="w-7 h-7 text-gray-400" />
+                                                                                )}
+                                                                                {isOnline && (
+                                                                                    <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white z-10"></div>
+                                                                                )}
+                                                                            </div>
+                                                                            <div className="flex-1 min-w-0">
+                                                                                <div className="flex items-center gap-2 mb-0.5">
+                                                                                    <p className="font-bold text-gray-900 text-sm truncate">{user.name}</p>
+                                                                                    {user.position && (
+                                                                                        <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded shrink-0">
+                                                                                            {user.position}
+                                                                                        </span>
+                                                                                    )}
+                                                                                </div>
+                                                                                <p className="text-xs text-gray-500 truncate">{user.team || '소속팀 미정'}</p>
+                                                                            </div>
+                                                                            {unreadCount > 0 && (
+                                                                                <div className="bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1.5 shrink-0">
+                                                                                    {unreadCount > 99 ? '99+' : unreadCount}
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    )
+                                                                })}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </>
                                     )}
                                 </div>
