@@ -787,6 +787,8 @@ export default function FloatingChat() {
                                             ))}
                                         </div>
                                     )}
+                                        </>
+                                    )}
                                 </div>
                             ) : (
                                 // Chat Room
