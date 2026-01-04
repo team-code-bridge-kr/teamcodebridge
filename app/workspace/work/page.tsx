@@ -66,10 +66,19 @@ export default function WorkspaceWork() {
         setIsLoading(true)
         try {
             const response = await fetch('/api/projects')
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`)
+            }
             const data = await response.json()
-            setProjects(data)
+            if (Array.isArray(data)) {
+                setProjects(data)
+            } else {
+                console.error("Projects data is not an array:", data)
+                setProjects([])
+            }
         } catch (error) {
             console.error("Failed to fetch projects:", error)
+            setProjects([])
         } finally {
             setIsLoading(false)
         }
