@@ -1,0 +1,180 @@
+'use client'
+
+import { Fragment } from 'react'
+import { Dialog, Transition } from '@headlessui/react'
+import { XMarkIcon } from '@heroicons/react/24/outline'
+
+interface TermsModalProps {
+    isOpen: boolean
+    onClose: () => void
+    type: 'terms' | 'privacy'
+}
+
+const termsContent = `
+제1조 (목적)
+이 약관은 TeamCodeBridge(이하 "회사")가 제공하는 워크스페이스 서비스(이하 "서비스")의 이용과 관련하여 회사와 이용자 간의 권리, 의무 및 책임사항을 규정함을 목적으로 합니다.
+
+제2조 (정의)
+1. "서비스"란 회사가 제공하는 멘토 전용 업무 관리 시스템을 의미합니다.
+2. "이용자"란 이 약관에 따라 서비스를 이용하는 회원을 의미합니다.
+3. "멘토"란 TeamCodeBridge의 멘토링 프로그램에 참여하는 자를 의미합니다.
+
+제3조 (서비스의 제공)
+1. 회사는 다음과 같은 서비스를 제공합니다:
+   - 업무 관리 및 프로젝트 추적
+   - 실시간 채팅 및 커뮤니케이션
+   - 캘린더 및 일정 관리
+   - 회의 일정 투표 및 관리
+   - 기타 멘토링 활동 지원 서비스
+
+제4조 (이용자의 의무)
+1. 이용자는 서비스 이용 시 다음 행위를 하여서는 안 됩니다:
+   - 타인의 개인정보를 무단으로 수집, 이용하는 행위
+   - 서비스의 안정적 운영을 방해하는 행위
+   - 법령 및 이 약관을 위반하는 행위
+
+제5조 (개인정보의 보호)
+1. 회사는 이용자의 개인정보를 보호하기 위하여 노력합니다.
+2. 개인정보의 보호 및 이용에 대해서는 관련 법령 및 회사의 개인정보처리방침이 적용됩니다.
+
+제6조 (서비스의 변경 및 중단)
+1. 회사는 운영상, 기술상의 필요에 따라 제공하는 서비스의 내용을 변경할 수 있습니다.
+2. 회사는 서비스 제공을 중단할 수 있으며, 이 경우 사전에 공지합니다.
+
+제7조 (면책조항)
+1. 회사는 천재지변 또는 이에 준하는 불가항력으로 인하여 서비스를 제공할 수 없는 경우에는 서비스 제공에 관한 책임이 면제됩니다.
+2. 회사는 이용자의 귀책사유로 인한 서비스 이용의 장애에 대하여는 책임을 지지 않습니다.
+
+제8조 (준거법 및 관할법원)
+1. 이 약관의 해석 및 회사와 이용자 간의 분쟁에 대하여는 대한민국 법을 적용합니다.
+2. 서비스 이용과 관련하여 발생한 분쟁에 대하여는 회사의 본사 소재지를 관할하는 법원을 관할법원으로 합니다.
+
+부칙
+이 약관은 2026년 1월 1일부터 시행됩니다.
+`
+
+const privacyContent = `
+제1조 (개인정보의 처리 목적)
+TeamCodeBridge(이하 "회사")는 다음의 목적을 위하여 개인정보를 처리합니다:
+1. 서비스 제공 및 계약의 이행
+2. 멘토링 활동 관리 및 지원
+3. 회원 관리 및 본인 확인
+4. 서비스 개선 및 신규 서비스 개발
+
+제2조 (개인정보의 처리 및 보유기간)
+1. 회사는 법령에 따른 개인정보 보유·이용기간 또는 정보주체로부터 개인정보를 수집 시에 동의받은 개인정보 보유·이용기간 내에서 개인정보를 처리·보유합니다.
+2. 각각의 개인정보 처리 및 보유 기간은 다음과 같습니다:
+   - 회원 가입 및 관리: 회원 탈퇴 시까지
+   - 서비스 제공: 서비스 이용 종료 시까지
+
+제3조 (처리하는 개인정보의 항목)
+회사는 다음의 개인정보 항목을 처리하고 있습니다:
+1. 필수항목: 이메일, 이름, 프로필 이미지
+2. 선택항목: 전화번호, 소속팀, 직책, 학교, 입사일, 재직상태
+
+제4조 (개인정보의 제3자 제공)
+1. 회사는 정보주체의 개인정보를 제1조(개인정보의 처리 목적)에서 명시한 범위 내에서만 처리하며, 정보주체의 동의, 법률의 특별한 규정 등 개인정보 보호법 제17조 및 제18조에 해당하는 경우에만 개인정보를 제3자에게 제공합니다.
+2. 회사는 Google OAuth를 통한 인증 서비스를 제공하기 위해 Google LLC에 최소한의 정보(이메일, 이름, 프로필 이미지)를 제공합니다.
+
+제5조 (개인정보처리의 위탁)
+1. 회사는 원활한 개인정보 업무처리를 위하여 다음과 같이 개인정보 처리업무를 위탁하고 있습니다:
+   - Google OAuth 인증: Google LLC
+   - 데이터베이스 관리: PostgreSQL (클라우드 호스팅)
+
+제6조 (정보주체의 권리·의무 및 그 행사방법)
+1. 정보주체는 회사에 대해 언제든지 다음 각 호의 개인정보 보호 관련 권리를 행사할 수 있습니다:
+   - 개인정보 열람 요구
+   - 오류 등이 있을 경우 정정 요구
+   - 삭제 요구
+   - 처리정지 요구
+
+제7조 (개인정보의 파기)
+1. 회사는 개인정보 보유기간의 경과, 처리목적 달성 등 개인정보가 불필요하게 되었을 때에는 지체 없이 해당 개인정보를 파기합니다.
+
+제8조 (개인정보 보호책임자)
+1. 회사는 개인정보 처리에 관한 업무를 총괄해서 책임지고, 개인정보 처리와 관련한 정보주체의 불만처리 및 피해구제 등을 위하여 아래와 같이 개인정보 보호책임자를 지정하고 있습니다:
+   - 이메일: support@teamcodebridge.dev
+
+제9조 (개인정보의 안전성 확보 조치)
+회사는 개인정보의 안전성 확보를 위해 다음과 같은 조치를 취하고 있습니다:
+1. 관리적 조치: 내부관리계획 수립·시행, 정기적 직원 교육 등
+2. 기술적 조치: 개인정보처리시스템 등의 접근권한 관리, 접근통제시스템 설치, 고유식별정보 등의 암호화, 보안프로그램 설치
+3. 물리적 조치: 전산실, 자료보관실 등의 접근통제
+
+부칙
+이 개인정보처리방침은 2026년 1월 1일부터 시행됩니다.
+`
+
+export default function TermsModal({ isOpen, onClose, type }: TermsModalProps) {
+    const content = type === 'terms' ? termsContent : privacyContent
+    const title = type === 'terms' ? '이용약관' : '개인정보처리방침'
+
+    return (
+        <Transition.Root show={isOpen} as={Fragment}>
+            <Dialog as="div" className="relative z-50" onClose={onClose}>
+                <Transition.Child
+                    as={Fragment}
+                    enter="ease-out duration-300"
+                    enterFrom="opacity-0"
+                    enterTo="opacity-100"
+                    leave="ease-in duration-200"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0"
+                >
+                    <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+                </Transition.Child>
+
+                <div className="fixed inset-0 z-10 overflow-y-auto">
+                    <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                        <Transition.Child
+                            as={Fragment}
+                            enter="ease-out duration-300"
+                            enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                            enterTo="opacity-100 translate-y-0 sm:scale-100"
+                            leave="ease-in duration-200"
+                            leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+                            leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                        >
+                            <Dialog.Panel className="relative transform overflow-hidden rounded-2xl bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-3xl sm:p-6">
+                                <div className="absolute right-0 top-0 pr-4 pt-4">
+                                    <button
+                                        type="button"
+                                        className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none"
+                                        onClick={onClose}
+                                    >
+                                        <span className="sr-only">Close</span>
+                                        <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+                                    </button>
+                                </div>
+                                <div className="sm:flex sm:items-start">
+                                    <div className="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                                        <Dialog.Title as="h3" className="text-2xl font-black leading-6 text-gray-900 mb-6">
+                                            {title}
+                                        </Dialog.Title>
+                                        <div className="mt-2">
+                                            <div className="prose prose-sm max-w-none overflow-y-auto max-h-[60vh] pr-2">
+                                                <div className="text-gray-700 leading-relaxed whitespace-pre-wrap text-sm">
+                                                    {content}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="mt-6 sm:mt-4 sm:flex sm:flex-row-reverse">
+                                            <button
+                                                type="button"
+                                                className="inline-flex w-full justify-center rounded-xl bg-primary-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-primary-500 sm:ml-3 sm:w-auto"
+                                                onClick={onClose}
+                                            >
+                                                확인
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </Dialog.Panel>
+                        </Transition.Child>
+                    </div>
+                </div>
+            </Dialog>
+        </Transition.Root>
+    )
+}
+

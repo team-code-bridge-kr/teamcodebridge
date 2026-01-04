@@ -4,12 +4,16 @@ import { motion } from 'framer-motion'
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn } from 'next-auth/react'
+import TermsModal from '@/components/TermsModal'
 
 function LoginContent() {
     const [isLoading, setIsLoading] = useState(false)
     const searchParams = useSearchParams()
     const error = searchParams.get('error')
     const [errorMessage, setErrorMessage] = useState('')
+    const [showTermsModal, setShowTermsModal] = useState(false)
+    const [showPrivacyModal, setShowPrivacyModal] = useState(false)
+    const [termsType, setTermsType] = useState<'terms' | 'privacy'>('terms')
 
     useEffect(() => {
         if (error === 'PendingApproval') {
@@ -96,9 +100,41 @@ function LoginContent() {
                     </button>
 
                     <p className="mt-8 text-center text-[11px] text-gray-400 leading-relaxed">
-                        로그인 시 팀코드브릿지의 <br />
-                        <span className="underline cursor-pointer">이용약관</span> 및 <span className="underline cursor-pointer">개인정보처리방침</span>에 동의하게 됩니다.
+                        로그인하면{' '}
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setTermsType('terms')
+                                setShowTermsModal(true)
+                            }}
+                            className="underline hover:text-gray-600 transition-colors"
+                        >
+                            이용약관
+                        </button>
+                        {' '}및{' '}
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setTermsType('privacy')
+                                setShowPrivacyModal(true)
+                            }}
+                            className="underline hover:text-gray-600 transition-colors"
+                        >
+                            개인정보처리방침
+                        </button>
+                        에 동의하는 것으로 간주합니다.
                     </p>
+
+                    <TermsModal
+                        isOpen={showTermsModal}
+                        onClose={() => setShowTermsModal(false)}
+                        type="terms"
+                    />
+                    <TermsModal
+                        isOpen={showPrivacyModal}
+                        onClose={() => setShowPrivacyModal(false)}
+                        type="privacy"
+                    />
                 </div>
 
                 {/* Footer */}
