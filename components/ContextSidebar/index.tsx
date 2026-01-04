@@ -25,6 +25,7 @@ interface ContextSidebarProps {
     initialCapsule: ContextCapsule | null
     onIgnite: (data: { risks: string }) => Promise<void>
     onClear: (data: { lastStableState: string, openLoops: string, nextAction: string }) => Promise<void>
+    onComplete: (data: { lastStableState: string, openLoops: string, nextAction: string }) => Promise<void>
 }
 
 export default function ContextSidebar({
@@ -35,7 +36,8 @@ export default function ContextSidebar({
     taskTitle,
     initialCapsule,
     onIgnite,
-    onClear
+    onClear,
+    onComplete
 }: ContextSidebarProps) {
     const [mission, setMission] = useState('')
     const [risks, setRisks] = useState('')
@@ -78,6 +80,17 @@ export default function ContextSidebar({
         setIsLoading(true)
         try {
             await onClear({ lastStableState, openLoops, nextAction })
+            onClose()
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const handleComplete = async () => {
+        if (!confirm('정말 이 업무를 완료 처리하시겠습니까?')) return
+        setIsLoading(true)
+        try {
+            await onComplete({ lastStableState, openLoops, nextAction })
             onClose()
         } finally {
             setIsLoading(false)
@@ -218,26 +231,39 @@ export default function ContextSidebar({
                                         </div>
 
                                         <div className="flex-shrink-0 border-t border-gray-200 px-4 py-6 sm:px-6">
-                                            <div className="flex justify-end gap-3">
-                                                <button
-                                                    type="button"
-                                                    className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-                                                    onClick={onClose}
-                                                >
-                                                    취소
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    disabled={isLoading || (mode === 'IGNITION' ? !isIgnitionParamsValid : !isClearParamsValid)}
-                                                    className={`inline-flex justify-center rounded-xl px-4 py-2 text-sm font-bold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 w-full sm:w-auto ${
-                                                        mode === 'IGNITION' 
-                                                            ? 'bg-primary-600 hover:bg-primary-700 focus:ring-primary-500 disabled:bg-primary-300' 
-                                                            : 'bg-gray-800 hover:bg-gray-900 focus:ring-gray-500 disabled:bg-gray-400'
-                                                    }`}
-                                                    onClick={mode === 'IGNITION' ? handleIgnite : handleClear}
-                                                >
-                                                    {isLoading ? '처리 중...' : mode === 'IGNITION' ? '🔥 작업 시작 (Ignite)' : '💾 상태 저장 (Save & Switch)'}
-                                                </button>
+                                            <div className="flex justify-between w-full">
+                                                {mode === 'CLEAR' && (
+                                                    <button
+                                                        type="button"
+                                                        disabled={isLoading}
+                                                        className="inline-flex justify-center rounded-xl px-4 py-2 text-sm font-bold text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                                                        onClick={handleComplete}
+                                                    >
+                                                        <CheckCircleIcon className="w-5 h-5 mr-1" />
+                                                        업무 완료
+                                                    </button>
+                                                )}
+                                                <div className="flex gap-3 ml-auto">
+                                                    <button
+                                                        type="button"
+                                                        className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                                                        onClick={onClose}
+                                                    >
+                                                        취소
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        disabled={isLoading || (mode === 'IGNITION' ? !isIgnitionParamsValid : !isClearParamsValid)}
+                                                        className={`inline-flex justify-center rounded-xl px-4 py-2 text-sm font-bold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 w-full sm:w-auto ${
+                                                            mode === 'IGNITION' 
+                                                                ? 'bg-primary-600 hover:bg-primary-700 focus:ring-primary-500 disabled:bg-primary-300' 
+                                                                : 'bg-gray-800 hover:bg-gray-900 focus:ring-gray-500 disabled:bg-gray-400'
+                                                        }`}
+                                                        onClick={mode === 'IGNITION' ? handleIgnite : handleClear}
+                                                    >
+                                                        {isLoading ? '처리 중...' : mode === 'IGNITION' ? '🔥 작업 시작 (Ignite)' : '💾 상태 저장 (Save & Switch)'}
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

@@ -113,6 +113,23 @@ export function ContextSidebarProvider({ children }: { children: ReactNode }) {
         router.refresh()
     }
 
+    const handleComplete = async (data: { lastStableState: string, openLoops: string, nextAction: string }) => {
+        if (!taskId) return
+        
+        await fetch('/api/context', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                taskId,
+                ...data,
+                mission: capsule?.mission, // Keep existing mission
+                status: '완료' // Force status update to Completed
+            })
+        })
+        closeSidebar()
+        router.refresh()
+    }
+
     return (
         <ContextSidebarContext.Provider value={{ openIgnition, openClear, closeSidebar }}>
             {children}
@@ -125,6 +142,7 @@ export function ContextSidebarProvider({ children }: { children: ReactNode }) {
                 initialCapsule={capsule}
                 onIgnite={handleIgnite}
                 onClear={handleClear}
+                onComplete={handleComplete}
             />
         </ContextSidebarContext.Provider>
     )
