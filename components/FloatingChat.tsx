@@ -124,9 +124,28 @@ export default function FloatingChat() {
             setOnlineUserIds(userIds)
         })
 
-        socketRef.current.on('receive_message', (msg: Message & { receiverId?: string }) => {
-            if (session?.user?.id && msg.receiverId === session.user.id) {
-                console.log('Real-time message received:', msg)
+        socketRef.current.on('receive_message', (msg: Message & { receiverId?: string; chatRoomId?: string }) => {
+            if (!session?.user?.id) return
+            
+            console.log('Real-time message received:', msg)
+            
+            // 그룹 채팅 메시지인 경우
+            if (msg.chatRoomId) {
+                // 현재 열려있는 채팅방의 메시지인지 확인
+                if (selectedChatRoom && msg.chatRoomId === selectedChatRoom.id) {
+                    setMessages(prev => {
+                        if (prev.some(m => m.id === msg.id)) return prev
+                        return [...prev, { ...msg, read: false }]
+                    })
+                } else {
+                    // 다른 채팅방의 메시지 - 채팅방 목록 업데이트
+                    fetchChatRooms()
+                }
+                return
+            }
+            
+            // 1:1 채팅 메시지인 경우
+            if (msg.receiverId === session.user.id) {
                 // 읽지 않은 메시지 개수 업데이트
                 fetchUnreadCounts()
                 
