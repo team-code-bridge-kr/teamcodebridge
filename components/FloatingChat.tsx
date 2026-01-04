@@ -360,7 +360,7 @@ export default function FloatingChat() {
 
     const sendMessage = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!message.trim() || !selectedUser || !session?.user?.id) return
+        if (!message.trim() || (!selectedUser && !selectedChatRoom) || !session?.user?.id) return
 
         const messageContent = message.trim()
         const tempId = Date.now().toString()
@@ -377,25 +377,62 @@ export default function FloatingChat() {
         }
         setMessages(prev => [...prev, tempMessage])
 
-        socketRef.current?.emit('send_message', {
-            content: messageContent,
-            receiverId: selectedUser.id,
-            senderId: session.user.id,
-            senderName: session.user.name,
-            messageId: tempId
-        })
-
-        try {
-            const response = await fetch('/api/messages', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    content: messageContent,
-                    receiverId: selectedUser.id,
-                    senderId: session.user.id
-                })
+        // 그룹 채팅인 경우
+        if (selectedChatRoom) {
+            socketRef.current?.emit('send_message', {
+                content: messageContent,
+                chatRoomId: selectedChatRoom.id,
+                senderId: session.user.id,
+                senderName: session.user.name,
+                messageId: tempId
             })
-            
+
+            try {
+                const response = await fetch('/api/messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        content: messageContent,
+                        chatRoomId: selectedChatRoom.id,
+                        senderId: session.user.id
+                    })
+                })
+
+                if (response.ok) {
+                    const savedMessage = await response.json()
+                    setMessages(prev => prev.map(msg => 
+                        msg.id === tempId ? { ...msg, id: savedMessage.id } : msg
+                    ))
+                    fetchChatRooms() // 채팅방 목록 업데이트
+                }
+            } catch (error) {
+                console.error('Error sending message:', error)
+                setMessages(prev => prev.filter(msg => msg.id !== tempId))
+            }
+            return
+        }
+
+        // 1:1 채팅인 경우
+        if (selectedUser) {
+            socketRef.current?.emit('send_message', {
+                content: messageContent,
+                receiverId: selectedUser.id,
+                senderId: session.user.id,
+                senderName: session.user.name,
+                messageId: tempId
+            })
+
+            try {
+                const response = await fetch('/api/messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        content: messageContent,
+                        receiverId: selectedUser.id,
+                        senderId: session.user.id
+                    })
+                })
+
                 if (response.ok) {
                     const savedMessage = await response.json()
                     setMessages(prev => prev.map(msg => 
