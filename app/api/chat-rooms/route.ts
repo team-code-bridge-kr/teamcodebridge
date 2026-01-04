@@ -84,7 +84,7 @@ export async function POST(request: Request) {
         }
 
         // 생성자를 포함한 멤버 목록
-        const allMemberIds = [...new Set([session.user.id, ...memberIds])]
+        const allMemberIds = Array.from(new Set([session.user.id, ...memberIds]))
 
         // 채팅방 생성 및 멤버 추가
         const chatRoom = await prisma.chatRoom.create({
