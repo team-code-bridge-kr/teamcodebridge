@@ -99,7 +99,35 @@ function LoginContent() {
                         )}
                     </button>
 
-                    <p className="mt-8 text-center text-[11px] text-gray-400 leading-relaxed">
+                    {/* 개인정보처리방침 링크 - 눈에 띄게 표시 */}
+                    <div className="mt-6 pt-6 border-t border-gray-200">
+                        <div className="flex flex-col items-center gap-3">
+                            <p className="text-xs text-gray-500 font-medium">개인정보 보호</p>
+                            <div className="flex items-center gap-4">
+                                <a
+                                    href="/privacy"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-sm font-bold text-primary-600 hover:text-primary-700 hover:underline transition-colors"
+                                >
+                                    개인정보처리방침
+                                </a>
+                                <span className="text-gray-300">|</span>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setTermsType('privacy')
+                                        setShowPrivacyModal(true)
+                                    }}
+                                    className="text-sm font-bold text-primary-600 hover:text-primary-700 hover:underline transition-colors"
+                                >
+                                    자세히 보기
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p className="mt-6 text-center text-[11px] text-gray-400 leading-relaxed">
                         로그인하면{' '}
                         <button
                             type="button"

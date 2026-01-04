@@ -82,6 +82,14 @@ export default function Navigation({ variant = 'dark' }: NavigationProps) {
               >
                 26시즌 멘토 신청
               </a>
+              <div className={`flex items-center space-x-4 ml-4 pl-4 border-l ${isDark ? 'border-white/20' : 'border-gray-300'}`}>
+                <a
+                  href="/privacy"
+                  className={`${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'} text-xs font-medium transition-colors`}
+                >
+                  개인정보처리방침
+                </a>
+              </div>
             </div>
 
             {/* Mobile Menu Button */}
@@ -135,6 +143,15 @@ export default function Navigation({ variant = 'dark' }: NavigationProps) {
                 >
                   26시즌 멘토 신청
                 </a>
+                <div className={`pt-4 mt-4 border-t ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
+                  <a
+                    href="/privacy"
+                    className={`block text-xs font-medium py-2 ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'}`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    개인정보처리방침
+                  </a>
+                </div>
               </div>
             </motion.div>
           )}
