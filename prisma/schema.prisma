@@ -32,6 +32,8 @@ model User {
   createdEvents CalendarEvent[] @relation("CreatedEvents")
   pollVotes     PollVote[]
   createdPolls  MeetingPoll[] @relation("CreatedPolls")
+  createdChatRooms ChatRoom[] @relation("CreatedChatRooms")
+  chatRoomMembers ChatRoomMember[]
 }
 
 // 프로젝트 모델
@@ -61,16 +63,48 @@ model Task {
   context     ContextCapsule?
 }
 
+// 채팅방 모델 (그룹 채팅)
+model ChatRoom {
+  id          String   @id @default(cuid())
+  name        String   // 채팅방 이름
+  description String?  // 채팅방 설명
+  createdById String   // 생성자 ID
+  createdBy   User     @relation("CreatedChatRooms", fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  members     ChatRoomMember[]
+  messages    Message[]
+}
+
+// 채팅방 멤버 모델
+model ChatRoomMember {
+  id         String   @id @default(cuid())
+  chatRoomId String
+  chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt   DateTime @default(now())
+  
+  @@unique([chatRoomId, userId]) // 한 사용자는 한 채팅방에 한 번만 참여 가능
+  @@index([chatRoomId])
+  @@index([userId])
+}
+
 // 채팅 메시지 모델
 model Message {
-  id        String   @id @default(cuid())
-  content   String
-  senderId  String
-  sender    User     @relation("SentMessages", fields: [senderId], references: [id])
-  receiverId String
-  receiver  User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now())
+  id         String    @id @default(cuid())
+  content    String
+  senderId   String
+  sender     User      @relation("SentMessages", fields: [senderId], references: [id])
+  receiverId String?   // 1:1 채팅용 (선택적)
+  receiver   User?     @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  chatRoomId String?   // 그룹 채팅용 (선택적)
+  chatRoom   ChatRoom? @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
+  read       Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  
+  @@index([chatRoomId])
+  @@index([senderId, receiverId])
 }
 
 // Context Switch Buffer (CSB) 모델
