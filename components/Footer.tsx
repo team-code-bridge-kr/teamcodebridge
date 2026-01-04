@@ -90,6 +90,15 @@ export default function Footer({ variant = 'light' }: FooterProps) {
             </div>
 
             <div className="flex flex-col items-start md:items-end gap-2">
+              <div className={`flex flex-wrap gap-3 text-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                <a href="/terms" className={`hover:underline ${isDark ? 'hover:text-white' : 'hover:text-gray-900'}`}>
+                  이용약관
+                </a>
+                <span>|</span>
+                <a href="/privacy" className={`hover:underline ${isDark ? 'hover:text-white' : 'hover:text-gray-900'}`}>
+                  개인정보처리방침
+                </a>
+              </div>
               <p className="text-gray-400 text-xs">
                 © {currentYear} TeamCodeBridge. All Rights Reserved.
               </p>
