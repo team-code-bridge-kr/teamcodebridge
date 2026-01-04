@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { CalendarIcon, PlusIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 import { motion } from 'framer-motion'
+import CreateEventModal from './CreateEventModal'
 
 interface CalendarEvent {
     id: string
@@ -25,6 +26,7 @@ export default function CalendarWidget() {
     const [events, setEvents] = useState<CalendarEvent[]>([])
     const [loading, setLoading] = useState(true)
     const [viewMode, setViewMode] = useState<'month' | 'week'>('month')
+    const [showCreateModal, setShowCreateModal] = useState(false)
 
     const year = currentDate.getFullYear()
     const month = currentDate.getMonth()
@@ -98,9 +100,16 @@ export default function CalendarWidget() {
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                     <CalendarIcon className="w-6 h-6 text-primary-600" />
-                    <h2 className="text-xl font-black text-black">TeamCodeBridge 캘린더</h2>
+                    <h2 className="text-xl font-black text-black">캘린더</h2>
                 </div>
                 <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => setShowCreateModal(true)}
+                        className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors"
+                    >
+                        <PlusIcon className="w-4 h-4" />
+                        일정 추가
+                    </button>
                     <button
                         onClick={() => setViewMode(viewMode === 'month' ? 'week' : 'month')}
                         className="px-3 py-1.5 text-xs font-bold text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
@@ -232,6 +241,12 @@ export default function CalendarWidget() {
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
                 </div>
             )}
+
+            <CreateEventModal
+                isOpen={showCreateModal}
+                onClose={() => setShowCreateModal(false)}
+                onEventCreated={fetchEvents}
+            />
         </div>
     )
 }

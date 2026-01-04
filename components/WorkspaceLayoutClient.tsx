@@ -12,15 +12,32 @@ import {
     UserIcon,
     UsersIcon,
     ChevronLeftIcon,
+    ChevronDownIcon,
+    ChevronRightIcon,
     Bars3Icon,
-    ShieldCheckIcon
+    ShieldCheckIcon,
+    ClockIcon
 } from '@heroicons/react/24/outline'
 import { motion, AnimatePresence } from 'framer-motion'
 import FloatingChat from './FloatingChat'
 
-const menuItems = [
+interface MenuItem {
+    name: string
+    href: string
+    icon: React.ComponentType<{ className?: string }>
+    subItems?: MenuItem[]
+}
+
+const menuItems: MenuItem[] = [
     { name: '홈', href: '/workspace', icon: HomeIcon },
-    { name: '업무', href: '/workspace/work', icon: BriefcaseIcon },
+    {
+        name: '업무',
+        href: '/workspace/work',
+        icon: BriefcaseIcon,
+        subItems: [
+            { name: '회의 일정', href: '/workspace/meetings', icon: ClockIcon },
+        ],
+    },
     { name: '인사', href: '/workspace/hr', icon: UsersIcon },
     { name: '피드백', href: '/workspace/feedback', icon: ChatBubbleLeftRightIcon },
     { name: '팀메일', href: '/workspace/mail', icon: EnvelopeIcon },
@@ -36,6 +53,13 @@ export default function WorkspaceLayoutClient({
     const pathname = usePathname()
     const [isCollapsed, setIsCollapsed] = useState(true)
     const [isMobileOpen, setIsMobileOpen] = useState(false)
+    const [expandedMenu, setExpandedMenu] = useState<string | null>(() => {
+        // 현재 경로에 따라 초기 확장 상태 설정
+        if (pathname?.startsWith('/workspace/work') || pathname?.startsWith('/workspace/meetings')) {
+            return '업무'
+        }
+        return null
+    })
 
     // 로그인 페이지에서는 사이드바를 보여주지 않음
     if (pathname === '/workspace/login') {
@@ -74,25 +98,75 @@ export default function WorkspaceLayoutClient({
 
                 <nav className="flex-1 px-4 space-y-2 mt-4 overflow-y-auto">
                     {menuItems.map((item) => {
-                        const isActive = pathname === item.href
+                        const isActive = pathname === item.href || (item.subItems?.some(sub => pathname === sub.href))
+                        const isExpanded = expandedMenu === item.name
+                        const hasSubItems = item.subItems && item.subItems.length > 0
+
                         return (
-                            <Link
-                                key={item.name}
-                                href={item.href}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all group ${isActive
-                                    ? 'bg-primary-50 text-primary-600'
-                                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
-                                    }`}
-                            >
-                                <item.icon className={`w-6 h-6 shrink-0 ${isActive ? 'text-primary-600' : 'text-gray-400 group-hover:text-gray-900'}`} />
-                                {!isCollapsed && <span className="font-bold text-sm">{item.name}</span>}
-                                {isActive && !isCollapsed && (
-                                    <motion.div
-                                        layoutId="activeNav"
-                                        className="ml-auto w-1.5 h-1.5 bg-primary-600 rounded-full"
-                                    />
+                            <div key={item.name}>
+                                <Link
+                                    href={item.href}
+                                    onClick={(e) => {
+                                        if (hasSubItems && !isCollapsed) {
+                                            e.preventDefault()
+                                            setExpandedMenu(isExpanded ? null : item.name)
+                                        }
+                                    }}
+                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all group ${isActive
+                                        ? 'bg-primary-50 text-primary-600'
+                                        : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+                                        }`}
+                                >
+                                    <item.icon className={`w-6 h-6 shrink-0 ${isActive ? 'text-primary-600' : 'text-gray-400 group-hover:text-gray-900'}`} />
+                                    {!isCollapsed && <span className="font-bold text-sm flex-1">{item.name}</span>}
+                                    {hasSubItems && !isCollapsed && (
+                                        <ChevronDownIcon
+                                            className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                                        />
+                                    )}
+                                    {isActive && !isCollapsed && !hasSubItems && (
+                                        <motion.div
+                                            layoutId="activeNav"
+                                            className="ml-auto w-1.5 h-1.5 bg-primary-600 rounded-full"
+                                        />
+                                    )}
+                                </Link>
+                                {hasSubItems && !isCollapsed && (
+                                    <AnimatePresence>
+                                        {isExpanded && (
+                                            <motion.div
+                                                initial={{ opacity: 0, height: 0 }}
+                                                animate={{ opacity: 1, height: 'auto' }}
+                                                exit={{ opacity: 0, height: 0 }}
+                                                className="pl-4 mt-1 space-y-1"
+                                            >
+                                                {item.subItems?.map((subItem) => {
+                                                    const isSubActive = pathname === subItem.href
+                                                    return (
+                                                        <Link
+                                                            key={subItem.name}
+                                                            href={subItem.href}
+                                                            className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all ${isSubActive
+                                                                ? 'bg-primary-50 text-primary-600'
+                                                                : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+                                                                }`}
+                                                        >
+                                                            <subItem.icon className={`w-5 h-5 shrink-0 ${isSubActive ? 'text-primary-600' : 'text-gray-400'}`} />
+                                                            <span className="font-bold text-sm">{subItem.name}</span>
+                                                            {isSubActive && (
+                                                                <motion.div
+                                                                    layoutId="activeSubNav"
+                                                                    className="ml-auto w-1.5 h-1.5 bg-primary-600 rounded-full"
+                                                                />
+                                                            )}
+                                                        </Link>
+                                                    )
+                                                })}
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                 )}
-                            </Link>
+                            </div>
                         )
                     })}
                 </nav>
@@ -187,20 +261,78 @@ export default function WorkspaceLayoutClient({
                             </div>
                             <nav className="flex-1 p-6 space-y-2">
                                 {menuItems.map((item) => {
-                                    const isActive = pathname === item.href
+                                    const isActive = pathname === item.href || (item.subItems?.some(sub => pathname === sub.href))
+                                    const isExpanded = expandedMenu === item.name
+                                    const hasSubItems = item.subItems && item.subItems.length > 0
+
                                     return (
-                                        <Link
-                                            key={item.name}
-                                            href={item.href}
-                                            onClick={() => setIsMobileOpen(false)}
-                                            className={`flex items-center gap-4 px-5 py-4 rounded-2xl transition-all ${isActive
-                                                ? 'bg-primary-50 text-primary-600'
-                                                : 'text-gray-500'
-                                                }`}
-                                        >
-                                            <item.icon className={`w-6 h-6 ${isActive ? 'text-primary-600' : 'text-gray-400'}`} />
-                                            <span className="font-bold text-lg">{item.name}</span>
-                                        </Link>
+                                        <div key={item.name}>
+                                            <Link
+                                                href={item.href}
+                                                onClick={(e) => {
+                                                    if (hasSubItems) {
+                                                        e.preventDefault()
+                                                        setExpandedMenu(isExpanded ? null : item.name)
+                                                    } else {
+                                                        setIsMobileOpen(false)
+                                                    }
+                                                }}
+                                                className={`flex items-center gap-4 px-5 py-4 rounded-2xl transition-all ${isActive
+                                                    ? 'bg-primary-50 text-primary-600'
+                                                    : 'text-gray-500'
+                                                    }`}
+                                            >
+                                                <item.icon className={`w-6 h-6 shrink-0 ${isActive ? 'text-primary-600' : 'text-gray-400'}`} />
+                                                <span className="font-bold text-base flex-1">{item.name}</span>
+                                                {hasSubItems && (
+                                                    <ChevronDownIcon
+                                                        className={`w-5 h-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                                                    />
+                                                )}
+                                                {isActive && !hasSubItems && (
+                                                    <motion.div
+                                                        layoutId="mobileActiveNav"
+                                                        className="ml-auto w-2 h-2 bg-primary-600 rounded-full"
+                                                    />
+                                                )}
+                                            </Link>
+                                            {hasSubItems && (
+                                                <AnimatePresence>
+                                                    {isExpanded && (
+                                                        <motion.div
+                                                            initial={{ opacity: 0, height: 0 }}
+                                                            animate={{ opacity: 1, height: 'auto' }}
+                                                            exit={{ opacity: 0, height: 0 }}
+                                                            className="pl-4 mt-1 space-y-1"
+                                                        >
+                                                            {item.subItems?.map((subItem) => {
+                                                                const isSubActive = pathname === subItem.href
+                                                                return (
+                                                                    <Link
+                                                                        key={subItem.name}
+                                                                        href={subItem.href}
+                                                                        onClick={() => setIsMobileOpen(false)}
+                                                                        className={`flex items-center gap-4 px-5 py-3 rounded-xl transition-all ${isSubActive
+                                                                            ? 'bg-primary-50 text-primary-600'
+                                                                            : 'text-gray-500'
+                                                                            }`}
+                                                                    >
+                                                                        <subItem.icon className={`w-5 h-5 shrink-0 ${isSubActive ? 'text-primary-600' : 'text-gray-400'}`} />
+                                                                        <span className="font-bold text-sm">{subItem.name}</span>
+                                                                        {isSubActive && (
+                                                                            <motion.div
+                                                                                layoutId="mobileActiveSubNav"
+                                                                                className="ml-auto w-1.5 h-1.5 bg-primary-600 rounded-full"
+                                                                            />
+                                                                        )}
+                                                                    </Link>
+                                                                )
+                                                            })}
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
+                                            )}
+                                        </div>
                                     )
                                 })}
                             </nav>

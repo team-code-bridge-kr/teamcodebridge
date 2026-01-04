@@ -17,7 +17,7 @@ import {
 } from '@heroicons/react/24/outline'
 import NotificationBar from '@/components/NotificationBar'
 import CalendarWidget from '@/components/CalendarWidget'
-import MeetingPollWidget from '@/components/MeetingPollWidget'
+import UpcomingMeetingsWidget from '@/components/UpcomingMeetingsWidget'
 
 interface Project {
     id: string
@@ -272,9 +272,9 @@ export default function WorkspaceHome() {
                 ))}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* 내 업무 - 가장 중요 */}
-                <div className="lg:col-span-2 space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* 내 업무 */}
+                <div className="space-y-6">
                     <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm">
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-xl font-black text-black">내가 할당된 업무</h2>
@@ -365,7 +365,7 @@ export default function WorkspaceHome() {
                         ) : projects.length === 0 ? (
                             <div className="text-center py-12 text-gray-400">
                                 <p className="font-bold">프로젝트가 없습니다</p>
-                            </div>
+                                    </div>
                         ) : (
                             <div className="space-y-4">
                                 {projects.map((project) => {
@@ -378,8 +378,8 @@ export default function WorkspaceHome() {
                                                 <h3 className="font-black text-black">{project.title}</h3>
                                                 <span className="text-sm font-bold text-gray-400">
                                                     {completedTasks}/{totalTasks} 완료
-                                                </span>
-                                            </div>
+                                    </span>
+                                </div>
                                             <div className="w-full bg-gray-100 rounded-full h-2 mb-2">
                                                 <div
                                                     className="bg-primary-600 h-2 rounded-full transition-all"
@@ -390,7 +390,7 @@ export default function WorkspaceHome() {
                                         </div>
                                     )
                                 })}
-                            </div>
+                        </div>
                         )}
                     </div>
                 </div>
@@ -400,12 +400,12 @@ export default function WorkspaceHome() {
                     <div className="bg-primary-600 p-8 rounded-[32px] text-white shadow-xl shadow-primary-600/20">
                         <h2 className="text-xl font-black mb-4">빠른 액션</h2>
                         <div className="space-y-3">
-                            <button className="w-full py-3 bg-white text-primary-600 rounded-xl font-bold text-sm hover:bg-primary-50 transition-colors">
+                        <button className="w-full py-3 bg-white text-primary-600 rounded-xl font-bold text-sm hover:bg-primary-50 transition-colors">
                                 새 업무 추가
                             </button>
                             <button className="w-full py-3 bg-white/10 text-white rounded-xl font-bold text-sm hover:bg-white/20 transition-colors border border-white/20">
                                 프로젝트 생성
-                            </button>
+                        </button>
                         </div>
                     </div>
 
@@ -432,11 +432,11 @@ export default function WorkspaceHome() {
                         </div>
                     )}
 
-                    {/* TeamCodeBridge 캘린더 */}
+                    {/* 캘린더 */}
                     <CalendarWidget />
 
-                    {/* 회의 일정 투표 */}
-                    <MeetingPollWidget />
+                    {/* 예정된 회의 */}
+                    <UpcomingMeetingsWidget />
                 </div>
             </div>
         </div>
