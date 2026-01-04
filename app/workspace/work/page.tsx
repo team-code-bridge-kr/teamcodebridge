@@ -62,6 +62,23 @@ export default function WorkspaceWork() {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
     const { openIgnition, openClear } = useContextSidebar()
 
+    const fetchProjects = async () => {
+        setIsLoading(true)
+        try {
+            const response = await fetch('/api/projects')
+            const data = await response.json()
+            setProjects(data)
+        } catch (error) {
+            console.error("Failed to fetch projects:", error)
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        fetchProjects()
+    }, [])
+
     const handleTaskClick = (task: Task) => {
         if (task.status === '진행 중') {
             openClear(task.id, task.name, task.context)
