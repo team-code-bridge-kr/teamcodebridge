@@ -35,6 +35,13 @@ export default function Footer({ variant = 'light' }: FooterProps) {
       ],
     },
     {
+      title: '법적 고지',
+      links: [
+        { name: '이용약관', href: '/terms' },
+        { name: '개인정보처리방침', href: '/privacy' },
+      ],
+    },
+    {
       title: '소셜',
       links: [
         { name: '인스타그램', href: 'https://www.instagram.com/teamcodebridge' },

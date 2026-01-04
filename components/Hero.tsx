@@ -78,6 +78,29 @@ export default function Hero() {
         <div className="text-center relative">
           {/* Subtle glow behind text - Optimized blur for mobile */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-black/20 blur-[40px] md:blur-[100px] -z-10 pointer-events-none" />
+          
+          {/* 워크스페이스 서비스 설명 추가 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="mb-8"
+          >
+            <div className="inline-block bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl px-6 py-4 mb-6">
+              <p className="text-white/90 text-sm md:text-base font-medium">
+                멘토 전용 워크스페이스 서비스
+              </p>
+              <p className="text-white/70 text-xs md:text-sm mt-2">
+                업무 관리, 실시간 채팅, 캘린더, 회의 일정 투표 등 멘토링 활동을 지원하는 통합 업무 시스템
+              </p>
+              <a
+                href="/workspace/login"
+                className="inline-block mt-4 px-6 py-2 bg-white text-black rounded-xl font-bold text-sm hover:bg-white/90 transition-colors"
+              >
+                워크스페이스 로그인 →
+              </a>
+            </div>
+          </motion.div>
 
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
