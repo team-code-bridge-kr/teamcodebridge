@@ -27,3 +27,9 @@ jobs:
             docker-compose down --rmi all
             docker system prune -f
             docker-compose up -d --build
+            
+            # Wait for containers to start
+            sleep 15
+            
+            # Check container status
+            docker-compose ps

@@ -16,6 +16,8 @@ import {
     ChevronUpIcon
 } from '@heroicons/react/24/outline'
 import NotificationBar from '@/components/NotificationBar'
+import CalendarWidget from '@/components/CalendarWidget'
+import MeetingPollWidget from '@/components/MeetingPollWidget'
 
 interface Project {
     id: string
@@ -429,6 +431,12 @@ export default function WorkspaceHome() {
                             </div>
                         </div>
                     )}
+
+                    {/* TeamCodeBridge 캘린더 */}
+                    <CalendarWidget />
+
+                    {/* 회의 일정 투표 */}
+                    <MeetingPollWidget />
                 </div>
             </div>
         </div>
