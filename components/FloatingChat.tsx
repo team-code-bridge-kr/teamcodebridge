@@ -522,8 +522,59 @@ export default function FloatingChat() {
                                             </div>
                                         </div>
                                     </>
+                                ) : selectedChatRoom ? (
+                                    <>
+                                        <button
+                                            onClick={() => {
+                                                setSelectedChatRoom(null)
+                                                setChatView('rooms')
+                                            }}
+                                            className="p-1.5 hover:bg-white/20 rounded-lg transition-colors shrink-0"
+                                        >
+                                            <ChevronLeftIcon className="w-5 h-5" />
+                                        </button>
+                                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                                            <div className="relative w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                                                <UserGroupIcon className="w-6 h-6 text-white" />
+                                            </div>
+                                            <div className="min-w-0 flex-1">
+                                                <p className="font-bold text-sm truncate">{selectedChatRoom.name}</p>
+                                                <p className="text-xs text-white/80 truncate">
+                                                    {selectedChatRoom.members.length}명
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </>
                                 ) : (
-                                    <h3 className="font-bold text-lg">팀원 채팅</h3>
+                                    <div className="flex items-center gap-2 flex-1">
+                                        <h3 className="font-bold text-lg">채팅</h3>
+                                        <div className="flex gap-1 ml-auto">
+                                            <button
+                                                onClick={() => {
+                                                    setChatView('users')
+                                                    setSelectedUser(null)
+                                                    setSelectedChatRoom(null)
+                                                }}
+                                                className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+                                                    chatView === 'users' ? 'bg-white/20' : 'hover:bg-white/10'
+                                                }`}
+                                            >
+                                                1:1
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    setChatView('rooms')
+                                                    setSelectedUser(null)
+                                                    setSelectedChatRoom(null)
+                                                }}
+                                                className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+                                                    chatView === 'rooms' ? 'bg-white/20' : 'hover:bg-white/10'
+                                                }`}
+                                            >
+                                                그룹
+                                            </button>
+                                        </div>
+                                    </div>
                                 )}
                             </div>
                             <div className="flex items-center gap-2 shrink-0">
