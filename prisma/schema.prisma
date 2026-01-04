@@ -28,6 +28,7 @@ model User {
   tasks         Task[]
   sentMessages     Message[] @relation("SentMessages")
   receivedMessages Message[] @relation("ReceivedMessages")
+  createdAnnouncements Announcement[] @relation("CreatedAnnouncements")
 }
 
 // 프로젝트 모델
@@ -85,4 +86,17 @@ model ContextCapsule {
   risks           String?  @db.Text // 작업자가 추가 (예상 리스크)
   
   updatedAt       DateTime @updatedAt
+}
+
+// 공지사항 모델
+model Announcement {
+  id          String   @id @default(cuid())
+  title       String
+  content     String   @db.Text
+  category    String   @default("공지") // 공지, 업데이트, 이벤트 등
+  isImportant Boolean  @default(false)
+  createdById String?
+  createdBy   User?    @relation("CreatedAnnouncements", fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

@@ -387,7 +387,7 @@ export default function FloatingChat() {
                                                     <UserCircleIcon className="w-6 h-6 text-white" />
                                                 )}
                                                 {onlineUserIds.includes(selectedUser.id) && (
-                                                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-white"></div>
+                                                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-400 rounded-full border-2 border-white z-10"></div>
                                                 )}
                                             </div>
                                             <div className="min-w-0 flex-1">
@@ -497,7 +497,7 @@ export default function FloatingChat() {
                                                                             <UserCircleIcon className="w-7 h-7 text-gray-400" />
                                                                         )}
                                                                         {isOnline && (
-                                                                            <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white"></div>
+                                                                            <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-white z-10"></div>
                                                                         )}
                                                                     </div>
                                                                     <div className="flex-1 min-w-0">
