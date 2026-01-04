@@ -11,6 +11,7 @@
     "prisma:studio": "prisma studio"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.9",
     "@heroicons/react": "^2.2.0",
     "@prisma/client": "^5.22.0",
     "cookies-next": "^4.3.0",
@@ -35,4 +36,3 @@
     "typescript": "^5.2.2"
   }
 }
-

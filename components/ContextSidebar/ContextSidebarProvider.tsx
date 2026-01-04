@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, ReactNode } from 'react'
 import ContextSidebar from '@/components/ContextSidebar'
+import { useRouter } from 'next/navigation'
 
 type SidebarMode = 'IDLE' | 'IGNITION' | 'CLEAR'
 
@@ -24,6 +25,7 @@ interface ContextSidebarContextType {
 const ContextSidebarContext = createContext<ContextSidebarContextType | undefined>(undefined)
 
 export function ContextSidebarProvider({ children }: { children: ReactNode }) {
+    const router = useRouter()
     const [isOpen, setIsOpen] = useState(false)
     const [mode, setMode] = useState<SidebarMode>('IDLE')
     const [taskId, setTaskId] = useState<string | null>(null)
