@@ -56,15 +56,26 @@ export default function WorkspaceHome() {
         const fetchData = async () => {
             try {
                 // 프로젝트 및 업무 가져오기
+                // 프로젝트 및 업무 가져오기
                 const projectsRes = await fetch('/api/projects')
+                if (!projectsRes.ok) {
+                    throw new Error(`HTTP error! status: ${projectsRes.status}`)
+                }
                 const projectsData = await projectsRes.json()
-                setProjects(projectsData)
-
-                // 본인에게 할당된 업무 필터링
-                if (userId) {
-                    const allTasks = projectsData.flatMap((p: Project) => p.tasks || [])
-                    const assignedTasks = allTasks.filter((task: Task) => task.ownerId === userId)
-                    setMyTasks(assignedTasks)
+                
+                if (Array.isArray(projectsData)) {
+                    setProjects(projectsData)
+                    
+                    // 본인에게 할당된 업무 필터링
+                    if (userId) {
+                        const allTasks = projectsData.flatMap((p: Project) => p.tasks || [])
+                        const assignedTasks = allTasks.filter((task: Task) => task.ownerId === userId)
+                        setMyTasks(assignedTasks)
+                    }
+                } else {
+                    console.error("Projects data is not an array:", projectsData)
+                    setProjects([])
+                    setMyTasks([])
                 }
 
                 // 공지사항 (실제로는 API에서 가져와야 함)
