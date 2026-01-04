@@ -10,6 +10,9 @@ import {
     LinkIcon,
 } from '@heroicons/react/24/outline'
 import { useState, useEffect } from 'react'
+import { useContextSidebar } from '@/components/ContextSidebar/ContextSidebarProvider'
+import CreateTaskModal from '@/components/CreateTaskModal'
+import { useSession } from 'next-auth/react'
 
 interface Task {
     id: string
@@ -21,6 +24,15 @@ interface Task {
     owner: {
         name: string
     } | null
+    context?: {
+        mission: string | null
+        risks: string | null
+        lastStableState: string | null
+        openLoops: string | null
+        nextAction: string | null
+        id: string
+        taskId: string
+    }
 }
 
 interface Project {
@@ -43,24 +55,20 @@ const priorityStyles: { [key: string]: string } = {
 }
 
 export default function WorkspaceWork() {
+    const { data: session } = useSession()
     const [searchTerm, setSearchTerm] = useState('')
     const [projects, setProjects] = useState<Project[]>([])
     const [isLoading, setIsLoading] = useState(true)
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+    const { openIgnition, openClear } = useContextSidebar()
 
-    useEffect(() => {
-        const fetchProjects = async () => {
-            try {
-                const response = await fetch('/api/projects')
-                const data = await response.json()
-                setProjects(data)
-            } catch (error) {
-                console.error("Failed to fetch projects:", error)
-            } finally {
-                setIsLoading(false)
-            }
+    const handleTaskClick = (task: Task) => {
+        if (task.status === '진행 중') {
+            openClear(task.id, task.name, task.context)
+        } else {
+            openIgnition(task.id, task.name, task.context)
         }
-        fetchProjects()
-    }, [])
+    }
 
     const filteredProjects = projects.map(project => ({
         ...project,
@@ -70,12 +78,14 @@ export default function WorkspaceWork() {
         )
     })).filter(project => project.tasks.length > 0)
 
+    const allProjects = projects.map(p => ({ id: p.id, title: p.title }))
+
     return (
         <div className="p-8 max-w-7xl mx-auto">
             {/* Header */}
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
                 <div>
-                    <h1 className="text-4xl font-black text-black mb-3 tracking-tight">업무 보드</h1>
+                    <h1 className="text-4xl font-black text-black mb-3 tracking-tight">업무 보드 (CSB Enabled)</h1>
                     <p className="text-gray-600 text-lg font-medium">부서별 프로젝트 및 업무 진행 상황을 한눈에 관리하세요.</p>
                 </div>
                 <div className="flex items-center gap-4">
@@ -83,7 +93,10 @@ export default function WorkspaceWork() {
                         <DocumentPlusIcon className="w-5 h-5" />
                         Google Drive 연동
                     </button>
-                    <button className="flex items-center gap-2 px-8 py-3 bg-primary-600 text-white rounded-2xl font-bold hover:bg-primary-700 transition-all shadow-xl shadow-primary-600/20">
+                    <button 
+                        onClick={() => setIsCreateModalOpen(true)}
+                        className="flex items-center gap-2 px-8 py-3 bg-primary-600 text-white rounded-2xl font-bold hover:bg-primary-700 transition-all shadow-xl shadow-primary-600/20"
+                    >
                         <PlusIcon className="w-5 h-5" />
                         새 업무 추가
                     </button>
@@ -157,14 +170,17 @@ export default function WorkspaceWork() {
                                         {project.tasks.map((task) => (
                                             <tr key={task.id} className="group hover:bg-gray-50/30 transition-colors border-b border-gray-50 last:border-0">
                                                 <td className="px-8 py-6">
-                                                    <span className="font-bold text-gray-900 text-[15px] group-hover:text-primary-600 transition-colors cursor-pointer">
+                                                    <span 
+                                                        onClick={() => handleTaskClick(task)}
+                                                        className="font-bold text-gray-900 text-[15px] group-hover:text-primary-600 transition-colors cursor-pointer hover:underline decoration-2 underline-offset-4"
+                                                    >
                                                         {task.name}
                                                     </span>
                                                 </td>
                                                 <td className="px-8 py-6">
                                                     <div className="flex items-center gap-3">
                                                         <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center text-xs font-black text-primary-600 border-2 border-white shadow-sm">
-                                                            {task.owner?.name[0] || '?'}
+                                                            {task.owner?.name?.[0] || '?'}
                                                         </div>
                                                         <span className="text-[15px] font-bold text-gray-700">{task.owner?.name || '미지정'}</span>
                                                     </div>
@@ -200,14 +216,25 @@ export default function WorkspaceWork() {
                             </div>
 
                             {/* Add Task Row Placeholder */}
-                            <div className="px-8 py-5 bg-gray-50/20 flex items-center gap-3 text-gray-400 hover:text-primary-600 hover:bg-primary-50/30 cursor-pointer transition-all group">
+                            <div 
+                                onClick={() => setIsCreateModalOpen(true)}
+                                className="px-8 py-5 bg-gray-50/20 flex items-center gap-3 text-gray-400 hover:text-primary-600 hover:bg-primary-50/30 cursor-pointer transition-all group"
+                            >
                                 <PlusIcon className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                                <span className="text-[15px] font-black">+ 새로운 업무 추가</span>
+                                <span className="text-[15px] font-black">+ 새로운 업무 추가 (Mission 설정 포함)</span>
                             </div>
                         </div>
                     </motion.div>
                 ))}
             </div>
+
+            <CreateTaskModal 
+                isOpen={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
+                projects={allProjects}
+                currentUserId={session?.user?.id}
+                onTaskCreated={fetchProjects}
+            />
         </div>
     )
 }

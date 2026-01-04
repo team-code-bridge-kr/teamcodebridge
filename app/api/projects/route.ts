@@ -10,7 +10,8 @@ export async function GET() {
             include: {
                 tasks: {
                     include: {
-                        owner: true
+                        owner: true,
+                        context: true
                     }
                 }
             }

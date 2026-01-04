@@ -54,6 +54,7 @@ model Task {
   owner       User?    @relation(fields: [ownerId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  context     ContextCapsule?
 }
 
 // 채팅 메시지 모델
@@ -66,4 +67,22 @@ model Message {
   receiver  User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
+}
+
+// Context Switch Buffer (CSB) 모델
+model ContextCapsule {
+  id              String   @id @default(cuid())
+  taskId          String   @unique
+  task            Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  
+  // Clear Phase (종료/전환 시 작업자가 기록)
+  lastStableState String?  @db.Text
+  openLoops       String?  @db.Text
+  nextAction      String?  @db.Text
+  
+  // Ignition Phase (진입 시 확인)
+  mission         String?  @db.Text // 업무 생성자가 정의 (초기 목표)
+  risks           String?  @db.Text // 작업자가 추가 (예상 리스크)
+  
+  updatedAt       DateTime @updatedAt
 }

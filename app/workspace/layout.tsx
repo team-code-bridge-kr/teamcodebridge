@@ -1,6 +1,7 @@
 'use client'
 
 import WorkspaceLayoutClient from '@/components/WorkspaceLayoutClient'
+import { ContextSidebarProvider } from '@/components/ContextSidebar/ContextSidebarProvider'
 
 export default function WorkspaceLayout({
     children,
@@ -8,8 +9,10 @@ export default function WorkspaceLayout({
     children: React.ReactNode
 }) {
     return (
-        <WorkspaceLayoutClient>
-            {children}
-        </WorkspaceLayoutClient>
+        <ContextSidebarProvider>
+            <WorkspaceLayoutClient>
+                {children}
+            </WorkspaceLayoutClient>
+        </ContextSidebarProvider>
     )
 }
