@@ -128,14 +128,14 @@ export default function CreateEventModal({ isOpen, onClose, onEventCreated }: Cr
                                         </div>
                                         <form onSubmit={handleSubmit} className="mt-5 space-y-4">
                                             <div>
-                                                <label htmlFor="title" className="block text-sm font-bold text-gray-700 mb-1">
+                                                <label htmlFor="title" className="block text-sm font-bold text-gray-700 mb-2">
                                                     제목
                                                 </label>
                                                 <input
                                                     type="text"
                                                     id="title"
                                                     name="title"
-                                                    className="w-full rounded-xl border-gray-200 focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                                                     placeholder="예: 정기 회의"
                                                     value={title}
                                                     onChange={(e) => setTitle(e.target.value)}
@@ -144,13 +144,13 @@ export default function CreateEventModal({ isOpen, onClose, onEventCreated }: Cr
                                             </div>
 
                                             <div>
-                                                <label htmlFor="type" className="block text-sm font-bold text-gray-700 mb-1">
+                                                <label htmlFor="type" className="block text-sm font-bold text-gray-700 mb-2">
                                                     유형
                                                 </label>
                                                 <select
                                                     id="type"
                                                     name="type"
-                                                    className="w-full rounded-xl border-gray-200 bg-white text-gray-900 focus:border-primary-500 focus:ring-primary-500 sm:text-sm py-3"
+                                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                                                     value={type}
                                                     onChange={(e) => setType(e.target.value)}
                                                 >
@@ -162,63 +162,63 @@ export default function CreateEventModal({ isOpen, onClose, onEventCreated }: Cr
                                             </div>
 
                                             <div>
-                                                <label htmlFor="startDate" className="block text-sm font-bold text-gray-700 mb-1">
+                                                <label htmlFor="startDateTime" className="block text-sm font-bold text-gray-700 mb-2">
                                                     시작 일시
                                                 </label>
-                                                <div className="grid grid-cols-2 gap-2">
-                                                    <input
-                                                        type="date"
-                                                        id="startDate"
-                                                        name="startDate"
-                                                        className="w-full rounded-xl border-gray-200 focus:border-primary-500 focus:ring-primary-500 sm:text-sm py-3"
-                                                        value={startDate}
-                                                        onChange={(e) => setStartDate(e.target.value)}
-                                                        required
-                                                    />
-                                                    <input
-                                                        type="time"
-                                                        id="startTime"
-                                                        name="startTime"
-                                                        className="w-full rounded-xl border-gray-200 focus:border-primary-500 focus:ring-primary-500 sm:text-sm py-3"
-                                                        value={startTime}
-                                                        onChange={(e) => setStartTime(e.target.value)}
-                                                    />
-                                                </div>
+                                                <input
+                                                    type="datetime-local"
+                                                    id="startDateTime"
+                                                    name="startDateTime"
+                                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                                    value={startDate && startTime ? `${startDate}T${startTime}` : startDate || ''}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value
+                                                        if (value) {
+                                                            const [date, time] = value.split('T')
+                                                            setStartDate(date)
+                                                            setStartTime(time || '')
+                                                        } else {
+                                                            setStartDate('')
+                                                            setStartTime('')
+                                                        }
+                                                    }}
+                                                    required
+                                                />
                                             </div>
 
                                             <div>
-                                                <label htmlFor="endDate" className="block text-sm font-bold text-gray-700 mb-1">
+                                                <label htmlFor="endDateTime" className="block text-sm font-bold text-gray-700 mb-2">
                                                     종료 일시 (선택)
                                                 </label>
-                                                <div className="grid grid-cols-2 gap-2">
-                                                    <input
-                                                        type="date"
-                                                        id="endDate"
-                                                        name="endDate"
-                                                        className="w-full rounded-xl border-gray-200 focus:border-primary-500 focus:ring-primary-500 sm:text-sm py-3"
-                                                        value={endDate}
-                                                        onChange={(e) => setEndDate(e.target.value)}
-                                                    />
-                                                    <input
-                                                        type="time"
-                                                        id="endTime"
-                                                        name="endTime"
-                                                        className="w-full rounded-xl border-gray-200 focus:border-primary-500 focus:ring-primary-500 sm:text-sm py-3"
-                                                        value={endTime}
-                                                        onChange={(e) => setEndTime(e.target.value)}
-                                                    />
-                                                </div>
+                                                <input
+                                                    type="datetime-local"
+                                                    id="endDateTime"
+                                                    name="endDateTime"
+                                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                                    value={endDate && endTime ? `${endDate}T${endTime}` : endDate || ''}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value
+                                                        if (value) {
+                                                            const [date, time] = value.split('T')
+                                                            setEndDate(date)
+                                                            setEndTime(time || '')
+                                                        } else {
+                                                            setEndDate('')
+                                                            setEndTime('')
+                                                        }
+                                                    }}
+                                                />
                                             </div>
 
                                             <div>
-                                                <label htmlFor="location" className="block text-sm font-bold text-gray-700 mb-1">
+                                                <label htmlFor="location" className="block text-sm font-bold text-gray-700 mb-2">
                                                     장소 (선택)
                                                 </label>
                                                 <input
                                                     type="text"
                                                     id="location"
                                                     name="location"
-                                                    className="w-full rounded-xl border-gray-200 focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                                                     placeholder="예: 온라인, 회의실 A"
                                                     value={location}
                                                     onChange={(e) => setLocation(e.target.value)}
@@ -226,14 +226,14 @@ export default function CreateEventModal({ isOpen, onClose, onEventCreated }: Cr
                                             </div>
 
                                             <div>
-                                                <label htmlFor="description" className="block text-sm font-bold text-gray-700 mb-1">
+                                                <label htmlFor="description" className="block text-sm font-bold text-gray-700 mb-2">
                                                     설명 (선택)
                                                 </label>
                                                 <textarea
                                                     id="description"
                                                     name="description"
                                                     rows={3}
-                                                    className="w-full rounded-xl border-gray-200 focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
                                                     placeholder="일정에 대한 상세 설명"
                                                     value={description}
                                                     onChange={(e) => setDescription(e.target.value)}
