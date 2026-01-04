@@ -24,7 +24,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     try {
         const body = await request.json()
-        const { taskId, mission, risks, lastStableState, openLoops, nextAction } = body
+        const { taskId, mission, risks, lastStableState, openLoops, nextAction, status } = body
 
         if (!taskId) {
             return NextResponse.json({ error: 'Task ID is required' }, { status: 400 })
@@ -32,11 +32,13 @@ export async function POST(request: Request) {
 
         // Determine Task Status change
         let taskStatusUpdate = {}
-        if (risks) {
-            // Ignition phase -> In Progress
+        if (status) {
+            taskStatusUpdate = { status }
+        } else if (risks !== undefined) {
+             // If risks is present (even empty string), assume Ignition -> In Progress
             taskStatusUpdate = { status: '진행 중' }
-        } else if (lastStableState) {
-            // Clear phase -> Pending (Paused)
+        } else if (lastStableState !== undefined) {
+            // If lastStableState is present, assume Clear -> Pending
             taskStatusUpdate = { status: '대기' }
         }
 
