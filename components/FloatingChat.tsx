@@ -10,7 +10,10 @@ import {
     MagnifyingGlassIcon,
     FunnelIcon,
     XCircleIcon,
-    CheckIcon
+    CheckIcon,
+    PlusIcon,
+    UserGroupIcon,
+    UsersIcon
 } from '@heroicons/react/24/outline'
 import { motion, AnimatePresence } from 'framer-motion'
 import { io, Socket } from 'socket.io-client'
@@ -21,9 +24,11 @@ interface Message {
     content: string
     senderId: string
     senderName: string
+    senderImage?: string | null
     createdAt: string
     isMyMessage: boolean
     receiverId?: string
+    chatRoomId?: string
     read?: boolean
 }
 
@@ -37,21 +42,61 @@ interface User {
     unreadCount?: number
 }
 
+interface ChatRoom {
+    id: string
+    name: string
+    description: string | null
+    createdById: string
+    createdBy: {
+        id: string
+        name: string | null
+        image: string | null
+    }
+    members: Array<{
+        userId: string
+        user: {
+            id: string
+            name: string | null
+            image: string | null
+            team: string | null
+            position: string | null
+        }
+    }>
+    messages: Array<{
+        id: string
+        content: string
+        senderId: string
+        sender: {
+            name: string | null
+        }
+        createdAt: string
+    }>
+    updatedAt: string
+}
+
 type FilterType = 'all' | 'online' | 'team'
 type ViewMode = 'minimized' | 'normal' | 'expanded'
+type ChatView = 'users' | 'rooms' | 'create-room'
 
 export default function FloatingChat() {
     const [isOpen, setIsOpen] = useState(false)
     const [viewMode, setViewMode] = useState<ViewMode>('normal')
+    const [chatView, setChatView] = useState<ChatView>('users')
     const [message, setMessage] = useState('')
     const [messages, setMessages] = useState<Message[]>([])
     const [users, setUsers] = useState<User[]>([])
+    const [chatRooms, setChatRooms] = useState<ChatRoom[]>([])
     const [selectedUser, setSelectedUser] = useState<User | null>(null)
+    const [selectedChatRoom, setSelectedChatRoom] = useState<ChatRoom | null>(null)
     const [onlineUserIds, setOnlineUserIds] = useState<string[]>([])
     const [searchQuery, setSearchQuery] = useState('')
     const [filter, setFilter] = useState<FilterType>('all')
     const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({})
     const [totalUnread, setTotalUnread] = useState(0)
+    const [showCreateRoomModal, setShowCreateRoomModal] = useState(false)
+    const [newRoomName, setNewRoomName] = useState('')
+    const [newRoomDescription, setNewRoomDescription] = useState('')
+    const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([])
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const socketRef = useRef<Socket | null>(null)
     const { data: session } = useSession()
@@ -128,10 +173,12 @@ export default function FloatingChat() {
         if (isOpen && selectedUser) {
             fetchMessages(selectedUser.id)
             markAsRead(selectedUser.id)
+        } else if (isOpen && selectedChatRoom) {
+            fetchChatRoomMessages(selectedChatRoom.id)
         } else if (!isOpen) {
             setMessages([])
         }
-    }, [isOpen, selectedUser, session?.user?.id])
+    }, [isOpen, selectedUser, selectedChatRoom, session?.user?.id])
 
     useEffect(() => {
         scrollToBottom()
@@ -183,6 +230,62 @@ export default function FloatingChat() {
             }
         } catch (error) {
             console.error('Failed to fetch users:', error)
+        }
+    }
+
+    const fetchChatRooms = async () => {
+        try {
+            const res = await fetch('/api/chat-rooms')
+            if (res.ok) {
+                const data = await res.json()
+                setChatRooms(data)
+            }
+        } catch (error) {
+            console.error('Failed to fetch chat rooms:', error)
+        }
+    }
+
+    const fetchChatRoomMessages = async (chatRoomId: string) => {
+        if (!session?.user?.id) return
+        try {
+            const res = await fetch(`/api/messages?chatRoomId=${chatRoomId}&senderId=${session.user.id}`)
+            if (res.ok) {
+                const data = await res.json()
+                setMessages(data)
+            }
+        } catch (error) {
+            console.error('Failed to fetch chat room messages:', error)
+        }
+    }
+
+    const createChatRoom = async () => {
+        if (!newRoomName.trim() || selectedMemberIds.length === 0 || !session?.user?.id) return
+
+        try {
+            const res = await fetch('/api/chat-rooms', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: newRoomName,
+                    description: newRoomDescription || null,
+                    memberIds: selectedMemberIds
+                })
+            })
+
+            if (res.ok) {
+                const newRoom = await res.json()
+                setChatRooms(prev => [newRoom, ...prev])
+                setSelectedChatRoom(newRoom)
+                setSelectedUser(null)
+                setChatView('rooms')
+                setShowCreateRoomModal(false)
+                setNewRoomName('')
+                setNewRoomDescription('')
+                setSelectedMemberIds([])
+            }
+        } catch (error) {
+            console.error('Failed to create chat room:', error)
+            alert('채팅방 생성에 실패했습니다.')
         }
     }
 
@@ -274,15 +377,16 @@ export default function FloatingChat() {
                 })
             })
             
-            if (response.ok) {
-                const savedMessage = await response.json()
-                setMessages(prev => prev.map(msg => 
-                    msg.id === tempId ? { ...msg, id: savedMessage.id } : msg
-                ))
+                if (response.ok) {
+                    const savedMessage = await response.json()
+                    setMessages(prev => prev.map(msg => 
+                        msg.id === tempId ? { ...msg, id: savedMessage.id } : msg
+                    ))
+                }
+            } catch (error) {
+                console.error('Error sending message:', error)
+                setMessages(prev => prev.filter(msg => msg.id !== tempId))
             }
-        } catch (error) {
-            console.error('Error sending message:', error)
-            setMessages(prev => prev.filter(msg => msg.id !== tempId))
         }
     }
 
@@ -435,9 +539,61 @@ export default function FloatingChat() {
 
                         {/* Content */}
                         <div className="flex-1 overflow-y-auto bg-gray-50">
-                            {!selectedUser ? (
-                                // User List
+                            {!selectedUser && !selectedChatRoom ? (
+                                // User List or Chat Room List
                                 <div className="p-4 space-y-4">
+                                    {chatView === 'rooms' ? (
+                                        // Chat Room List
+                                        <>
+                                            <button
+                                                onClick={() => setShowCreateRoomModal(true)}
+                                                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary-600 text-white rounded-xl font-bold text-sm hover:bg-primary-700 transition-colors mb-4"
+                                            >
+                                                <PlusIcon className="w-5 h-5" />
+                                                새 그룹 채팅방 만들기
+                                            </button>
+                                            {chatRooms.length === 0 ? (
+                                                <div className="text-center text-gray-400 text-sm py-12">
+                                                    그룹 채팅방이 없습니다.
+                                                </div>
+                                            ) : (
+                                                <div className="space-y-2">
+                                                    {chatRooms.map(room => {
+                                                        const lastMessage = room.messages[0]
+                                                        return (
+                                                            <div
+                                                                key={room.id}
+                                                                onClick={() => {
+                                                                    setSelectedChatRoom(room)
+                                                                    setChatView('rooms')
+                                                                }}
+                                                                className="flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-100 cursor-pointer hover:shadow-md hover:border-primary-200 transition-all"
+                                                            >
+                                                                <div className="relative w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center shrink-0">
+                                                                    <UserGroupIcon className="w-6 h-6 text-primary-600" />
+                                                                </div>
+                                                                <div className="flex-1 min-w-0">
+                                                                    <p className="font-bold text-gray-900 text-sm truncate">{room.name}</p>
+                                                                    {lastMessage ? (
+                                                                        <p className="text-xs text-gray-500 truncate">
+                                                                            {lastMessage.sender.name}: {lastMessage.content}
+                                                                        </p>
+                                                                    ) : (
+                                                                        <p className="text-xs text-gray-400">메시지가 없습니다</p>
+                                                                    )}
+                                                                </div>
+                                                                <div className="text-xs text-gray-400 shrink-0">
+                                                                    {room.members.length}명
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                    })}
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : (
+                                        // User List
+                                        <>
                                     {/* Search and Filter */}
                                     <div className="space-y-3">
                                         <div className="relative">
@@ -565,6 +721,9 @@ export default function FloatingChat() {
                                                                     </div>
                                                                 )}
                                                                 <div className={`flex flex-col ${msg.isMyMessage ? 'items-end' : 'items-start'}`}>
+                                                                    {!msg.isMyMessage && selectedChatRoom && (
+                                                                        <p className="text-xs text-gray-500 mb-1 px-1">{msg.senderName}</p>
+                                                                    )}
                                                                     <div
                                                                         className={`p-3 rounded-2xl text-sm ${
                                                                             msg.isMyMessage
@@ -602,7 +761,7 @@ export default function FloatingChat() {
                         </div>
 
                         {/* Input Area */}
-                        {selectedUser && (
+                        {(selectedUser || selectedChatRoom) && (
                             <form onSubmit={sendMessage} className="p-4 bg-white border-t border-gray-100 shrink-0">
                                 <div className="relative">
                                     <input
