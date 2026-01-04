@@ -8,8 +8,10 @@ import {
     ArrowsUpDownIcon,
     DocumentPlusIcon,
     LinkIcon,
+    ChevronDownIcon,
 } from '@heroicons/react/24/outline'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Fragment } from 'react'
+import { Menu, Transition } from '@headlessui/react'
 import { useContextSidebar } from '@/components/ContextSidebar/ContextSidebarProvider'
 import CreateTaskModal from '@/components/CreateTaskModal'
 import CreateProjectModal from '@/components/CreateProjectModal'
@@ -58,6 +60,7 @@ const priorityStyles: { [key: string]: string } = {
 export default function WorkspaceWork() {
     const { data: session } = useSession()
     const [searchTerm, setSearchTerm] = useState('')
+    const [filterStatus, setFilterStatus] = useState<string | null>(null)
     const [projects, setProjects] = useState<Project[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
@@ -100,10 +103,12 @@ export default function WorkspaceWork() {
 
     const filteredProjects = projects.map(project => ({
         ...project,
-        tasks: project.tasks.filter(task =>
-            task.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            task.owner?.name.toLowerCase().includes(searchTerm.toLowerCase())
-        )
+        tasks: project.tasks.filter(task => {
+            const matchesSearch = task.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              task.owner?.name.toLowerCase().includes(searchTerm.toLowerCase())
+            const matchesStatus = filterStatus ? task.status === filterStatus : true
+            return matchesSearch && matchesStatus
+        })
     })).filter(project => project.tasks.length > 0)
 
     const allProjects = projects.map(p => ({ id: p.id, title: p.title }))
@@ -152,10 +157,55 @@ export default function WorkspaceWork() {
                         />
                     </div>
                     <div className="h-8 w-[1px] bg-gray-100 hidden md:block" />
-                    <button className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-gray-600 hover:text-black transition-all">
-                        <FunnelIcon className="w-5 h-5" />
-                        필터
-                    </button>
+                    <div className="h-8 w-[1px] bg-gray-100 hidden md:block" />
+                    
+                    <Menu as="div" className="relative inline-block text-left">
+                        <Menu.Button className={`flex items-center gap-2 px-4 py-2 text-sm font-bold transition-all ${filterStatus ? 'text-primary-600 bg-primary-50 rounded-xl' : 'text-gray-600 hover:text-black'}`}>
+                            <FunnelIcon className="w-5 h-5" />
+                            {filterStatus || '필터'}
+                            <ChevronDownIcon className="w-4 h-4 ml-1" />
+                        </Menu.Button>
+                        <Transition
+                            as={Fragment}
+                            enter="transition ease-out duration-100"
+                            enterFrom="transform opacity-0 scale-95"
+                            enterTo="transform opacity-100 scale-100"
+                            leave="transition ease-in duration-75"
+                            leaveFrom="transform opacity-100 scale-100"
+                            leaveTo="transform opacity-0 scale-95"
+                        >
+                            <Menu.Items className="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-xl bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                <div className="py-1">
+                                    <Menu.Item>
+                                        {({ active }) => (
+                                            <button
+                                                onClick={() => setFilterStatus(null)}
+                                                className={`${
+                                                    active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
+                                                } block w-full px-4 py-2 text-left text-sm font-bold`}
+                                            >
+                                                전체 보기
+                                            </button>
+                                        )}
+                                    </Menu.Item>
+                                    {Object.keys(statusStyles).map((status) => (
+                                        <Menu.Item key={status}>
+                                            {({ active }) => (
+                                                <button
+                                                    onClick={() => setFilterStatus(status)}
+                                                    className={`${
+                                                        active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
+                                                    } block w-full px-4 py-2 text-left text-sm font-bold`}
+                                                >
+                                                    {status}
+                                                </button>
+                                            )}
+                                        </Menu.Item>
+                                    ))}
+                                </div>
+                            </Menu.Items>
+                        </Transition>
+                    </Menu>
                     <button className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-gray-600 hover:text-black transition-all">
                         <ArrowsUpDownIcon className="w-5 h-5" />
                         정렬
