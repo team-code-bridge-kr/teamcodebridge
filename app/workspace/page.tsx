@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { useSession } from 'next-auth/react'
 import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import {
     CalendarIcon,
     CheckCircleIcon,
@@ -10,7 +11,9 @@ import {
     BellIcon,
     ExclamationTriangleIcon,
     ArrowRightIcon,
-    FireIcon
+    FireIcon,
+    ChevronDownIcon,
+    ChevronUpIcon
 } from '@heroicons/react/24/outline'
 import NotificationBar from '@/components/NotificationBar'
 
@@ -50,13 +53,15 @@ interface Announcement {
 
 export default function WorkspaceHome() {
     const { data: session } = useSession()
+    const router = useRouter()
     const userName = session?.user?.name || '멘토'
     const userId = session?.user?.id
     const [projects, setProjects] = useState<Project[]>([])
     const [myTasks, setMyTasks] = useState<Task[]>([])
     const [announcements, setAnnouncements] = useState<Announcement[]>([])
     const [loading, setLoading] = useState(true)
-    const announcementScrollRef = useRef<HTMLDivElement>(null)
+    const [currentAnnouncementIndex, setCurrentAnnouncementIndex] = useState(0)
+    const [isAnnouncementExpanded, setIsAnnouncementExpanded] = useState(false)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -99,6 +104,17 @@ export default function WorkspaceHome() {
         fetchData()
     }, [userId])
 
+    // 공지사항 자동 전환 (3초마다)
+    useEffect(() => {
+        if (announcements.length === 0 || isAnnouncementExpanded) return
+
+        const interval = setInterval(() => {
+            setCurrentAnnouncementIndex((prev) => (prev + 1) % announcements.length)
+        }, 3000)
+
+        return () => clearInterval(interval)
+    }, [announcements.length, isAnnouncementExpanded])
+
     const getDaysUntilDeadline = (timeline: string | null) => {
         if (!timeline) return null
         try {
@@ -139,7 +155,7 @@ export default function WorkspaceHome() {
                 </motion.div>
             </header>
 
-            {/* 공지사항 - 맨 위 (한 줄 슬라이더) */}
+            {/* 공지사항 - 맨 위 (네이버 스타일) */}
             {announcements.length > 0 && (
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -152,16 +168,51 @@ export default function WorkspaceHome() {
                             <h2 className="text-white font-black text-sm">팀코드브릿지 공지사항</h2>
                         </div>
                     </div>
-                    <div className="relative">
-                        <div
-                            ref={announcementScrollRef}
-                            className="flex gap-4 overflow-x-auto px-6 py-4 scrollbar-hide snap-x snap-mandatory"
-                            style={{
-                                scrollbarWidth: 'none',
-                                msOverflowStyle: 'none',
-                                WebkitOverflowScrolling: 'touch',
-                            }}
-                        >
+                    
+                    {/* 한 줄 공지사항 */}
+                    {!isAnnouncementExpanded && announcements.length > 0 && (
+                        <div className="bg-gray-50 border-b border-gray-200">
+                            <div className="flex items-center gap-3 px-4 py-3">
+                                <span className="text-sm text-gray-600 font-medium shrink-0">{announcements[currentAnnouncementIndex]?.category || '일반'}</span>
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 text-sm text-gray-900">
+                                        <span className="truncate">{announcements[currentAnnouncementIndex]?.title}</span>
+                                        <span className="text-gray-500 text-xs shrink-0">
+                                            {new Date(announcements[currentAnnouncementIndex]?.createdAt).toLocaleDateString('ko-KR', {
+                                                year: 'numeric',
+                                                month: '2-digit',
+                                                day: '2-digit',
+                                            }).replace(/\./g, '.').replace(/\s/g, '')}
+                                        </span>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        setIsAnnouncementExpanded(true)
+                                    }}
+                                    className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900 shrink-0 px-2 py-1"
+                                >
+                                    <span>펼치기</span>
+                                    <ChevronDownIcon className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 펼쳐진 공지사항 리스트 */}
+                    {isAnnouncementExpanded && (
+                        <div className="divide-y divide-gray-100">
+                            <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-200">
+                                <span className="text-sm font-bold text-gray-700">전체 공지사항</span>
+                                <button
+                                    onClick={() => setIsAnnouncementExpanded(false)}
+                                    className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 shrink-0 px-2 py-1"
+                                >
+                                    <span>접기</span>
+                                    <ChevronUpIcon className="w-4 h-4" />
+                                </button>
+                            </div>
                             {announcements.map((announcement) => {
                                 const date = new Date(announcement.createdAt).toLocaleDateString('ko-KR', {
                                     year: 'numeric',
@@ -172,34 +223,29 @@ export default function WorkspaceHome() {
                                 return (
                                     <div
                                         key={announcement.id}
-                                        className={`flex-shrink-0 w-[calc(100vw-4rem)] md:w-[400px] p-5 rounded-2xl border-2 cursor-pointer hover:shadow-md transition-all snap-start ${
-                                            announcement.isImportant 
-                                                ? 'border-red-200 bg-red-50/30' 
-                                                : 'border-gray-100 bg-white hover:border-primary-200'
+                                        className={`px-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer ${
+                                            announcement.isImportant ? 'bg-red-50/30' : ''
                                         }`}
-                                        onClick={() => {
-                                            // TODO: 공지사항 상세 페이지로 이동
-                                        }}
+                                        onClick={() => router.push(`/workspace/announcements/${announcement.id}`)}
                                     >
-                                        <div className="flex items-center gap-2 mb-3">
-                                            {announcement.isImportant && (
-                                                <span className="px-2 py-0.5 bg-red-500 text-white text-[10px] font-black rounded-full">중요</span>
-                                            )}
-                                            <span className="px-2 py-0.5 bg-primary-100 text-primary-600 text-[10px] font-bold rounded-full">
-                                                {announcement.category}
-                                            </span>
-                                            <span className="text-xs text-gray-400">{date}</span>
-                                        </div>
-                                        <h3 className="font-black text-black text-base mb-2 line-clamp-1">{announcement.title}</h3>
-                                        <p className="text-sm text-gray-600 line-clamp-2">{announcement.content}</p>
-                                        <div className="flex items-center justify-end mt-3">
-                                            <ArrowRightIcon className="w-4 h-4 text-gray-400" />
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-sm text-gray-600 font-medium shrink-0">{announcement.category}</span>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-2">
+                                                    {announcement.isImportant && (
+                                                        <span className="px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-black rounded shrink-0">중요</span>
+                                                    )}
+                                                    <span className="text-sm text-gray-900 truncate">{announcement.title}</span>
+                                                </div>
+                                            </div>
+                                            <span className="text-xs text-gray-500 shrink-0">{date}</span>
+                                            <ArrowRightIcon className="w-4 h-4 text-gray-400 shrink-0" />
                                         </div>
                                     </div>
                                 )
                             })}
                         </div>
-                    </div>
+                    )}
                 </motion.div>
             )}
 
