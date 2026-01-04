@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: Request) {
     try {
         const body = await request.json()
@@ -9,8 +11,8 @@ export async function POST(request: Request) {
         const task = await prisma.task.create({
             data: {
                 name,
-                status,
-                priority,
+                status: status || '대기',
+                priority: priority || '중간',
                 timeline,
                 driveUrl,
                 projectId,
@@ -20,11 +22,17 @@ export async function POST(request: Request) {
                         mission
                     }
                 } : undefined
+            },
+            include: {
+                owner: true,
+                context: true,
+                project: true
             }
         })
         return NextResponse.json(task)
     } catch (error) {
         console.error("Failed to create task:", error)
+        console.error("Error details:", error)
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
     }
 }
