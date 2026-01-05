@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowLeftIcon } from '@heroicons/react/24/outline'
+import { ArrowLeftIcon, UserGroupIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import AdminUserManagement from '../../AdminUserManagement'
 
@@ -18,9 +18,7 @@ export default function AdminUsersPage() {
             <header className="mb-10">
                 <div className="flex items-center gap-3 mb-2">
                     <div className="p-3 bg-primary-50 rounded-xl">
-                        <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                        </svg>
+                        <UserGroupIcon className="w-6 h-6 text-primary-600" />
                     </div>
                     <h1 className="text-3xl font-black text-black">사용자 관리</h1>
                 </div>
