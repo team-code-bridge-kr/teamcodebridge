@@ -3,9 +3,7 @@
 import { motion } from 'framer-motion'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
-import { UserIcon, Cog6ToothIcon, BellIcon, ShieldCheckIcon } from '@heroicons/react/24/outline'
-import AdminUserManagement from './AdminUserManagement'
-import AdminAnnouncementManagement from './AdminAnnouncementManagement'
+import { UserIcon, Cog6ToothIcon, BellIcon, ShieldCheckIcon, MegaphoneIcon } from '@heroicons/react/24/outline'
 
 export default function WorkspaceMy() {
     const { data: session, status } = useSession()
@@ -56,23 +54,13 @@ export default function WorkspaceMy() {
                     </div>
                 </div>
 
-                {/* 관리자 전용: 사용자 관리 */}
-                {isAdmin && (
-                    <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm">
-                        <AdminUserManagement />
-                    </div>
-                )}
-
-                {/* 관리자 전용: 공지사항 관리 */}
-                {isAdmin && (
-                    <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm">
-                        <AdminAnnouncementManagement />
-                    </div>
-                )}
-
                 {/* Settings List */}
                 <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden">
                     {[
+                        ...(isAdmin ? [
+                            { name: '사용자 관리', icon: UserIcon, desc: '사용자 정보 및 권한 관리', href: '/workspace/my/admin/users' },
+                            { name: '공지사항 관리', icon: MegaphoneIcon, desc: '공지사항 작성 및 관리', href: '/workspace/my/admin/announcements' },
+                        ] : []),
                         { name: '알림 설정', icon: BellIcon, desc: '업무 및 피드백 알림 수신 설정', href: '/workspace/my/settings/notifications' },
                         { name: '보안 및 로그인', icon: ShieldCheckIcon, desc: '비밀번호 변경 및 2단계 인증', href: '/workspace/my/settings/security' },
                         { name: '서비스 설정', icon: Cog6ToothIcon, desc: '워크스페이스 테마 및 언어 설정', href: '/workspace/my/settings/general' },
