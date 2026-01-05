@@ -251,8 +251,8 @@ export default function WorkspaceHome() {
                 </motion.div>
             )}
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            {/* Stats Grid with Quick Actions */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-10">
                 {stats.map((stat, i) => (
                     <motion.div
                         key={stat.name}
@@ -270,6 +270,29 @@ export default function WorkspaceHome() {
                         <div className="text-3xl font-black text-black">{stat.value}</div>
                     </motion.div>
                 ))}
+                {/* 빠른 액션 */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="bg-primary-600 p-6 rounded-[24px] text-white shadow-sm hover:shadow-md transition-shadow"
+                >
+                    <h3 className="text-sm font-bold text-white/80 mb-4">빠른 액션</h3>
+                    <div className="space-y-2">
+                        <button 
+                            onClick={() => router.push('/workspace/work?action=create-task')}
+                            className="w-full py-2.5 bg-white text-primary-600 rounded-xl font-bold text-xs hover:bg-primary-50 transition-colors"
+                        >
+                            새 업무 추가
+                        </button>
+                        <button 
+                            onClick={() => router.push('/workspace/work?action=create-project')}
+                            className="w-full py-2.5 bg-white/10 text-white rounded-xl font-bold text-xs hover:bg-white/20 transition-colors border border-white/20"
+                        >
+                            프로젝트 생성
+                        </button>
+                    </div>
+                </motion.div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -395,19 +418,8 @@ export default function WorkspaceHome() {
                     </div>
                 </div>
 
-                {/* 사이드바 - 빠른 링크 */}
+                {/* 사이드바 */}
                 <div className="space-y-6">
-                    <div className="bg-primary-600 p-8 rounded-[32px] text-white shadow-xl shadow-primary-600/20">
-                        <h2 className="text-xl font-black mb-4">빠른 액션</h2>
-                        <div className="space-y-3">
-                        <button className="w-full py-3 bg-white text-primary-600 rounded-xl font-bold text-sm hover:bg-primary-50 transition-colors">
-                                새 업무 추가
-                            </button>
-                            <button className="w-full py-3 bg-white/10 text-white rounded-xl font-bold text-sm hover:bg-white/20 transition-colors border border-white/20">
-                                프로젝트 생성
-                        </button>
-                        </div>
-                    </div>
 
                     {/* 마감 임박 업무 요약 */}
                     {urgentTasks.length > 0 && (
