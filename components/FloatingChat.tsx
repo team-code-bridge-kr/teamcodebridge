@@ -925,6 +925,148 @@ export default function FloatingChat() {
                     </motion.div>
                 )}
             </motion.button>
+
+            {/* Create Room Modal */}
+            <AnimatePresence>
+                {showCreateRoomModal && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setShowCreateRoomModal(false)}
+                            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100]"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="fixed inset-0 z-[101] flex items-center justify-center p-4"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col">
+                                {/* Header */}
+                                <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                                    <h2 className="text-xl font-bold text-gray-900">새 그룹 채팅방 만들기</h2>
+                                    <button
+                                        onClick={() => setShowCreateRoomModal(false)}
+                                        className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                                    >
+                                        <XMarkIcon className="w-6 h-6 text-gray-500" />
+                                    </button>
+                                </div>
+
+                                {/* Content */}
+                                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                                    {/* Room Name */}
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">
+                                            채팅방 이름 <span className="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={newRoomName}
+                                            onChange={(e) => setNewRoomName(e.target.value)}
+                                            placeholder="채팅방 이름을 입력하세요"
+                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                                        />
+                                    </div>
+
+                                    {/* Room Description */}
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">
+                                            채팅방 설명 (선택사항)
+                                        </label>
+                                        <textarea
+                                            value={newRoomDescription}
+                                            onChange={(e) => setNewRoomDescription(e.target.value)}
+                                            placeholder="채팅방 설명을 입력하세요"
+                                            rows={3}
+                                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                                        />
+                                    </div>
+
+                                    {/* Member Selection */}
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">
+                                            멤버 선택 <span className="text-red-500">*</span>
+                                        </label>
+                                        <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-xl bg-gray-50">
+                                            {users.length === 0 ? (
+                                                <div className="p-4 text-center text-gray-400 text-sm">
+                                                    선택할 수 있는 멤버가 없습니다.
+                                                </div>
+                                            ) : (
+                                                <div className="p-2 space-y-1">
+                                                    {users.map(user => {
+                                                        const isSelected = selectedMemberIds.includes(user.id)
+                                                        return (
+                                                            <label
+                                                                key={user.id}
+                                                                className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
+                                                                    isSelected
+                                                                        ? 'bg-primary-50 border-2 border-primary-500'
+                                                                        : 'bg-white border-2 border-transparent hover:bg-gray-50'
+                                                                }`}
+                                                            >
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={isSelected}
+                                                                    onChange={(e) => {
+                                                                        if (e.target.checked) {
+                                                                            setSelectedMemberIds([...selectedMemberIds, user.id])
+                                                                        } else {
+                                                                            setSelectedMemberIds(selectedMemberIds.filter(id => id !== user.id))
+                                                                        }
+                                                                    }}
+                                                                    className="w-5 h-5 text-primary-600 rounded focus:ring-primary-500"
+                                                                />
+                                                                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden shrink-0">
+                                                                    {user.image ? (
+                                                                        <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
+                                                                    ) : (
+                                                                        <UserCircleIcon className="w-6 h-6 text-gray-400" />
+                                                                    )}
+                                                                </div>
+                                                                <div className="flex-1 min-w-0">
+                                                                    <p className="font-bold text-gray-900 text-sm truncate">{user.name}</p>
+                                                                    <p className="text-xs text-gray-500 truncate">{user.team || '소속팀 미정'}</p>
+                                                                </div>
+                                                            </label>
+                                                        )
+                                                    })}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Footer */}
+                                <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200">
+                                    <button
+                                        onClick={() => {
+                                            setShowCreateRoomModal(false)
+                                            setNewRoomName('')
+                                            setNewRoomDescription('')
+                                            setSelectedMemberIds([])
+                                        }}
+                                        className="px-4 py-2 text-gray-700 font-medium hover:bg-gray-100 rounded-lg transition-colors"
+                                    >
+                                        취소
+                                    </button>
+                                    <button
+                                        onClick={createChatRoom}
+                                        disabled={!newRoomName.trim() || selectedMemberIds.length === 0}
+                                        className="px-4 py-2 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    >
+                                        만들기
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
         </div>
     )
 }
