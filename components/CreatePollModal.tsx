@@ -2,7 +2,7 @@
 
 import { Fragment, useState, useEffect } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
-import { XMarkIcon, CalendarIcon, UserGroupIcon } from '@heroicons/react/24/outline'
+import { XMarkIcon, CalendarIcon, ChevronLeftIcon, ChevronRightIcon, ClockIcon } from '@heroicons/react/24/outline'
 import { useSession } from 'next-auth/react'
 
 interface CreatePollModalProps {
@@ -11,118 +11,158 @@ interface CreatePollModalProps {
     onPollCreated: () => void
 }
 
-interface User {
-    id: string
-    name: string | null
-    email: string | null
-    image: string | null
-    team: string | null
-    position: string | null
-}
-
 export default function CreatePollModal({ isOpen, onClose, onPollCreated }: CreatePollModalProps) {
     const { data: session } = useSession()
     const [title, setTitle] = useState('')
     const [description, setDescription] = useState('')
-    const [selectedWeek, setSelectedWeek] = useState('')
     const [voteDeadline, setVoteDeadline] = useState('')
-    const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([])
-    const [members, setMembers] = useState<User[]>([])
+    const [currentDate, setCurrentDate] = useState(new Date())
+    const [selectedDates, setSelectedDates] = useState<Set<string>>(new Set()) // YYYY-MM-DD 형식
+    const [selectedTimes, setSelectedTimes] = useState<Map<string, Set<string>>>(new Map()) // 날짜별 시간대
     const [isLoading, setIsLoading] = useState(false)
-    const [loadingMembers, setLoadingMembers] = useState(false)
+    const [mode, setMode] = useState<'available' | 'unavailable'>('available') // 되는 날 / 안되는 날
 
-    // 멤버 목록 불러오기
-    useEffect(() => {
-        if (isOpen) {
-            fetchMembers()
-        }
-    }, [isOpen])
+    // 시간대 옵션
+    const timeSlots = [
+        '09:00', '10:00', '11:00', '12:00',
+        '13:00', '14:00', '15:00', '16:00',
+        '17:00', '18:00', '19:00', '20:00'
+    ]
 
-    const fetchMembers = async () => {
-        setLoadingMembers(true)
-        try {
-            const res = await fetch('/api/members')
-            if (res.ok) {
-                const data = await res.json()
-                // 현재 사용자 제외
-                const filtered = data.filter((u: User) => u.id !== (session?.user as any)?.id)
-                setMembers(filtered)
-            }
-        } catch (error) {
-            console.error('Failed to fetch members:', error)
-        } finally {
-            setLoadingMembers(false)
-        }
+    const year = currentDate.getFullYear()
+    const month = currentDate.getMonth()
+
+    const getDaysInMonth = (date: Date) => {
+        return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
     }
 
-    // 주 선택 시 해당 주의 날짜 옵션 생성
-    const generateWeekOptions = (weekStartDate: string): string[] => {
-        const start = new Date(weekStartDate)
-        const options: string[] = []
+    const getFirstDayOfMonth = (date: Date) => {
+        return new Date(date.getFullYear(), date.getMonth(), 1).getDay()
+    }
+
+    const navigateMonth = (direction: 'prev' | 'next') => {
+        setCurrentDate(prev => {
+            const newDate = new Date(prev)
+            if (direction === 'prev') {
+                newDate.setMonth(prev.getMonth() - 1)
+            } else {
+                newDate.setMonth(prev.getMonth() + 1)
+            }
+            return newDate
+        })
+    }
+
+    const formatDateKey = (year: number, month: number, day: number) => {
+        return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+    }
+
+    const toggleDate = (day: number) => {
+        const dateKey = formatDateKey(year, month, day)
+        setSelectedDates(prev => {
+            const newSet = new Set(prev)
+            if (newSet.has(dateKey)) {
+                newSet.delete(dateKey)
+                // 날짜 제거 시 해당 날짜의 시간대도 제거
+                setSelectedTimes(prevTimes => {
+                    const newMap = new Map(prevTimes)
+                    newMap.delete(dateKey)
+                    return newMap
+                })
+            } else {
+                newSet.add(dateKey)
+            }
+            return newSet
+        })
+    }
+
+    const toggleTime = (dateKey: string, time: string) => {
+        setSelectedTimes(prev => {
+            const newMap = new Map(prev)
+            const times = newMap.get(dateKey) || new Set<string>()
+            const newTimes = new Set(times)
+            if (newTimes.has(time)) {
+                newTimes.delete(time)
+            } else {
+                newTimes.add(time)
+            }
+            if (newTimes.size === 0) {
+                newMap.delete(dateKey)
+            } else {
+                newMap.set(dateKey, newTimes)
+            }
+            return newMap
+        })
+    }
+
+    const isDateSelected = (day: number) => {
+        const dateKey = formatDateKey(year, month, day)
+        return selectedDates.has(dateKey)
+    }
+
+    const isDatePast = (day: number) => {
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        const checkDate = new Date(year, month, day)
+        return checkDate < today
+    }
+
+    const daysInMonth = getDaysInMonth(currentDate)
+    const firstDay = getFirstDayOfMonth(currentDate)
+    const days = Array.from({ length: daysInMonth }, (_, i) => i + 1)
+    const weekDays = ['일', '월', '화', '수', '목', '금', '토']
+    const today = new Date()
+
+    const isToday = (day: number) => {
+        return day === today.getDate() && 
+               month === today.getMonth() && 
+               year === today.getFullYear()
+    }
+
+    // 선택된 날짜들을 옵션으로 변환
+    const generateOptions = () => {
+        const options: { startDate: string; endDate: string | null }[] = []
         
-        // 선택한 날짜가 속한 주의 월요일 찾기
-        const monday = new Date(start)
-        const dayOfWeek = monday.getDay() // 0(일) ~ 6(토)
-        const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1 // 일요일이면 6일 전, 아니면 dayOfWeek - 1일 전
-        monday.setDate(start.getDate() - daysToMonday)
-        monday.setHours(0, 0, 0, 0)
-        
-        // 해당 주의 월요일부터 금요일까지 (5일)
-        for (let i = 0; i < 5; i++) {
-            const date = new Date(monday)
-            date.setDate(monday.getDate() + i)
-            // 각 날짜에 오전 10시, 오후 2시, 오후 4시 옵션 생성
-            const times = ['10:00', '14:00', '16:00']
-            times.forEach(time => {
-                const [hours, minutes] = time.split(':')
-                const dateTime = new Date(date)
-                dateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
-                options.push(dateTime.toISOString())
-            })
-        }
+        selectedDates.forEach(dateKey => {
+            const times = selectedTimes.get(dateKey) || new Set<string>()
+            if (times.size === 0) {
+                // 시간대가 선택되지 않았으면 하루 종일로 처리
+                const [y, m, d] = dateKey.split('-').map(Number)
+                const startDate = new Date(y, m - 1, d, 9, 0, 0)
+                const endDate = new Date(y, m - 1, d, 18, 0, 0)
+                options.push({
+                    startDate: startDate.toISOString(),
+                    endDate: endDate.toISOString()
+                })
+            } else {
+                // 선택된 시간대별로 옵션 생성
+                times.forEach(time => {
+                    const [hours, minutes] = time.split(':').map(Number)
+                    const [y, m, d] = dateKey.split('-').map(Number)
+                    const startDate = new Date(y, m - 1, d, hours, minutes, 0)
+                    const endDate = new Date(y, m - 1, d, hours + 1, minutes, 0) // 1시간 단위
+                    options.push({
+                        startDate: startDate.toISOString(),
+                        endDate: endDate.toISOString()
+                    })
+                })
+            }
+        })
         
         return options
     }
-
-    // 최소 투표 마감일 계산 (선택한 주의 시작일로부터 최소 3주 후)
-    const calculateMinDeadline = (weekStartDate: string): string => {
-        const start = new Date(weekStartDate)
-        const monday = new Date(start)
-        const dayOfWeek = monday.getDay()
-        const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1
-        monday.setDate(start.getDate() - daysToMonday)
-        monday.setHours(0, 0, 0, 0)
-        
-        // 최소 3주 후 (21일 후) - 예: 1월 6일 주면 최소 1월 27일 이후
-        const minDeadline = new Date(monday)
-        minDeadline.setDate(monday.getDate() + 21)
-        
-        return minDeadline.toISOString().split('T')[0]
-    }
-
-    // 주 선택 시 최소 마감일 자동 설정
-    useEffect(() => {
-        if (selectedWeek) {
-            const minDeadline = calculateMinDeadline(selectedWeek)
-            if (!voteDeadline || voteDeadline < minDeadline) {
-                setVoteDeadline(minDeadline)
-            }
-        }
-    }, [selectedWeek])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsLoading(true)
 
         try {
-            if (!selectedWeek) {
-                alert('회의를 진행할 주를 선택해주세요.')
+            if (selectedDates.size === 0) {
+                alert('최소 하나의 날짜를 선택해주세요.')
                 setIsLoading(false)
                 return
             }
 
-            // 주 선택 시 해당 주의 날짜 옵션 자동 생성
-            const weekOptions = generateWeekOptions(selectedWeek)
+            const options = generateOptions()
             
             const res = await fetch('/api/meeting-polls', {
                 method: 'POST',
@@ -131,19 +171,17 @@ export default function CreatePollModal({ isOpen, onClose, onPollCreated }: Crea
                     title,
                     description,
                     voteDeadline: voteDeadline ? new Date(voteDeadline).toISOString() : null,
-                    options: weekOptions.map(opt => ({
-                        startDate: opt,
-                        endDate: null
-                    })),
+                    options,
                 }),
             })
 
             if (res.ok) {
                 setTitle('')
                 setDescription('')
-                setSelectedWeek('')
                 setVoteDeadline('')
-                setSelectedMemberIds([])
+                setSelectedDates(new Set())
+                setSelectedTimes(new Map())
+                setCurrentDate(new Date())
                 onPollCreated()
                 onClose()
             } else {
@@ -158,36 +196,16 @@ export default function CreatePollModal({ isOpen, onClose, onPollCreated }: Crea
         }
     }
 
-    // 주의 시작일 계산 (다음 주 월요일부터)
-    const getNextWeeks = (): { label: string; value: string }[] => {
-        const weeks: { label: string; value: string }[] = []
-        const today = new Date()
-        
-        // 다음 주 월요일 찾기
-        const nextMonday = new Date(today)
-        const daysUntilMonday = (1 - today.getDay() + 7) % 7 || 7
-        nextMonday.setDate(today.getDate() + daysUntilMonday)
-        
-        // 8주치 생성
-        for (let i = 0; i < 8; i++) {
-            const weekStart = new Date(nextMonday)
-            weekStart.setDate(nextMonday.getDate() + (i * 7))
-            
-            const weekEnd = new Date(weekStart)
-            weekEnd.setDate(weekStart.getDate() + 4) // 금요일까지
-            
-            const label = `${weekStart.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })} ~ ${weekEnd.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })}`
-            weeks.push({
-                label,
-                value: weekStart.toISOString().split('T')[0]
-            })
-        }
-        
-        return weeks
+    // 다음 달의 첫날을 최소 마감일로 설정
+    const getMinDeadline = () => {
+        const nextMonth = new Date(year, month + 1, 1)
+        return nextMonth.toISOString().split('T')[0]
     }
 
-    const weeks = getNextWeeks()
-    const minDeadline = selectedWeek ? calculateMinDeadline(selectedWeek) : ''
+    const minDeadline = getMinDeadline()
+
+    // 선택된 날짜 목록 (시간대 포함)
+    const selectedDatesArray = Array.from(selectedDates).sort()
 
     return (
         <Transition.Root show={isOpen} as={Fragment}>
@@ -215,7 +233,7 @@ export default function CreatePollModal({ isOpen, onClose, onPollCreated }: Crea
                             leaveFrom="opacity-100 translate-y-0 sm:scale-100"
                             leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                         >
-                            <Dialog.Panel className="relative transform overflow-hidden rounded-2xl bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-2xl sm:p-6">
+                            <Dialog.Panel className="relative transform overflow-hidden rounded-2xl bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-4xl sm:p-6">
                                 <div className="absolute right-0 top-0 hidden pr-4 pt-4 sm:block">
                                     <button
                                         type="button"
@@ -273,32 +291,148 @@ export default function CreatePollModal({ isOpen, onClose, onPollCreated }: Crea
                                                 />
                                             </div>
 
-                                            {/* 회의를 진행할 주 선택 */}
-                                            <div>
-                                                <label htmlFor="week" className="block text-sm font-bold text-gray-700 mb-2">
-                                                    회의를 진행할 주 선택 <span className="text-red-500">*</span>
-                                                </label>
-                                                <select
-                                                    id="week"
-                                                    name="week"
-                                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                                                    value={selectedWeek}
-                                                    onChange={(e) => setSelectedWeek(e.target.value)}
-                                                    required
-                                                >
-                                                    <option value="">주를 선택하세요</option>
-                                                    {weeks.map((week) => (
-                                                        <option key={week.value} value={week.value}>
-                                                            {week.label}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                                {selectedWeek && (
-                                                    <p className="mt-2 text-xs text-gray-500">
-                                                        선택한 주의 월~금요일, 오전 10시/오후 2시/오후 4시 옵션이 자동으로 생성됩니다.
+                                            {/* 달력 섹션 */}
+                                            <div className="border border-gray-200 rounded-xl p-4 bg-gray-50">
+                                                <div className="mb-4">
+                                                    <p className="text-sm font-bold text-gray-700 mb-3">
+                                                        회의 가능한 날짜 선택 <span className="text-red-500">*</span>
                                                     </p>
-                                                )}
+                                                    <p className="text-xs text-gray-500 mb-3">
+                                                        달력에서 날짜를 클릭하여 선택하세요. 선택한 날짜에서 시간대를 구체적으로 지정할 수 있습니다.
+                                                    </p>
+                                                </div>
+
+                                                {/* 월 네비게이션 */}
+                                                <div className="flex items-center justify-between mb-4">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => navigateMonth('prev')}
+                                                        className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+                                                    >
+                                                        <ChevronLeftIcon className="w-5 h-5 text-gray-600" />
+                                                    </button>
+                                                    <h3 className="text-lg font-black text-gray-900">
+                                                        {year}년 {month + 1}월
+                                                    </h3>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => navigateMonth('next')}
+                                                        className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+                                                    >
+                                                        <ChevronRightIcon className="w-5 h-5 text-gray-600" />
+                                                    </button>
+                                                </div>
+
+                                                {/* 캘린더 그리드 */}
+                                                <div className="grid grid-cols-7 gap-1 mb-4">
+                                                    {weekDays.map(day => (
+                                                        <div key={day} className="text-center text-xs font-bold text-gray-500 py-2">
+                                                            {day}
+                                                        </div>
+                                                    ))}
+                                                </div>
+
+                                                <div className="grid grid-cols-7 gap-1">
+                                                    {/* 빈 칸 (첫 주) */}
+                                                    {Array.from({ length: firstDay }).map((_, i) => (
+                                                        <div key={`empty-${i}`} className="aspect-square" />
+                                                    ))}
+                                                    
+                                                    {/* 날짜 칸 */}
+                                                    {days.map(day => {
+                                                        const isSelected = isDateSelected(day)
+                                                        const isPast = isDatePast(day)
+                                                        const isTodayDate = isToday(day)
+                                                        const dateKey = formatDateKey(year, month, day)
+                                                        
+                                                        return (
+                                                            <button
+                                                                key={day}
+                                                                type="button"
+                                                                onClick={() => !isPast && toggleDate(day)}
+                                                                disabled={isPast}
+                                                                className={`aspect-square border-2 rounded-lg transition-all ${
+                                                                    isPast
+                                                                        ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
+                                                                        : isSelected
+                                                                        ? 'bg-primary-500 border-primary-600 text-white font-bold'
+                                                                        : isTodayDate
+                                                                        ? 'bg-primary-50 border-primary-300 text-primary-700 hover:bg-primary-100'
+                                                                        : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-primary-300'
+                                                                }`}
+                                                            >
+                                                                {day}
+                                                            </button>
+                                                        )
+                                                    })}
+                                                </div>
                                             </div>
+
+                                            {/* 선택된 날짜의 시간대 선택 */}
+                                            {selectedDatesArray.length > 0 && (
+                                                <div className="border border-gray-200 rounded-xl p-4 bg-gray-50">
+                                                    <p className="text-sm font-bold text-gray-700 mb-3">
+                                                        시간대 선택 (선택사항)
+                                                    </p>
+                                                    <p className="text-xs text-gray-500 mb-4">
+                                                        각 날짜별로 구체적인 시간대를 선택할 수 있습니다. 선택하지 않으면 하루 종일로 처리됩니다.
+                                                    </p>
+                                                    <div className="space-y-4 max-h-64 overflow-y-auto">
+                                                        {selectedDatesArray.map(dateKey => {
+                                                            const [y, m, d] = dateKey.split('-').map(Number)
+                                                            const date = new Date(y, m - 1, d)
+                                                            const times = selectedTimes.get(dateKey) || new Set<string>()
+                                                            
+                                                            return (
+                                                                <div key={dateKey} className="border border-gray-200 rounded-lg p-3 bg-white">
+                                                                    <div className="flex items-center justify-between mb-2">
+                                                                        <p className="text-sm font-bold text-gray-900">
+                                                                            {date.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })}
+                                                                        </p>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => {
+                                                                                setSelectedDates(prev => {
+                                                                                    const newSet = new Set(prev)
+                                                                                    newSet.delete(dateKey)
+                                                                                    return newSet
+                                                                                })
+                                                                                setSelectedTimes(prev => {
+                                                                                    const newMap = new Map(prev)
+                                                                                    newMap.delete(dateKey)
+                                                                                    return newMap
+                                                                                })
+                                                                            }}
+                                                                            className="text-xs text-red-500 hover:text-red-700"
+                                                                        >
+                                                                            제거
+                                                                        </button>
+                                                                    </div>
+                                                                    <div className="grid grid-cols-6 gap-2">
+                                                                        {timeSlots.map(time => {
+                                                                            const isSelected = times.has(time)
+                                                                            return (
+                                                                                <button
+                                                                                    key={time}
+                                                                                    type="button"
+                                                                                    onClick={() => toggleTime(dateKey, time)}
+                                                                                    className={`px-2 py-1.5 text-xs font-bold rounded-lg border-2 transition-all ${
+                                                                                        isSelected
+                                                                                            ? 'bg-primary-500 border-primary-600 text-white'
+                                                                                            : 'bg-white border-gray-200 text-gray-700 hover:border-primary-300'
+                                                                                    }`}
+                                                                                >
+                                                                                    {time}
+                                                                                </button>
+                                                                            )
+                                                                        })}
+                                                                    </div>
+                                                                </div>
+                                                            )
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            )}
 
                                             {/* 투표 마감일 */}
                                             <div>
@@ -315,68 +449,16 @@ export default function CreatePollModal({ isOpen, onClose, onPollCreated }: Crea
                                                     min={minDeadline}
                                                     required
                                                 />
-                                                {minDeadline && (
-                                                    <p className="mt-2 text-xs text-gray-500">
-                                                        최소 마감일: {new Date(minDeadline).toLocaleDateString('ko-KR')} (선택한 주 시작일로부터 최소 3주 후)
-                                                    </p>
-                                                )}
-                                            </div>
-
-                                            {/* 참여인원 선택 */}
-                                            <div>
-                                                <label className="block text-sm font-bold text-gray-700 mb-2">
-                                                    참여인원 (선택사항)
-                                                </label>
-                                                <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-xl bg-gray-50 p-3">
-                                                    {loadingMembers ? (
-                                                        <div className="text-center py-4 text-gray-400 text-sm">로딩 중...</div>
-                                                    ) : members.length === 0 ? (
-                                                        <div className="text-center py-4 text-gray-400 text-sm">선택할 수 있는 멤버가 없습니다.</div>
-                                                    ) : (
-                                                        <div className="space-y-2">
-                                                            {members.map(member => {
-                                                                const isSelected = selectedMemberIds.includes(member.id)
-                                                                return (
-                                                                    <label
-                                                                        key={member.id}
-                                                                        className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                                                                            isSelected
-                                                                                ? 'bg-primary-50 border-2 border-primary-500'
-                                                                                : 'bg-white border-2 border-transparent hover:bg-gray-50'
-                                                                        }`}
-                                                                    >
-                                                                        <input
-                                                                            type="checkbox"
-                                                                            checked={isSelected}
-                                                                            onChange={(e) => {
-                                                                                if (e.target.checked) {
-                                                                                    setSelectedMemberIds([...selectedMemberIds, member.id])
-                                                                                } else {
-                                                                                    setSelectedMemberIds(selectedMemberIds.filter(id => id !== member.id))
-                                                                                }
-                                                                            }}
-                                                                            className="w-5 h-5 text-primary-600 rounded focus:ring-primary-500"
-                                                                        />
-                                                                        <div className="flex-1 min-w-0">
-                                                                            <p className="font-bold text-gray-900 text-sm truncate">{member.name || member.email}</p>
-                                                                            <p className="text-xs text-gray-500 truncate">{member.team || '소속팀 미정'} {member.position ? `· ${member.position}` : ''}</p>
-                                                                        </div>
-                                                                    </label>
-                                                                )
-                                                            })}
-                                                        </div>
-                                                    )}
-                                                </div>
                                                 <p className="mt-2 text-xs text-gray-500">
-                                                    선택하지 않으면 모든 멤버가 투표할 수 있습니다.
+                                                    최소 마감일: {new Date(minDeadline).toLocaleDateString('ko-KR')} (다음 달 1일 이후)
                                                 </p>
                                             </div>
 
                                             <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
                                                 <button
                                                     type="submit"
-                                                    disabled={isLoading}
-                                                    className="inline-flex w-full justify-center rounded-xl bg-primary-600 px-3 py-2 text-sm font-bold text-white shadow-sm hover:bg-primary-500 sm:ml-3 sm:w-auto disabled:bg-gray-300"
+                                                    disabled={isLoading || !title.trim() || selectedDates.size === 0 || !voteDeadline}
+                                                    className="inline-flex w-full justify-center rounded-xl bg-primary-600 px-3 py-2 text-sm font-bold text-white shadow-sm hover:bg-primary-500 sm:ml-3 sm:w-auto disabled:bg-gray-300 disabled:cursor-not-allowed"
                                                 >
                                                     {isLoading ? '생성 중...' : '투표 만들기'}
                                                 </button>

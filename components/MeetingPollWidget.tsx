@@ -10,17 +10,7 @@ interface PollOption {
     id: string
     startDate: string
     endDate: string | null
-    votes: PollVote[]
-}
-
-interface PollVote {
-    id: string
-    user: {
-        id: string
-        name: string | null
-        email: string | null
-        image: string | null
-    }
+    voteCount: number  // API에서 voteCount만 반환
 }
 
 interface MeetingPoll {
@@ -55,7 +45,22 @@ export default function MeetingPollWidget() {
             const res = await fetch('/api/meeting-polls')
             if (res.ok) {
                 const data = await res.json()
-                setPolls(data.filter((poll: MeetingPoll) => poll.status === '진행중').slice(0, 3))
+                const filteredPolls = data.filter((poll: MeetingPoll) => poll.status === '진행중').slice(0, 3)
+                setPolls(filteredPolls)
+                
+                // 사용자 투표 상태 업데이트
+                if (userId && filteredPolls.length > 0) {
+                    const votesMap = new Map<string, Set<string>>()
+                    await Promise.all(
+                        filteredPolls.map(async (poll: MeetingPoll) => {
+                            const optionIds = await fetchUserVotesForPoll(poll.id, poll.options)
+                            if (optionIds.size > 0) {
+                                votesMap.set(poll.id, optionIds)
+                            }
+                        })
+                    )
+                    setUserVotes(votesMap)
+                }
             }
         } catch (error) {
             console.error('Error fetching polls:', error)
@@ -64,15 +69,50 @@ export default function MeetingPollWidget() {
         }
     }
 
-    const handleVote = async (pollId: string, optionId: string) => {
+    // 사용자가 특정 옵션에 투표했는지 확인 (로컬 상태로 관리)
+    const [userVotes, setUserVotes] = useState<Map<string, Set<string>>>(new Map()) // pollId -> optionIds
+
+    // 투표 후 전체 데이터를 다시 가져와서 사용자 투표 상태 확인
+    const fetchUserVotesForPoll = async (pollId: string, pollOptions: PollOption[]) => {
+        if (!userId) return new Set<string>()
+        
+        try {
+            const optionIds = new Set<string>()
+            await Promise.all(
+                pollOptions.map(async (option) => {
+                    try {
+                        const res = await fetch(`/api/meeting-polls/${pollId}/vote/check?optionId=${option.id}`)
+                        if (res.ok) {
+                            const data = await res.json()
+                            if (data.voted) {
+                                optionIds.add(option.id)
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error checking vote:', error)
+                    }
+                })
+            )
+            return optionIds
+        } catch (error) {
+            console.error('Error fetching user votes:', error)
+            return new Set<string>()
+        }
+    }
+
+    const handleVote = async (pollId: string, optionId: string, isVoted: boolean) => {
         try {
             const res = await fetch(`/api/meeting-polls/${pollId}/vote`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ optionId }),
+                body: JSON.stringify({ 
+                    optionId,
+                    action: isVoted ? 'remove' : 'add'
+                }),
             })
 
             if (res.ok) {
+                // 전체 데이터 다시 가져오기 (fetchPolls에서 자동으로 사용자 투표 상태 업데이트)
                 await fetchPolls()
             }
         } catch (error) {
@@ -80,21 +120,11 @@ export default function MeetingPollWidget() {
         }
     }
 
-    const hasUserVoted = (poll: MeetingPoll) => {
-        if (!userId) return false
-        return poll.options.some(option => 
-            option.votes.some(vote => vote.user.id === userId)
-        )
+    const hasUserVotedForOption = (pollId: string, optionId: string) => {
+        const optionIds = userVotes.get(pollId)
+        return optionIds ? optionIds.has(optionId) : false
     }
 
-    const getUserVote = (poll: MeetingPoll) => {
-        if (!userId) return null
-        for (const option of poll.options) {
-            const vote = option.votes.find(v => v.user.id === userId)
-            if (vote) return option.id
-        }
-        return null
-    }
 
     const formatDateTime = (dateString: string) => {
         const date = new Date(dateString)
@@ -138,9 +168,8 @@ export default function MeetingPollWidget() {
             ) : (
                 <div className="space-y-4">
                     {polls.map(poll => {
-                        const userVoted = hasUserVoted(poll)
-                        const userVoteOptionId = getUserVote(poll)
-                        const totalVoters = new Set(poll.options.flatMap(opt => opt.votes.map(v => v.user.id))).size
+                        const userVotedOptions = userVotes.get(poll.id) || new Set<string>()
+                        const hasAnyVote = userVotedOptions.size > 0
 
                         return (
                             <div key={poll.id} className="p-4 border border-gray-200 rounded-xl hover:border-primary-200 hover:shadow-md transition-all">
@@ -151,7 +180,7 @@ export default function MeetingPollWidget() {
                                             <p className="text-sm text-gray-600">{poll.description}</p>
                                         )}
                                     </div>
-                                    {userVoted && (
+                                    {hasAnyVote && (
                                         <CheckCircleIcon className="w-5 h-5 text-green-500 shrink-0" />
                                     )}
                                 </div>
@@ -159,22 +188,19 @@ export default function MeetingPollWidget() {
                                 <div className="space-y-2 mb-3">
                                     {poll.options.map(option => {
                                         const { date, time } = formatDateTime(option.startDate)
-                                        const voteCount = option.votes.length
-                                        const isUserVote = userVoteOptionId === option.id
+                                        const voteCount = option.voteCount || 0
+                                        const isUserVote = hasUserVotedForOption(poll.id, option.id)
                                         const isSelected = poll.selectedOptionId === option.id
 
                                         return (
                                             <button
                                                 key={option.id}
-                                                onClick={() => !userVoted && handleVote(poll.id, option.id)}
-                                                disabled={userVoted}
+                                                onClick={() => handleVote(poll.id, option.id, isUserVote)}
                                                 className={`w-full p-3 rounded-lg border-2 text-left transition-all ${
                                                     isSelected
                                                         ? 'border-green-500 bg-green-50'
                                                         : isUserVote
                                                         ? 'border-primary-500 bg-primary-50'
-                                                        : userVoted
-                                                        ? 'border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed'
                                                         : 'border-gray-200 bg-white hover:border-primary-300 hover:bg-primary-50'
                                                 }`}
                                             >
@@ -203,7 +229,7 @@ export default function MeetingPollWidget() {
                                 </div>
 
                                 <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
-                                    <span>투표자: {totalVoters}명</span>
+                                    <span>총 {poll.options.reduce((sum, opt) => sum + (opt.voteCount || 0), 0)}표</span>
                                     <span>작성자: {poll.createdBy.name || poll.createdBy.email}</span>
                                 </div>
                             </div>

@@ -26,45 +26,34 @@ export async function POST(
         }
 
         const body = await request.json()
-        const { optionId } = body
+        const { optionId, action } = body // action: 'add' or 'remove'
 
         if (!optionId) {
             return NextResponse.json({ error: 'optionId is required' }, { status: 400 })
         }
 
-        // 기존 투표가 있는지 확인
+        // 기존 투표가 있는지 확인 (이제 optionId와 userId로 확인)
         const existingVote = await prisma.pollVote.findUnique({
             where: {
-                pollId_userId: {
-                    pollId: params.id,
+                optionId_userId: {
+                    optionId: optionId,
                     userId: user.id,
                 },
             },
         })
 
-        if (existingVote) {
-            // 기존 투표 업데이트
-            const vote = await prisma.pollVote.update({
+        if (action === 'remove' && existingVote) {
+            // 투표 제거
+            await prisma.pollVote.delete({
                 where: { id: existingVote.id },
-                data: {
-                    optionId,
-                },
-                include: {
-                    user: {
-                        select: {
-                            id: true,
-                            name: true,
-                            email: true,
-                            image: true,
-                        },
-                    },
-                    option: true,
-                },
             })
-
-            return NextResponse.json(vote)
-        } else {
-            // 새 투표 생성
+            return NextResponse.json({ message: 'Vote removed' })
+        } else if (action === 'add' || !action) {
+            // 투표 추가 (이미 있으면 무시)
+            if (existingVote) {
+                return NextResponse.json({ message: 'Already voted' })
+            }
+            
             const vote = await prisma.pollVote.create({
                 data: {
                     pollId: params.id,
@@ -86,6 +75,8 @@ export async function POST(
 
             return NextResponse.json(vote, { status: 201 })
         }
+
+        return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
     } catch (error) {
         console.error('Error voting:', error)
         return NextResponse.json({ error: 'Failed to vote' }, { status: 500 })

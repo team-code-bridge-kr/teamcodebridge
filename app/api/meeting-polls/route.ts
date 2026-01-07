@@ -8,11 +8,23 @@ export const dynamic = 'force-dynamic'
 // 회의 투표 목록 조회
 export async function GET() {
     try {
+        // 진행중인 투표만 가져오고, 최대 20개로 제한
         const polls = await prisma.meetingPoll.findMany({
+            where: {
+                status: '진행중'
+            },
+            take: 20,  // 최대 20개만
             orderBy: {
                 createdAt: 'desc',
             },
-            include: {
+            select: {
+                id: true,
+                title: true,
+                description: true,
+                status: true,
+                selectedOptionId: true,
+                voteDeadline: true,
+                createdAt: true,
                 createdBy: {
                     select: {
                         id: true,
@@ -21,30 +33,47 @@ export async function GET() {
                     },
                 },
                 options: {
-                    include: {
-                        votes: {
-                            include: {
-                                user: {
-                                    select: {
-                                        id: true,
-                                        name: true,
-                                        email: true,
-                                        image: true,
-                                    },
-                                },
-                            },
-                        },
+                    select: {
+                        id: true,
+                        startDate: true,
+                        endDate: true,
                     },
                     orderBy: {
                         startDate: 'asc',
                     },
+                    take: 50,  // 옵션도 최대 50개만
                 },
             },
         })
 
-        return NextResponse.json(polls)
+        // votes는 별도 쿼리로 (필요한 경우만)
+        const pollsWithVoteCounts = await Promise.all(
+            polls.map(async (poll) => {
+                const optionsWithCounts = await Promise.all(
+                    poll.options.map(async (option) => {
+                        const voteCount = await prisma.pollVote.count({
+                            where: { optionId: option.id }
+                        })
+                        return {
+                            ...option,
+                            voteCount
+                        }
+                    })
+                )
+                return {
+                    ...poll,
+                    options: optionsWithCounts
+                }
+            })
+        )
+
+        return NextResponse.json(pollsWithVoteCounts)
     } catch (error: any) {
         console.error('Error fetching meeting polls:', error)
+        // voteDeadline 필드 에러 처리
+        if (error?.code === 'P2021' || error?.message?.includes('voteDeadline')) {
+            return NextResponse.json([])
+        }
         return NextResponse.json({ 
             error: 'Failed to fetch meeting polls',
             details: error?.message || String(error)

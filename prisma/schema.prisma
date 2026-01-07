@@ -190,5 +190,7 @@ model PollVote {
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
   
-  @@unique([pollId, userId]) // 한 사용자는 한 투표에 한 번만 투표 가능
+  @@unique([optionId, userId]) // 한 사용자는 한 옵션에 한 번만 투표 가능 (하지만 여러 옵션에 투표 가능)
+  @@index([pollId])
+  @@index([userId])
 }
