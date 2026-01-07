@@ -1,10 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ClockIcon, PlusIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline'
+import { ClockIcon, PlusIcon, CheckCircleIcon, XCircleIcon, EyeIcon } from '@heroicons/react/24/outline'
 import { motion } from 'framer-motion'
 import { useSession } from 'next-auth/react'
 import CreatePollModal from './CreatePollModal'
+import PollResultModal from './PollResultModal'
 
 interface PollOption {
     id: string
@@ -35,6 +36,8 @@ export default function MeetingPollWidget() {
     const [polls, setPolls] = useState<MeetingPoll[]>([])
     const [loading, setLoading] = useState(true)
     const [showCreateModal, setShowCreateModal] = useState(false)
+    const [showResultModal, setShowResultModal] = useState(false)
+    const [selectedPollId, setSelectedPollId] = useState<string | null>(null)
 
     useEffect(() => {
         fetchPolls()
@@ -185,52 +188,80 @@ export default function MeetingPollWidget() {
                                     )}
                                 </div>
 
-                                <div className="space-y-2 mb-3">
-                                    {poll.options.map(option => {
-                                        const { date, time } = formatDateTime(option.startDate)
-                                        const voteCount = option.voteCount || 0
-                                        const isUserVote = hasUserVotedForOption(poll.id, option.id)
-                                        const isSelected = poll.selectedOptionId === option.id
+                                {/* 날짜별로 그룹화 */}
+                                {(() => {
+                                    // 날짜별로 옵션 그룹화
+                                    const groupedByDate = new Map<string, typeof poll.options>()
+                                    poll.options.forEach(option => {
+                                        const date = new Date(option.startDate)
+                                        const dateKey = date.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })
+                                        if (!groupedByDate.has(dateKey)) {
+                                            groupedByDate.set(dateKey, [])
+                                        }
+                                        groupedByDate.get(dateKey)!.push(option)
+                                    })
 
-                                        return (
-                                            <button
-                                                key={option.id}
-                                                onClick={() => handleVote(poll.id, option.id, isUserVote)}
-                                                className={`w-full p-3 rounded-lg border-2 text-left transition-all ${
-                                                    isSelected
-                                                        ? 'border-green-500 bg-green-50'
-                                                        : isUserVote
-                                                        ? 'border-primary-500 bg-primary-50'
-                                                        : 'border-gray-200 bg-white hover:border-primary-300 hover:bg-primary-50'
-                                                }`}
-                                            >
-                                                <div className="flex items-center justify-between">
-                                                    <div>
-                                                        <div className="text-sm font-bold text-gray-900">{date}</div>
-                                                        <div className="text-xs text-gray-600">{time}</div>
-                                                    </div>
-                                                    <div className="flex items-center gap-2">
-                                                        {isSelected && (
-                                                            <span className="px-2 py-0.5 bg-green-500 text-white text-[10px] font-black rounded">
-                                                                확정
-                                                            </span>
-                                                        )}
-                                                        <span className="text-sm font-bold text-gray-600">
-                                                            {voteCount}표
-                                                        </span>
-                                                        {isUserVote && (
-                                                            <CheckCircleIcon className="w-4 h-4 text-primary-600" />
-                                                        )}
+                                    return (
+                                        <div className="space-y-4 mb-3">
+                                            {Array.from(groupedByDate.entries()).map(([dateKey, options]) => (
+                                                <div key={dateKey} className="border border-gray-200 rounded-xl p-3 bg-gray-50">
+                                                    <div className="text-xs font-bold text-gray-500 mb-2 px-1">{dateKey}</div>
+                                                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                                                        {options.map(option => {
+                                                            const { time } = formatDateTime(option.startDate)
+                                                            const voteCount = option.voteCount || 0
+                                                            const isUserVote = hasUserVotedForOption(poll.id, option.id)
+                                                            const isSelected = poll.selectedOptionId === option.id
+
+                                                            return (
+                                                                <button
+                                                                    key={option.id}
+                                                                    onClick={() => handleVote(poll.id, option.id, isUserVote)}
+                                                                    className={`p-2 rounded-lg border-2 transition-all text-center ${
+                                                                        isSelected
+                                                                            ? 'border-green-500 bg-green-50'
+                                                                            : isUserVote
+                                                                            ? 'border-primary-500 bg-primary-50'
+                                                                            : 'border-gray-200 bg-white hover:border-primary-300 hover:bg-primary-50'
+                                                                    }`}
+                                                                >
+                                                                    <div className="text-xs font-bold text-gray-900 mb-1">{time}</div>
+                                                                    <div className="flex items-center justify-center gap-1">
+                                                                        {isSelected && (
+                                                                            <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+                                                                        )}
+                                                                        <span className="text-[10px] font-bold text-gray-600">
+                                                                            {voteCount}표
+                                                                        </span>
+                                                                        {isUserVote && !isSelected && (
+                                                                            <CheckCircleIcon className="w-3 h-3 text-primary-600" />
+                                                                        )}
+                                                                    </div>
+                                                                </button>
+                                                            )
+                                                        })}
                                                     </div>
                                                 </div>
-                                            </button>
-                                        )
-                                    })}
-                                </div>
+                                            ))}
+                                        </div>
+                                    )
+                                })()}
 
                                 <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
                                     <span>총 {poll.options.reduce((sum, opt) => sum + (opt.voteCount || 0), 0)}표</span>
-                                    <span>작성자: {poll.createdBy.name || poll.createdBy.email}</span>
+                                    <div className="flex items-center gap-3">
+                                        <button
+                                            onClick={() => {
+                                                setSelectedPollId(poll.id)
+                                                setShowResultModal(true)
+                                            }}
+                                            className="flex items-center gap-1 px-2 py-1 text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded transition-colors"
+                                        >
+                                            <EyeIcon className="w-4 h-4" />
+                                            <span className="font-bold">결과 보기</span>
+                                        </button>
+                                        <span>작성자: {poll.createdBy.name || poll.createdBy.email}</span>
+                                    </div>
                                 </div>
                             </div>
                         )
@@ -243,6 +274,17 @@ export default function MeetingPollWidget() {
                 isOpen={showCreateModal}
                 onClose={() => setShowCreateModal(false)}
                 onPollCreated={fetchPolls}
+            />
+
+            {/* 투표 결과 모달 */}
+            <PollResultModal
+                isOpen={showResultModal}
+                onClose={() => {
+                    setShowResultModal(false)
+                    setSelectedPollId(null)
+                }}
+                pollId={selectedPollId}
+                onPollUpdated={fetchPolls}
             />
         </div>
     )
