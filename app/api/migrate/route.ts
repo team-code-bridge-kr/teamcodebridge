@@ -5,6 +5,9 @@ import path from 'path'
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
+// 빌드 시점에 이 라우트가 실행되지 않도록 설정
+export const revalidate = 0
+
 export async function GET() {
     try {
         const todoDir = path.join(process.cwd(), 'TCB ToDoList')

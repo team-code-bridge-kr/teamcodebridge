@@ -5,6 +5,17 @@ const nextConfig = {
     domains: [],
   },
   output: 'standalone',
+  // 빌드 시점에 Prisma를 사용하지 않도록 설정
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      // 서버 사이드 빌드 시 Prisma 관련 모듈을 외부화
+      config.externals = config.externals || []
+      config.externals.push({
+        '@prisma/client': 'commonjs @prisma/client',
+      })
+    }
+    return config
+  },
   async headers() {
     return [
       {
