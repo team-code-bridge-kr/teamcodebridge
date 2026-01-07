@@ -2,6 +2,9 @@ import { prisma } from "@/lib/prisma"
 import fs from 'fs'
 import path from 'path'
 
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 export async function GET() {
     try {
         const todoDir = path.join(process.cwd(), 'TCB ToDoList')
