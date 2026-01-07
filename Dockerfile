@@ -40,8 +40,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
 
 # Install Prisma Client in production (needed for runtime)
+# Run as root before switching to nextjs user
 RUN npm install @prisma/client prisma
 RUN npx prisma generate
+RUN chown -R nextjs:nodejs /app/node_modules/.prisma /app/node_modules/@prisma
 
 USER nextjs
 
