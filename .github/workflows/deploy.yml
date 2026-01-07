@@ -34,8 +34,11 @@ jobs:
             # Wait for containers to start
             sleep 25
             
+            # Install dependencies and generate Prisma client inside container
+            docker-compose exec -T --user root web sh -c "cd /app && npm install @prisma/client prisma" || echo "npm install failed"
+            docker-compose exec -T --user root web sh -c "cd /app && npx prisma generate" || echo "Prisma generate failed"
+            
             # Run Prisma migration (with error handling)
-            docker-compose exec -T --user root web npx prisma generate || echo "Prisma generate failed"
             docker-compose exec -T --user root web npx prisma db push --accept-data-loss --skip-generate || echo "DB push failed"
             
             # Restart web container after migration

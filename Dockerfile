@@ -39,6 +39,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/prisma ./prisma
 
+# Install Prisma Client in production (needed for runtime)
+RUN npm install @prisma/client prisma
+RUN npx prisma generate
+
 USER nextjs
 
 EXPOSE 3000
