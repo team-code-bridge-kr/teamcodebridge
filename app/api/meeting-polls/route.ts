@@ -43,9 +43,12 @@ export async function GET() {
         })
 
         return NextResponse.json(polls)
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error fetching meeting polls:', error)
-        return NextResponse.json({ error: 'Failed to fetch meeting polls' }, { status: 500 })
+        return NextResponse.json({ 
+            error: 'Failed to fetch meeting polls',
+            details: error?.message || String(error)
+        }, { status: 500 })
     }
 }
 
@@ -114,9 +117,19 @@ export async function POST(request: Request) {
         })
 
         return NextResponse.json(poll, { status: 201 })
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error creating meeting poll:', error)
-        return NextResponse.json({ error: 'Failed to create meeting poll' }, { status: 500 })
+        console.error('Error details:', {
+            message: error?.message,
+            code: error?.code,
+            meta: error?.meta,
+            stack: error?.stack
+        })
+        return NextResponse.json({ 
+            error: 'Failed to create meeting poll',
+            details: error?.message || String(error),
+            code: error?.code
+        }, { status: 500 })
     }
 }
 

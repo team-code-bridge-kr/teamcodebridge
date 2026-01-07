@@ -31,5 +31,13 @@ jobs:
             # Wait for containers to start
             sleep 15
             
+            # Run Prisma migration
+            docker-compose exec -T --user root web npx prisma generate
+            docker-compose exec -T --user root web npx prisma db push --accept-data-loss --skip-generate
+            
+            # Restart web container after migration
+            docker-compose restart web
+            sleep 10
+            
             # Check container status
             docker-compose ps
