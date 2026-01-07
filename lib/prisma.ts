@@ -5,11 +5,12 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 // Prisma 클라이언트를 lazy initialization으로 변경하여 빌드 시점 에러 방지
-function getPrismaClient(): PrismaClient {
+function createPrismaClient(): PrismaClient {
     if (!process.env.DATABASE_URL) {
-        // 빌드 시점에는 에러를 던지지 않고, 런타임에 에러가 발생하도록 함
-        // PrismaClient는 실제 사용 시점에 초기화됨
-        throw new Error('DATABASE_URL is not set. Please set it in your environment variables.')
+        // 빌드 시점에는 더미 객체 반환 (실제 사용 시 에러 발생)
+        // 이렇게 하면 빌드는 성공하지만 런타임에 에러가 발생함
+        console.warn('DATABASE_URL is not set. Prisma operations will fail at runtime.')
+        return {} as PrismaClient
     }
     
     if (globalForPrisma.prisma) {
@@ -27,13 +28,17 @@ function getPrismaClient(): PrismaClient {
     return prisma
 }
 
-// Lazy getter로 변경하여 빌드 시점에 초기화되지 않도록 함
+// Lazy initialization: 실제 사용 시점에만 PrismaClient 생성
+let _prisma: PrismaClient | null = null
+
 export const prisma = new Proxy({} as PrismaClient, {
     get(target, prop) {
-        const client = getPrismaClient()
-        const value = (client as any)[prop]
+        if (!_prisma) {
+            _prisma = createPrismaClient()
+        }
+        const value = (_prisma as any)[prop]
         if (typeof value === 'function') {
-            return value.bind(client)
+            return value.bind(_prisma)
         }
         return value
     }
