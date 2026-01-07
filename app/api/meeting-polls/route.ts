@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { sendPollCreatedEmail } from '@/lib/email'
 
 export const dynamic = 'force-dynamic'
 
@@ -144,6 +145,38 @@ export async function POST(request: Request) {
                 },
             },
         })
+
+        // 모든 멘토에게 이메일 발송 (비동기로 실행, 실패해도 투표 생성은 성공)
+        try {
+            const allMentors = await prisma.user.findMany({
+                where: {
+                    role: 'MENTOR',
+                    email: { not: null },
+                },
+                select: {
+                    email: true,
+                },
+            })
+            
+            const recipientEmails = allMentors
+                .map(m => m.email)
+                .filter((email): email is string => email !== null)
+            
+            if (recipientEmails.length > 0) {
+                // 비동기로 이메일 발송 (응답을 기다리지 않음)
+                sendPollCreatedEmail(
+                    poll.title,
+                    poll.description,
+                    poll.createdBy.name || poll.createdBy.email || '알 수 없음',
+                    recipientEmails
+                ).catch(err => {
+                    console.error('Failed to send poll created email:', err)
+                })
+            }
+        } catch (emailError) {
+            console.error('Error sending poll created email:', emailError)
+            // 이메일 발송 실패해도 투표 생성은 성공으로 처리
+        }
 
         return NextResponse.json(poll, { status: 201 })
     } catch (error: any) {

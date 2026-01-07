@@ -1,11 +1,24 @@
 import { privacyContent } from '@/lib/terms-content'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
+import type { Metadata } from 'next'
 
-export const metadata = {
+export const metadata: Metadata = {
     title: '개인정보처리방침 | TeamCodeBridge',
     description: 'TeamCodeBridge 워크스페이스 서비스 개인정보처리방침',
+    robots: {
+        index: true,
+        follow: true,
+    },
+    openGraph: {
+        title: '개인정보처리방침 | TeamCodeBridge',
+        description: 'TeamCodeBridge 워크스페이스 서비스 개인정보처리방침',
+        type: 'website',
+    },
 }
+
+// 정적 페이지로 생성 (SSG)
+export const dynamic = 'force-static'
 
 export default function PrivacyPage() {
     return (
@@ -21,7 +34,7 @@ export default function PrivacyPage() {
                     </div>
                     <div className="mt-12 pt-8 border-t border-gray-200">
                         <p className="text-sm text-gray-500">
-                            최종 수정일: 2026년 1월 1일
+                            최종 수정일: 2026년 1월 5일
                         </p>
                     </div>
                 </div>
