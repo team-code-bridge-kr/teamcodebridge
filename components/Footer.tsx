@@ -1,5 +1,3 @@
-'use client'
-
 interface FooterProps {
   variant?: 'light' | 'dark'
 }
