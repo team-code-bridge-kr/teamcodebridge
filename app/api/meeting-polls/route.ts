@@ -67,7 +67,7 @@ export async function POST(request: Request) {
         }
 
         const body = await request.json()
-        const { title, description, options } = body
+        const { title, description, voteDeadline, options } = body
 
         if (!title || !options || !Array.isArray(options) || options.length === 0) {
             return NextResponse.json({ error: 'Title and at least one option are required' }, { status: 400 })
@@ -77,6 +77,7 @@ export async function POST(request: Request) {
             data: {
                 title,
                 description,
+                voteDeadline: voteDeadline ? new Date(voteDeadline) : null,
                 createdById: user.id,
                 options: {
                     create: options.map((opt: { startDate: string; endDate?: string }) => ({

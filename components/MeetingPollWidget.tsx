@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { ClockIcon, PlusIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline'
 import { motion } from 'framer-motion'
 import { useSession } from 'next-auth/react'
+import CreatePollModal from './CreatePollModal'
 
 interface PollOption {
     id: string
@@ -211,7 +212,12 @@ export default function MeetingPollWidget() {
                 </div>
             )}
 
-            {/* 투표 생성 모달은 나중에 구현 */}
+            {/* 투표 생성 모달 */}
+            <CreatePollModal
+                isOpen={showCreateModal}
+                onClose={() => setShowCreateModal(false)}
+                onPollCreated={fetchPolls}
+            />
         </div>
     )
 }

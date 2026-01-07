@@ -158,7 +158,8 @@ model CalendarEvent {
 model MeetingPoll {
   id          String   @id @default(cuid())
   title       String   // 회의 제목
-  description String?  @db.Text
+  description String?  @db.Text // 회의 안건
+  voteDeadline DateTime? // 투표 마감일
   createdById String
   createdBy   User    @relation("CreatedPolls", fields: [createdById], references: [id])
   status      String   @default("진행중") // 진행중, 완료
