@@ -6,13 +6,9 @@ export async function middleware(request: NextRequest) {
     const url = request.nextUrl.clone()
     const hostname = request.headers.get('host') || ''
 
-    // 1. e2g.teamcodebridge.dev로 접속했을 때 처리
-    if (hostname.includes('e2g')) {
-        // 루트(/)로 접속하면 /workspace로 리다이렉트
-        if (url.pathname === '/') {
-            return NextResponse.redirect(new URL('/workspace', request.url))
-        }
-    }
+    // 1. e2g.teamcodebridge.dev 루트(/) 접속 시 자동 리다이렉트 제거
+    // Google OAuth 인증을 위해 홈페이지는 로그인 없이 접근 가능해야 함
+    // 사용자가 직접 "워크스페이스 로그인" 버튼을 클릭할 때만 로그인 페이지로 이동
 
     // 2. 워크스페이스 접근 권한 체크
     if (url.pathname.startsWith('/workspace')) {
