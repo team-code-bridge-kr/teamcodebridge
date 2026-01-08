@@ -16,7 +16,12 @@ import {
     ChevronRightIcon,
     Bars3Icon,
     ShieldCheckIcon,
-    ClockIcon
+    ClockIcon,
+    BookOpenIcon,
+    DocumentTextIcon,
+    AcademicCapIcon,
+    ChartBarIcon,
+    FolderIcon
 } from '@heroicons/react/24/outline'
 import { motion, AnimatePresence } from 'framer-motion'
 import FloatingChat from './FloatingChat'
@@ -35,8 +40,13 @@ const menuItems: MenuItem[] = [
         href: '/workspace/work',
         icon: BriefcaseIcon,
         subItems: [
-            { name: 'Task', href: '/workspace/work', icon: BriefcaseIcon },
+            { name: 'SaaS', href: '/workspace/work', icon: BriefcaseIcon },
             { name: '회의 일정', href: '/workspace/meetings', icon: ClockIcon },
+            { name: '커리큘럼', href: '/workspace/curriculum', icon: BookOpenIcon },
+            { name: '교재관리', href: '/workspace/materials', icon: DocumentTextIcon },
+            { name: '수업관리', href: '/workspace/classes', icon: AcademicCapIcon },
+            { name: '만족도조사 관리', href: '/workspace/surveys', icon: ChartBarIcon },
+            { name: '자료실', href: '/workspace/resources', icon: FolderIcon },
         ],
     },
     { name: '인사', href: '/workspace/hr', icon: UsersIcon },
