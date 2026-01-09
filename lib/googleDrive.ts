@@ -75,12 +75,16 @@ export const formatFileSize = (bytes: number): string => {
 }
 
 /**
- * TeamCodeBridge 폴더 찾기 또는 생성
+ * 공유 폴더를 "내 드라이브에 추가" (바로가기 생성)
+ * 이렇게 해야 API를 통해 파일 업로드가 가능합니다!
  */
-const getOrCreateTeamCodeBridgeFolder = async (accessToken: string): Promise<string> => {
-    // 1. 기존 "TeamCodeBridge" 폴더 검색
-    const searchResponse = await fetch(
-        `https://www.googleapis.com/drive/v3/files?q=name='TeamCodeBridge' and mimeType='application/vnd.google-apps.folder' and trashed=false&fields=files(id,name)`,
+const addSharedFolderToMyDrive = async (
+    accessToken: string, 
+    sharedFolderId: string
+): Promise<void> => {
+    // 이미 내 드라이브에 있는지 확인
+    const checkResponse = await fetch(
+        `https://www.googleapis.com/drive/v3/files/${sharedFolderId}?fields=id,name,capabilities`,
         {
             headers: {
                 'Authorization': `Bearer ${accessToken}`
@@ -88,35 +92,38 @@ const getOrCreateTeamCodeBridgeFolder = async (accessToken: string): Promise<str
         }
     )
     
-    if (searchResponse.ok) {
-        const searchResult = await searchResponse.json()
-        if (searchResult.files && searchResult.files.length > 0) {
-            return searchResult.files[0].id // 기존 폴더 사용
+    if (checkResponse.ok) {
+        const folderInfo = await checkResponse.json()
+        // canAddChildren이 true면 이미 쓰기 권한이 있음
+        if (folderInfo.capabilities?.canAddChildren) {
+            console.log('✅ 공유 폴더에 쓰기 권한이 있습니다!')
+            return
         }
     }
     
-    // 2. 폴더가 없으면 새로 생성
-    const createResponse = await fetch(
-        'https://www.googleapis.com/drive/v3/files',
+    // "내 드라이브에 추가" 작업 (바로가기 생성)
+    // 참고: 이 작업은 폴더 소유자가 "편집자" 권한을 줘야 가능합니다
+    console.log('📁 공유 폴더를 내 드라이브에 추가 시도...')
+    
+    const addResponse = await fetch(
+        `https://www.googleapis.com/drive/v3/files/${sharedFolderId}?addParents=root&supportsAllDrives=true`,
         {
-            method: 'POST',
+            method: 'PATCH',
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                name: 'TeamCodeBridge',
-                mimeType: 'application/vnd.google-apps.folder'
-            })
+            body: JSON.stringify({})
         }
     )
     
-    if (!createResponse.ok) {
-        throw new Error('TeamCodeBridge 폴더 생성 실패')
+    if (!addResponse.ok) {
+        const error = await addResponse.json()
+        console.warn('⚠️ 내 드라이브 추가 실패:', error)
+        throw new Error('공유 폴더에 쓰기 권한이 없습니다. 폴더 소유자에게 "편집자" 권한을 요청하세요.')
     }
     
-    const folder = await createResponse.json()
-    return folder.id
+    console.log('✅ 공유 폴더가 내 드라이브에 추가되었습니다!')
 }
 
 /**
@@ -136,13 +143,16 @@ export const uploadToDrive = async (
     const fileExtension = file.name.split('.').pop()?.toUpperCase()
     const mimeType = fileExtension ? ALLOWED_MIME_TYPES[fileExtension] : file.type
 
-    // 폴더 ID가 없으면 TeamCodeBridge 폴더 찾기/생성
-    let targetFolderId = folderId
-    if (!targetFolderId) {
+    // 공유 폴더 ID 사용 (환경 변수에서 가져옴)
+    let targetFolderId = folderId || process.env.NEXT_PUBLIC_DRIVE_FOLDER_ID
+    
+    // 공유 폴더를 사용하는 경우, 먼저 접근 권한 확인 및 내 드라이브에 추가
+    if (targetFolderId) {
         try {
-            targetFolderId = await getOrCreateTeamCodeBridgeFolder(accessToken)
-        } catch (error) {
-            console.warn('폴더 생성 실패, 루트 드라이브에 업로드합니다:', error)
+            await addSharedFolderToMyDrive(accessToken, targetFolderId)
+        } catch (error: any) {
+            console.error('공유 폴더 접근 실패:', error)
+            throw new Error(error.message || '공유 폴더에 접근할 수 없습니다.')
         }
     }
 
