@@ -35,6 +35,7 @@ model User {
   createdChatRooms ChatRoom[] @relation("CreatedChatRooms")
   chatRoomMembers ChatRoomMember[]
   createdCurriculums Curriculum[] @relation("CreatedCurriculums")
+  uploadedMaterials Material[] @relation("UploadedMaterials")
 }
 
 // 프로젝트 모델
@@ -212,6 +213,7 @@ model Curriculum {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
   sessions            CurriculumSession[] // 회차별 프로그램
+  materials           Material[] // 교재
 }
 
 // 커리큘럼 회차 (4회차 기준)
@@ -225,6 +227,24 @@ model CurriculumSession {
   location        String?    // 장소
   goal            String     @db.Text // 활동목표
   content         String     @db.Text // 활동내용
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  
+  @@index([curriculumId])
+}
+
+// 교재 모델
+model Material {
+  id              String     @id @default(cuid())
+  name            String     // 교재 이름
+  description     String     @db.Text // 교재 설명
+  fileType        String     // 파일 형식 (PDF, ZIP, PPT, DOCX, XLSX, MP4, etc.)
+  driveUrl        String     // 구글 드라이브 링크
+  fileSize        String?    // 파일 용량 (예: "2.5 MB")
+  curriculumId    String
+  curriculum      Curriculum @relation(fields: [curriculumId], references: [id], onDelete: Cascade)
+  uploadedById    String?
+  uploadedBy      User?      @relation("UploadedMaterials", fields: [uploadedById], references: [id])
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
   
