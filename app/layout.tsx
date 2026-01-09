@@ -25,6 +25,8 @@ export default function RootLayout({
     <html lang="ko">
       <head>
         <link rel="stylesheet" as="style" crossOrigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+        <script async defer src="https://apis.google.com/js/api.js"></script>
+        <script async defer src="https://accounts.google.com/gsi/client"></script>
       </head>
       <body style={{ fontFamily: 'Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif' }}>
         <Providers>{children}</Providers>

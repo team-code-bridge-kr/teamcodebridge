@@ -8,6 +8,15 @@ declare module "next-auth" {
             id: string
             role: string
         } & DefaultSession["user"]
+        accessToken?: string
+    }
+}
+
+declare module "next-auth/jwt" {
+    interface JWT {
+        accessToken?: string
+        refreshToken?: string
+        role?: string
     }
 }
 
@@ -21,7 +30,13 @@ export const authOptions: NextAuthOptions = {
                 params: {
                     prompt: "consent",
                     access_type: "offline",
-                    response_type: "code"
+                    response_type: "code",
+                    scope: [
+                        'openid',
+                        'https://www.googleapis.com/auth/userinfo.email',
+                        'https://www.googleapis.com/auth/userinfo.profile',
+                        'https://www.googleapis.com/auth/drive.file', // 앱이 생성한 파일만 접근
+                    ].join(' ')
                 }
             }
         }),
@@ -87,6 +102,7 @@ export const authOptions: NextAuthOptions = {
                 id: token.id as string,
                 role: token.role as string,
             } as any
+            session.accessToken = token.accessToken as string
             return session
         },
         async signIn({ user, account, profile }) {
