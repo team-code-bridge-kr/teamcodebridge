@@ -75,12 +75,57 @@ export const formatFileSize = (bytes: number): string => {
 }
 
 /**
+ * TeamCodeBridge 폴더 찾기 또는 생성
+ */
+const getOrCreateTeamCodeBridgeFolder = async (accessToken: string): Promise<string> => {
+    // 1. 기존 "TeamCodeBridge" 폴더 검색
+    const searchResponse = await fetch(
+        `https://www.googleapis.com/drive/v3/files?q=name='TeamCodeBridge' and mimeType='application/vnd.google-apps.folder' and trashed=false&fields=files(id,name)`,
+        {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        }
+    )
+    
+    if (searchResponse.ok) {
+        const searchResult = await searchResponse.json()
+        if (searchResult.files && searchResult.files.length > 0) {
+            return searchResult.files[0].id // 기존 폴더 사용
+        }
+    }
+    
+    // 2. 폴더가 없으면 새로 생성
+    const createResponse = await fetch(
+        'https://www.googleapis.com/drive/v3/files',
+        {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: 'TeamCodeBridge',
+                mimeType: 'application/vnd.google-apps.folder'
+            })
+        }
+    )
+    
+    if (!createResponse.ok) {
+        throw new Error('TeamCodeBridge 폴더 생성 실패')
+    }
+    
+    const folder = await createResponse.json()
+    return folder.id
+}
+
+/**
  * Google Drive에 파일 업로드
  */
 export const uploadToDrive = async (
     file: File,
     accessToken: string,
-    folderId: string = process.env.NEXT_PUBLIC_DRIVE_FOLDER_ID || ''
+    folderId?: string
 ): Promise<{ id: string; name: string; webViewLink: string }> => {
     // 파일 유효성 검증
     const validation = validateFile(file)
@@ -91,11 +136,25 @@ export const uploadToDrive = async (
     const fileExtension = file.name.split('.').pop()?.toUpperCase()
     const mimeType = fileExtension ? ALLOWED_MIME_TYPES[fileExtension] : file.type
 
+    // 폴더 ID가 없으면 TeamCodeBridge 폴더 찾기/생성
+    let targetFolderId = folderId
+    if (!targetFolderId) {
+        try {
+            targetFolderId = await getOrCreateTeamCodeBridgeFolder(accessToken)
+        } catch (error) {
+            console.warn('폴더 생성 실패, 루트 드라이브에 업로드합니다:', error)
+        }
+    }
+
     // 메타데이터 설정
-    const metadata = {
+    const metadata: any = {
         name: file.name,
-        mimeType: mimeType,
-        parents: [folderId] // 팀코드브릿지 전용 폴더에 저장
+        mimeType: mimeType
+    }
+    
+    // 폴더 ID가 있으면 해당 폴더에 저장
+    if (targetFolderId) {
+        metadata.parents = [targetFolderId]
     }
 
     // FormData 생성
