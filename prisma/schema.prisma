@@ -34,6 +34,7 @@ model User {
   createdPolls  MeetingPoll[] @relation("CreatedPolls")
   createdChatRooms ChatRoom[] @relation("CreatedChatRooms")
   chatRoomMembers ChatRoomMember[]
+  createdCurriculums Curriculum[] @relation("CreatedCurriculums")
 }
 
 // 프로젝트 모델
@@ -193,4 +194,39 @@ model PollVote {
   @@unique([optionId, userId]) // 한 사용자는 한 옵션에 한 번만 투표 가능 (하지만 여러 옵션에 투표 가능)
   @@index([pollId])
   @@index([userId])
+}
+
+// 커리큘럼 모델 (멘토링 프로그램)
+model Curriculum {
+  id                  String   @id @default(cuid())
+  name                String   // 프로그램명
+  description         String   @db.Text // 프로그램 소개 (200자 이내)
+  motivation          String   @db.Text // 활동기획계기 (200자 이내)
+  benefits            String   @db.Text // 활동을 통해 얻게 되는 점
+  minMentors          Int      // 최소 현장 멘토 수
+  recommendedStudents Int      // 추천 수혜 학생수
+  expectedEffect      String   @db.Text // 기대효과
+  status              String   @default("준비중") // 준비중, 진행중, 완료
+  createdById         String?
+  createdBy           User?    @relation("CreatedCurriculums", fields: [createdById], references: [id])
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  sessions            CurriculumSession[] // 회차별 프로그램
+}
+
+// 커리큘럼 회차 (4회차 기준)
+model CurriculumSession {
+  id              String     @id @default(cuid())
+  curriculumId    String
+  curriculum      Curriculum @relation(fields: [curriculumId], references: [id], onDelete: Cascade)
+  sessionNumber   Int        // 회차 (1, 2, 3, 4)
+  sessionName     String     // 세부 프로그램명
+  scheduledDate   String?    // 일시
+  location        String?    // 장소
+  goal            String     @db.Text // 활동목표
+  content         String     @db.Text // 활동내용
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  
+  @@index([curriculumId])
 }

@@ -1,32 +1,62 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { BookOpenIcon, PlusIcon, AcademicCapIcon, ClockIcon } from '@heroicons/react/24/outline'
-import { useState } from 'react'
+import { BookOpenIcon, PlusIcon, AcademicCapIcon, ClockIcon, UserGroupIcon } from '@heroicons/react/24/outline'
+import { useState, useEffect } from 'react'
+import CreateCurriculumModal from '@/components/CreateCurriculumModal'
+
+interface CurriculumSession {
+    id: string
+    sessionNumber: number
+    sessionName: string
+    scheduledDate: string | null
+    location: string | null
+    goal: string
+    content: string
+}
+
+interface Curriculum {
+    id: string
+    name: string
+    description: string
+    motivation: string
+    benefits: string
+    minMentors: number
+    recommendedStudents: number
+    expectedEffect: string
+    status: string
+    createdAt: string
+    createdBy: {
+        id: string
+        name: string | null
+        email: string | null
+        image: string | null
+    } | null
+    sessions: CurriculumSession[]
+}
 
 export default function CurriculumPage() {
-    const [curriculums, setCurriculums] = useState([
-        {
-            id: '1',
-            title: '웹 개발 기초 과정',
-            description: 'HTML, CSS, JavaScript 기초부터 실전까지',
-            duration: '8주',
-            level: '초급',
-            students: 15,
-            status: '진행중',
-            createdAt: '2026-01-01'
-        },
-        {
-            id: '2',
-            title: 'React 심화 과정',
-            description: 'React Hook, State Management, 성능 최적화',
-            duration: '6주',
-            level: '중급',
-            students: 12,
-            status: '예정',
-            createdAt: '2026-01-05'
-        },
-    ])
+    const [curriculums, setCurriculums] = useState<Curriculum[]>([])
+    const [isLoading, setIsLoading] = useState(true)
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+
+    const fetchCurriculums = async () => {
+        setIsLoading(true)
+        try {
+            const response = await fetch('/api/curriculums')
+            if (!response.ok) throw new Error('Failed to fetch curriculums')
+            const data = await response.json()
+            setCurriculums(data)
+        } catch (error) {
+            console.error('Failed to fetch curriculums:', error)
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        fetchCurriculums()
+    }, [])
 
     return (
         <div className="min-h-screen bg-gray-50 p-6">
@@ -49,7 +79,10 @@ export default function CurriculumPage() {
                                 </div>
                             </div>
                         </div>
-                        <button className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-2xl font-bold hover:bg-purple-700 transition-all shadow-lg shadow-purple-500/30">
+                        <button 
+                            onClick={() => setIsCreateModalOpen(true)}
+                            className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-2xl font-bold hover:bg-purple-700 transition-all shadow-lg shadow-purple-500/30"
+                        >
                             <PlusIcon className="w-5 h-5" />
                             새 커리큘럼 추가
                         </button>
@@ -124,54 +157,87 @@ export default function CurriculumPage() {
                     <div className="p-6 border-b border-gray-100">
                         <h2 className="text-xl font-black text-gray-900">커리큘럼 목록</h2>
                     </div>
-                    <div className="divide-y divide-gray-100">
-                        {curriculums.map((curriculum, index) => (
-                            <motion.div
-                                key={curriculum.id}
-                                initial={{ opacity: 0, x: -20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.5 + index * 0.1 }}
-                                className="p-6 hover:bg-gray-50 transition-colors cursor-pointer"
+                    {isLoading ? (
+                        <div className="p-12 flex justify-center">
+                            <div className="w-8 h-8 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
+                        </div>
+                    ) : curriculums.length === 0 ? (
+                        <div className="p-12 text-center">
+                            <BookOpenIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                            <p className="text-gray-500 font-bold mb-2">등록된 커리큘럼이 없습니다</p>
+                            <p className="text-sm text-gray-400 mb-4">새로운 멘토링 프로그램을 만들어보세요!</p>
+                            <button
+                                onClick={() => setIsCreateModalOpen(true)}
+                                className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-all"
                             >
-                                <div className="flex items-start justify-between">
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-3 mb-2">
-                                            <h3 className="text-lg font-bold text-gray-900">{curriculum.title}</h3>
-                                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                                                curriculum.status === '진행중'
-                                                    ? 'bg-green-100 text-green-700'
-                                                    : 'bg-blue-100 text-blue-700'
-                                            }`}>
-                                                {curriculum.status}
-                                            </span>
-                                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                                                curriculum.level === '초급'
-                                                    ? 'bg-gray-100 text-gray-700'
-                                                    : 'bg-purple-100 text-purple-700'
-                                            }`}>
-                                                {curriculum.level}
-                                            </span>
-                                        </div>
-                                        <p className="text-sm text-gray-600 mb-3">{curriculum.description}</p>
-                                        <div className="flex items-center gap-4 text-sm text-gray-500">
-                                            <div className="flex items-center gap-1">
-                                                <ClockIcon className="w-4 h-4" />
-                                                <span>{curriculum.duration}</span>
+                                <PlusIcon className="w-5 h-5" />
+                                첫 커리큘럼 만들기
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="divide-y divide-gray-100">
+                            {curriculums.map((curriculum, index) => (
+                                <motion.div
+                                    key={curriculum.id}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: 0.5 + index * 0.1 }}
+                                    className="p-6 hover:bg-gray-50 transition-colors cursor-pointer"
+                                >
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-3 mb-2">
+                                                <h3 className="text-lg font-bold text-gray-900">{curriculum.name}</h3>
+                                                <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                                                    curriculum.status === '진행중'
+                                                        ? 'bg-green-100 text-green-700'
+                                                        : curriculum.status === '완료'
+                                                        ? 'bg-gray-100 text-gray-700'
+                                                        : 'bg-blue-100 text-blue-700'
+                                                }`}>
+                                                    {curriculum.status}
+                                                </span>
                                             </div>
-                                            <div className="flex items-center gap-1">
-                                                <AcademicCapIcon className="w-4 h-4" />
-                                                <span>{curriculum.students}명 수강</span>
+                                            <p className="text-sm text-gray-600 mb-3 line-clamp-2">{curriculum.description}</p>
+                                            <div className="flex items-center gap-4 text-sm text-gray-500">
+                                                <div className="flex items-center gap-1">
+                                                    <ClockIcon className="w-4 h-4" />
+                                                    <span>{curriculum.sessions.length}회차</span>
+                                                </div>
+                                                <div className="flex items-center gap-1">
+                                                    <AcademicCapIcon className="w-4 h-4" />
+                                                    <span>멘토 {curriculum.minMentors}명</span>
+                                                </div>
+                                                <div className="flex items-center gap-1">
+                                                    <UserGroupIcon className="w-4 h-4" />
+                                                    <span>학생 {curriculum.recommendedStudents}명 권장</span>
+                                                </div>
+                                                {curriculum.createdBy && (
+                                                    <>
+                                                        <span>•</span>
+                                                        <span className="text-xs">
+                                                            기획자: {curriculum.createdBy.name || '알 수 없음'}
+                                                        </span>
+                                                    </>
+                                                )}
                                             </div>
                                         </div>
+                                        <button className="px-4 py-2 text-purple-600 hover:bg-purple-50 rounded-xl font-bold text-sm transition-colors">
+                                            자세히 보기
+                                        </button>
                                     </div>
-                                    <button className="px-4 py-2 text-purple-600 hover:bg-purple-50 rounded-xl font-bold text-sm transition-colors">
-                                        자세히 보기
-                                    </button>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </div>
+                                </motion.div>
+                            ))}
+                        </div>
+                    )}
                 </motion.div>
+
+                {/* Create Curriculum Modal */}
+                <CreateCurriculumModal
+                    isOpen={isCreateModalOpen}
+                    onClose={() => setIsCreateModalOpen(false)}
+                    onCurriculumCreated={fetchCurriculums}
+                />
             </div>
         </div>
     )

@@ -25,3 +25,4 @@ chmod +x run_migrate.exp
 일회성 작업용 스크립트들은 `scripts/exp_archive/` 폴더에 보관되어 있습니다.
 필요시 해당 폴더에서 찾아서 사용할 수 있습니다.
 
+
