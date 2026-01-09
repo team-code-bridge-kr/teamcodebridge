@@ -75,55 +75,50 @@ export const formatFileSize = (bytes: number): string => {
 }
 
 /**
- * 공유 폴더를 "내 드라이브에 추가" (바로가기 생성)
- * 이렇게 해야 API를 통해 파일 업로드가 가능합니다!
+ * 공유 폴더 접근 권한 확인
+ * "편집자" 권한이 있는지 확인합니다
  */
-const addSharedFolderToMyDrive = async (
+const checkSharedFolderPermission = async (
     accessToken: string, 
     sharedFolderId: string
-): Promise<void> => {
-    // 이미 내 드라이브에 있는지 확인
-    const checkResponse = await fetch(
-        `https://www.googleapis.com/drive/v3/files/${sharedFolderId}?fields=id,name,capabilities`,
-        {
-            headers: {
-                'Authorization': `Bearer ${accessToken}`
-            }
-        }
-    )
+): Promise<boolean> => {
+    console.log('🔍 공유 폴더 권한 확인 중...')
+    console.log('📁 폴더 ID:', sharedFolderId)
     
-    if (checkResponse.ok) {
+    try {
+        // 폴더 정보 및 권한 확인
+        const checkResponse = await fetch(
+            `https://www.googleapis.com/drive/v3/files/${sharedFolderId}?fields=id,name,capabilities,permissions`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            }
+        )
+        
+        if (!checkResponse.ok) {
+            const error = await checkResponse.json()
+            console.error('❌ 폴더 접근 불가:', error)
+            throw new Error('공유 폴더에 접근할 수 없습니다. 폴더 링크와 권한을 확인하세요.')
+        }
+        
         const folderInfo = await checkResponse.json()
-        // canAddChildren이 true면 이미 쓰기 권한이 있음
+        console.log('📁 폴더 이름:', folderInfo.name)
+        console.log('🔐 폴더 권한:', folderInfo.capabilities)
+        
+        // canAddChildren이 true면 파일 추가 가능
         if (folderInfo.capabilities?.canAddChildren) {
             console.log('✅ 공유 폴더에 쓰기 권한이 있습니다!')
-            return
+            return true
+        } else {
+            console.error('❌ 공유 폴더에 쓰기 권한이 없습니다!')
+            console.error('💡 해결 방법: 폴더 소유자가 "편집자" 권한을 설정해야 합니다.')
+            throw new Error('공유 폴더에 쓰기 권한이 없습니다. 폴더 소유자에게 "편집자" 권한을 요청하세요.')
         }
+    } catch (error) {
+        console.error('❌ 권한 확인 실패:', error)
+        throw error
     }
-    
-    // "내 드라이브에 추가" 작업 (바로가기 생성)
-    // 참고: 이 작업은 폴더 소유자가 "편집자" 권한을 줘야 가능합니다
-    console.log('📁 공유 폴더를 내 드라이브에 추가 시도...')
-    
-    const addResponse = await fetch(
-        `https://www.googleapis.com/drive/v3/files/${sharedFolderId}?addParents=root&supportsAllDrives=true`,
-        {
-            method: 'PATCH',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({})
-        }
-    )
-    
-    if (!addResponse.ok) {
-        const error = await addResponse.json()
-        console.warn('⚠️ 내 드라이브 추가 실패:', error)
-        throw new Error('공유 폴더에 쓰기 권한이 없습니다. 폴더 소유자에게 "편집자" 권한을 요청하세요.')
-    }
-    
-    console.log('✅ 공유 폴더가 내 드라이브에 추가되었습니다!')
 }
 
 /**
@@ -146,14 +141,21 @@ export const uploadToDrive = async (
     // 공유 폴더 ID 사용 (환경 변수에서 가져옴)
     let targetFolderId = folderId || process.env.NEXT_PUBLIC_DRIVE_FOLDER_ID
     
-    // 공유 폴더를 사용하는 경우, 먼저 접근 권한 확인 및 내 드라이브에 추가
+    console.log('🎯 업로드 대상 폴더 ID:', targetFolderId)
+    
+    // 공유 폴더를 사용하는 경우, 먼저 접근 권한 확인
     if (targetFolderId) {
         try {
-            await addSharedFolderToMyDrive(accessToken, targetFolderId)
+            await checkSharedFolderPermission(accessToken, targetFolderId)
         } catch (error: any) {
-            console.error('공유 폴더 접근 실패:', error)
-            throw new Error(error.message || '공유 폴더에 접근할 수 없습니다.')
+            // 권한 확인 실패 시 에러 던지기 (업로드 중단)
+            console.error('❌ 공유 폴더 권한 확인 실패:', error)
+            throw new Error(error.message || '공유 폴더에 접근할 수 없습니다. 폴더 소유자에게 "편집자" 권한을 요청하세요.')
         }
+    } else {
+        console.warn('⚠️ NEXT_PUBLIC_DRIVE_FOLDER_ID가 설정되지 않았습니다.')
+        console.warn('⚠️ 각 사용자의 개인 드라이브 루트에 파일이 업로드됩니다.')
+        console.warn('💡 중앙 공유 폴더에 업로드하려면 환경 변수를 설정하세요.')
     }
 
     // 메타데이터 설정
@@ -165,6 +167,9 @@ export const uploadToDrive = async (
     // 폴더 ID가 있으면 해당 폴더에 저장
     if (targetFolderId) {
         metadata.parents = [targetFolderId]
+        console.log('📁 메타데이터에 parents 설정:', targetFolderId)
+    } else {
+        console.warn('📁 parents 미설정 → 개인 드라이브 루트에 저장됨')
     }
 
     // FormData 생성
@@ -174,9 +179,9 @@ export const uploadToDrive = async (
     }))
     form.append('file', file)
 
-    // Google Drive API로 업로드
+    // Google Drive API로 업로드 (parents 필드 추가로 저장 위치 확인)
     const uploadResponse = await fetch(
-        'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink',
+        'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink,parents',
         {
             method: 'POST',
             headers: {
@@ -188,13 +193,21 @@ export const uploadToDrive = async (
 
     if (!uploadResponse.ok) {
         const error = await uploadResponse.json()
+        console.error('❌ 업로드 실패:', error)
         throw new Error(`업로드 실패: ${error.error?.message || '알 수 없는 오류'}`)
     }
 
     const uploadedFile = await uploadResponse.json()
+    
+    // 업로드 성공 로그 (실제 저장 위치 확인)
+    console.log('✅ 파일 업로드 성공!')
+    console.log('📄 파일 이름:', uploadedFile.name)
+    console.log('🔗 링크:', uploadedFile.webViewLink)
+    console.log('📁 저장된 폴더 ID:', uploadedFile.parents)
+    console.log('🎯 원래 목표 폴더 ID:', targetFolderId)
 
     // 파일 공유 설정: "anyone with link can view"
-    await fetch(
+    const permissionResponse = await fetch(
         `https://www.googleapis.com/drive/v3/files/${uploadedFile.id}/permissions`,
         {
             method: 'POST',
@@ -208,6 +221,12 @@ export const uploadToDrive = async (
             })
         }
     )
+
+    if (permissionResponse.ok) {
+        console.log('🔓 공유 권한 설정 완료 (anyone with link can view)')
+    } else {
+        console.warn('⚠️ 공유 권한 설정 실패 (파일은 업로드됨)')
+    }
 
     return uploadedFile
 }
