@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { BookOpenIcon, PlusIcon, AcademicCapIcon, ClockIcon, UserGroupIcon } from '@heroicons/react/24/outline'
 import { useState, useEffect } from 'react'
 import CreateCurriculumModal from '@/components/CreateCurriculumModal'
+import CurriculumDetailModal from '@/components/CurriculumDetailModal'
 
 interface CurriculumSession {
     id: string
@@ -39,6 +40,8 @@ export default function CurriculumPage() {
     const [curriculums, setCurriculums] = useState<Curriculum[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+    const [selectedCurriculum, setSelectedCurriculum] = useState<Curriculum | null>(null)
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
 
     const fetchCurriculums = async () => {
         setIsLoading(true)
@@ -220,24 +223,40 @@ export default function CurriculumPage() {
                                                         </span>
                                                     </>
                                                 )}
-                                            </div>
                                         </div>
-                                        <button className="px-4 py-2 text-purple-600 hover:bg-purple-50 rounded-xl font-bold text-sm transition-colors">
-                                            자세히 보기
-                                        </button>
                                     </div>
-                                </motion.div>
-                            ))}
-                        </div>
-                    )}
-                </motion.div>
+                                    <button 
+                                        onClick={() => {
+                                            setSelectedCurriculum(curriculum)
+                                            setIsDetailModalOpen(true)
+                                        }}
+                                        className="px-4 py-2 text-purple-600 hover:bg-purple-50 rounded-xl font-bold text-sm transition-colors"
+                                    >
+                                        자세히 보기
+                                    </button>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                )}
+            </motion.div>
 
-                {/* Create Curriculum Modal */}
-                <CreateCurriculumModal
-                    isOpen={isCreateModalOpen}
-                    onClose={() => setIsCreateModalOpen(false)}
-                    onCurriculumCreated={fetchCurriculums}
-                />
+            {/* Create Curriculum Modal */}
+            <CreateCurriculumModal
+                isOpen={isCreateModalOpen}
+                onClose={() => setIsCreateModalOpen(false)}
+                onCurriculumCreated={fetchCurriculums}
+            />
+
+            {/* Curriculum Detail Modal */}
+            <CurriculumDetailModal
+                isOpen={isDetailModalOpen}
+                onClose={() => {
+                    setIsDetailModalOpen(false)
+                    setSelectedCurriculum(null)
+                }}
+                curriculum={selectedCurriculum}
+            />
             </div>
         </div>
     )
