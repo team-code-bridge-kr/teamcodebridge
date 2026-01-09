@@ -119,9 +119,9 @@ export default function CurriculumPage() {
                                 <AcademicCapIcon className="w-6 h-6 text-green-600" />
                             </div>
                             <div>
-                                <p className="text-sm text-gray-500 font-medium">수강 학생</p>
+                                <p className="text-sm text-gray-500 font-medium">총 회차 수</p>
                                 <p className="text-2xl font-black text-gray-900">
-                                    {curriculums.reduce((sum, c) => sum + c.students, 0)}
+                                    {curriculums.reduce((sum, c) => sum + c.sessions.length, 0)}
                                 </p>
                             </div>
                         </div>
