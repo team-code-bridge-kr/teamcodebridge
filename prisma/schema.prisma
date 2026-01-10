@@ -36,6 +36,7 @@ model User {
   chatRoomMembers ChatRoomMember[]
   createdCurriculums Curriculum[] @relation("CreatedCurriculums")
   uploadedMaterials Material[] @relation("UploadedMaterials")
+  createdSurveys Survey[] @relation("CreatedSurveys")
 }
 
 // 프로젝트 모델
@@ -249,4 +250,49 @@ model Material {
   updatedAt       DateTime   @updatedAt
   
   @@index([curriculumId])
+}
+
+// 만족도 조사 (설문조사) 모델
+model Survey {
+  id              String           @id @default(cuid())
+  title           String           // 설문조사명
+  description     String?          @db.Text // 설문조사 설명
+  targetClass     String?          // 대상 수업 (수업관리에서 롤업 또는 직접입력)
+  startDate       DateTime?        // 설문 시작일
+  endDate         DateTime?        // 설문 종료일
+  googleFormId    String?          @unique // Google Forms ID (생성 후 저장)
+  googleFormUrl   String?          // Google Forms URL
+  googleSheetUrl  String?          // Google Sheets 응답 URL
+  status          String           @default("준비중") // 준비중, 진행중, 종료
+  responseCount   Int              @default(0) // 응답 수
+  isDraft         Boolean          @default(true) // 임시저장 여부
+  createdById     String?
+  createdBy       User?            @relation("CreatedSurveys", fields: [createdById], references: [id])
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  questions       SurveyQuestion[] // 설문 질문들
+  
+  @@index([createdById])
+  @@index([status])
+}
+
+// 설문 질문 모델
+model SurveyQuestion {
+  id              String   @id @default(cuid())
+  surveyId        String
+  survey          Survey   @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  order           Int      // 질문 순서
+  questionText    String   @db.Text // 질문 내용
+  questionType    String   // 질문 타입: TEXT, PARAGRAPH, MULTIPLE_CHOICE, CHECKBOX, LINEAR_SCALE, DATE, TIME, EMAIL, PHONE
+  required        Boolean  @default(true) // 필수 여부
+  options         Json?    // 객관식/체크박스 옵션 (JSON 배열)
+  scaleMin        Int?     // 척도 최소값 (예: 1)
+  scaleMax        Int?     // 척도 최대값 (예: 5)
+  scaleMinLabel   String?  // 척도 최소 레이블 (예: "매우 불만족")
+  scaleMaxLabel   String?  // 척도 최대 레이블 (예: "매우 만족")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([surveyId])
+  @@index([order])
 }
