@@ -43,10 +43,24 @@ export const authOptions: NextAuthOptions = {
     ],
     session: {
         strategy: "jwt",
-        maxAge: 24 * 60 * 60, // 24시간
+        maxAge: 30 * 24 * 60 * 60, // 30일 (2,592,000초)
+        updateAge: 24 * 60 * 60, // 24시간마다 세션 갱신
+    },
+    cookies: {
+        sessionToken: {
+            name: `__Secure-next-auth.session-token`,
+            options: {
+                httpOnly: true,
+                sameSite: 'lax',
+                path: '/',
+                secure: true, // HTTPS 환경에서만 전송
+                maxAge: 30 * 24 * 60 * 60 // 30일 - 브라우저 닫아도 유지!
+            }
+        }
     },
     jwt: {
         secret: process.env.NEXTAUTH_SECRET,
+        maxAge: 30 * 24 * 60 * 60, // JWT도 30일
     },
     pages: {
         signIn: '/workspace/login',
