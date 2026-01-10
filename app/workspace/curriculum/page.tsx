@@ -1,10 +1,11 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { BookOpenIcon, PlusIcon, AcademicCapIcon, ClockIcon, UserGroupIcon } from '@heroicons/react/24/outline'
+import { BookOpenIcon, PlusIcon, AcademicCapIcon, ClockIcon, UserGroupIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { useState, useEffect } from 'react'
 import CreateCurriculumModal from '@/components/CreateCurriculumModal'
 import CurriculumDetailModal from '@/components/CurriculumDetailModal'
+import { showAlert } from '@/components/CustomAlert'
 
 interface CurriculumSession {
     id: string
@@ -42,6 +43,7 @@ export default function CurriculumPage() {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
     const [selectedCurriculum, setSelectedCurriculum] = useState<Curriculum | null>(null)
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false)
+    const [editingCurriculum, setEditingCurriculum] = useState<Curriculum | null>(null)
 
     const fetchCurriculums = async () => {
         setIsLoading(true)
@@ -60,6 +62,35 @@ export default function CurriculumPage() {
     useEffect(() => {
         fetchCurriculums()
     }, [])
+
+    // 수정 핸들러
+    const handleEdit = (curriculum: Curriculum) => {
+        setEditingCurriculum(curriculum)
+        setIsCreateModalOpen(true)
+    }
+
+    // 삭제 핸들러
+    const handleDelete = async (curriculum: Curriculum) => {
+        showAlert.confirm(
+            '커리큘럼 삭제',
+            `"${curriculum.name}" 커리큘럼을 삭제하시겠습니까?\n\n⚠️ 이 작업은 되돌릴 수 없습니다.`,
+            async () => {
+                try {
+                    const response = await fetch(`/api/curriculums/${curriculum.id}`, {
+                        method: 'DELETE'
+                    })
+
+                    if (!response.ok) throw new Error('삭제 실패')
+
+                    showAlert.success('삭제 완료', '커리큘럼이 삭제되었습니다.')
+                    fetchCurriculums()
+                } catch (error) {
+                    console.error('삭제 오류:', error)
+                    showAlert.error('삭제 실패', '다시 시도해주세요.')
+                }
+            }
+        )
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 p-6">
@@ -225,15 +256,37 @@ export default function CurriculumPage() {
                                                 )}
                                         </div>
                                     </div>
-                                    <button 
-                                        onClick={() => {
-                                            setSelectedCurriculum(curriculum)
-                                            setIsDetailModalOpen(true)
-                                        }}
-                                        className="px-4 py-2 text-purple-600 hover:bg-purple-50 rounded-xl font-bold text-sm transition-colors"
-                                    >
-                                        자세히 보기
-                                    </button>
+                                    <div className="flex gap-2">
+                                        <button 
+                                            onClick={() => {
+                                                setSelectedCurriculum(curriculum)
+                                                setIsDetailModalOpen(true)
+                                            }}
+                                            className="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-xl font-bold text-sm transition-colors"
+                                        >
+                                            자세히 보기
+                                        </button>
+                                        <button 
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                handleEdit(curriculum)
+                                            }}
+                                            className="p-2 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+                                            title="수정"
+                                        >
+                                            <PencilIcon className="w-5 h-5" />
+                                        </button>
+                                        <button 
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                handleDelete(curriculum)
+                                            }}
+                                            className="p-2 text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                                            title="삭제"
+                                        >
+                                            <TrashIcon className="w-5 h-5" />
+                                        </button>
+                                    </div>
                                 </div>
                             </motion.div>
                         ))}
@@ -241,11 +294,15 @@ export default function CurriculumPage() {
                 )}
             </motion.div>
 
-            {/* Create Curriculum Modal */}
+            {/* Create/Edit Curriculum Modal */}
             <CreateCurriculumModal
                 isOpen={isCreateModalOpen}
-                onClose={() => setIsCreateModalOpen(false)}
+                onClose={() => {
+                    setIsCreateModalOpen(false)
+                    setEditingCurriculum(null)
+                }}
                 onCurriculumCreated={fetchCurriculums}
+                editingCurriculum={editingCurriculum}
             />
 
             {/* Curriculum Detail Modal */}

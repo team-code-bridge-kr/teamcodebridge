@@ -1,9 +1,10 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { DocumentTextIcon, PlusIcon, FolderIcon, LinkIcon, FunnelIcon } from '@heroicons/react/24/outline'
+import { DocumentTextIcon, PlusIcon, FolderIcon, LinkIcon, FunnelIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { useState, useEffect } from 'react'
 import CreateMaterialModal from '@/components/CreateMaterialModal'
+import { showAlert } from '@/components/CustomAlert'
 
 interface Material {
     id: string
@@ -37,6 +38,7 @@ export default function MaterialsPage() {
     const [isLoading, setIsLoading] = useState(true)
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
     const [selectedCurriculum, setSelectedCurriculum] = useState<string>('all')
+    const [editingMaterial, setEditingMaterial] = useState<Material | null>(null)
 
     const fetchMaterials = async () => {
         setIsLoading(true)
@@ -67,6 +69,35 @@ export default function MaterialsPage() {
         fetchMaterials()
         fetchCurriculums()
     }, [])
+
+    // 수정 핸들러
+    const handleEdit = (material: Material) => {
+        setEditingMaterial(material)
+        setIsCreateModalOpen(true)
+    }
+
+    // 삭제 핸들러
+    const handleDelete = async (material: Material) => {
+        showAlert.confirm(
+            '교재 삭제',
+            `"${material.name}" 교재를 삭제하시겠습니까?\n\n⚠️ 이 작업은 되돌릴 수 없습니다.`,
+            async () => {
+                try {
+                    const response = await fetch(`/api/materials/${material.id}`, {
+                        method: 'DELETE'
+                    })
+
+                    if (!response.ok) throw new Error('삭제 실패')
+
+                    showAlert.success('삭제 완료', '교재가 삭제되었습니다.')
+                    fetchMaterials()
+                } catch (error) {
+                    console.error('삭제 오류:', error)
+                    showAlert.error('삭제 실패', '다시 시도해주세요.')
+                }
+            }
+        )
+    }
 
     const filteredMaterials = selectedCurriculum === 'all' 
         ? materials 
