@@ -1,0 +1,59 @@
+name: Deploy Marketing Site
+
+on:
+  push:
+    branches:
+      - feat/mentor-workspace-next
+    paths:
+      - 'app/(marketing)/**'
+      - 'components/Hero.tsx'
+      - 'components/Features.tsx'
+      - 'components/Footer.tsx'
+      - 'components/Navigation.tsx'
+      - 'app/page.tsx'
+      - 'app/about/**'
+      - 'app/terms/**'
+      - 'app/privacy/**'
+      - 'lib/terms-content.ts'
+      - '.github/workflows/deploy-marketing.yml'
+
+jobs:
+  deploy-marketing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy Marketing Site
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd /root/teamcodebridge
+            
+            # Ensure we are on the correct branch
+            git fetch --all
+            git checkout feat/mentor-workspace-next
+            git reset --hard origin/feat/mentor-workspace-next
+            
+            echo "🎨 Deploying Marketing Site (next.teamcodebridge.dev)..."
+            
+            # Rebuild only marketing container
+            docker-compose stop marketing
+            docker-compose rm -f marketing
+            docker-compose build --no-cache marketing
+            docker-compose up -d marketing
+            
+            # Wait for container to start
+            sleep 15
+            
+            # Check container status
+            echo "📊 Marketing Container Status:"
+            docker-compose ps marketing
+            
+            # Check logs
+            echo "📝 Recent Logs:"
+            docker-compose logs marketing --tail=50
+            
+            echo "✅ Marketing deployment complete!"
+

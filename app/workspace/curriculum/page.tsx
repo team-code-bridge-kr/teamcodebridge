@@ -104,7 +104,7 @@ export default function CurriculumPage() {
                     <div className="flex items-center justify-between">
                         <div>
                             <div className="flex items-center gap-3 mb-2">
-                                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl flex items-center justify-center">
+                                <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center">
                                     <BookOpenIcon className="w-7 h-7 text-white" />
                                 </div>
                                 <div>
@@ -115,7 +115,7 @@ export default function CurriculumPage() {
                         </div>
                         <button 
                             onClick={() => setIsCreateModalOpen(true)}
-                            className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-2xl font-bold hover:bg-purple-700 transition-all shadow-lg shadow-purple-500/30"
+                            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/30"
                         >
                             <PlusIcon className="w-5 h-5" />
                             새 커리큘럼 추가
@@ -132,8 +132,8 @@ export default function CurriculumPage() {
                         className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
                     >
                         <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                                <BookOpenIcon className="w-6 h-6 text-purple-600" />
+                            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                                <BookOpenIcon className="w-6 h-6 text-blue-600" />
                             </div>
                             <div>
                                 <p className="text-sm text-gray-500 font-medium">전체 커리큘럼</p>
@@ -193,7 +193,7 @@ export default function CurriculumPage() {
                     </div>
                     {isLoading ? (
                         <div className="p-12 flex justify-center">
-                            <div className="w-8 h-8 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin" />
+                            <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
                         </div>
                     ) : curriculums.length === 0 ? (
                         <div className="p-12 text-center">
@@ -202,7 +202,7 @@ export default function CurriculumPage() {
                             <p className="text-sm text-gray-400 mb-4">새로운 멘토링 프로그램을 만들어보세요!</p>
                             <button
                                 onClick={() => setIsCreateModalOpen(true)}
-                                className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-all"
+                                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all"
                             >
                                 <PlusIcon className="w-5 h-5" />
                                 첫 커리큘럼 만들기
@@ -313,6 +313,7 @@ export default function CurriculumPage() {
                     setSelectedCurriculum(null)
                 }}
                 curriculum={selectedCurriculum}
+                onStatusUpdate={fetchCurriculums}
             />
             </div>
         </div>

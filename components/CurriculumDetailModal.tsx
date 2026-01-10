@@ -1,6 +1,6 @@
 'use client'
 
-import { Fragment } from 'react'
+import { Fragment, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon, UserGroupIcon, UsersIcon, AcademicCapIcon, CalendarIcon, MapPinIcon, DocumentArrowDownIcon } from '@heroicons/react/24/outline'
 import { motion } from 'framer-motion'
@@ -40,14 +40,57 @@ interface CurriculumDetailModalProps {
     isOpen: boolean
     onClose: () => void
     curriculum: Curriculum | null
+    onStatusUpdate?: () => void
 }
 
-export default function CurriculumDetailModal({ isOpen, onClose, curriculum }: CurriculumDetailModalProps) {
+export default function CurriculumDetailModal({ isOpen, onClose, curriculum, onStatusUpdate }: CurriculumDetailModalProps) {
+    const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
+    
     if (!curriculum) return null
+
+    const statusOptions = ['준비중', '검토중', '수업중', '종료됨']
+    
+    const handleStatusChange = async (newStatus: string) => {
+        if (newStatus === curriculum.status) return
+        
+        setIsUpdatingStatus(true)
+        try {
+            const response = await fetch(`/api/curriculums/${curriculum.id}/status`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus })
+            })
+
+            if (!response.ok) throw new Error('상태 변경 실패')
+
+            showAlert.success('상태 변경 완료', `커리큘럼 상태가 "${newStatus}"(으)로 변경되었습니다.`)
+            onStatusUpdate?.()
+        } catch (error) {
+            console.error('상태 변경 오류:', error)
+            showAlert.error('상태 변경 실패', '다시 시도해주세요.')
+        } finally {
+            setIsUpdatingStatus(false)
+        }
+    }
 
     const handlePDFExport = () => {
         // TODO: PDF 저장 기능 구현 예정
         showAlert.info('PDF 저장 기능 준비 중', 'PDF 저장 기능은 곧 추가될 예정입니다!')
+    }
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case '준비중':
+                return 'bg-blue-100 text-blue-700'
+            case '검토중':
+                return 'bg-yellow-100 text-yellow-700'
+            case '수업중':
+                return 'bg-green-100 text-green-700'
+            case '종료됨':
+                return 'bg-gray-100 text-gray-700'
+            default:
+                return 'bg-blue-100 text-blue-700'
+        }
     }
 
     return (
@@ -78,22 +121,29 @@ export default function CurriculumDetailModal({ isOpen, onClose, curriculum }: C
                         >
                             <Dialog.Panel className="w-full max-w-5xl transform overflow-hidden rounded-3xl bg-white shadow-2xl transition-all">
                                 {/* Header */}
-                                <div className="sticky top-0 z-10 border-b border-gray-100 bg-gradient-to-r from-purple-50 to-blue-50 px-8 py-6">
+                                <div className="sticky top-0 z-10 border-b border-gray-100 bg-blue-50 px-8 py-6">
                                     <div className="flex items-start justify-between">
                                         <div className="flex-1">
                                             <div className="flex items-center gap-3 mb-2">
                                                 <Dialog.Title className="text-3xl font-black text-gray-900">
                                                     {curriculum.name}
                                                 </Dialog.Title>
-                                                <span className={`px-4 py-1.5 rounded-full text-sm font-bold ${
-                                                    curriculum.status === '진행중'
-                                                        ? 'bg-green-100 text-green-700'
-                                                        : curriculum.status === '완료'
-                                                        ? 'bg-gray-100 text-gray-700'
-                                                        : 'bg-blue-100 text-blue-700'
-                                                }`}>
-                                                    {curriculum.status}
-                                                </span>
+                                                
+                                                {/* Status Dropdown */}
+                                                <div className="relative">
+                                                    <select
+                                                        value={curriculum.status}
+                                                        onChange={(e) => handleStatusChange(e.target.value)}
+                                                        disabled={isUpdatingStatus}
+                                                        className={`px-4 py-1.5 rounded-full text-sm font-bold cursor-pointer transition-all ${getStatusColor(curriculum.status)} border-2 border-transparent hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed`}
+                                                    >
+                                                        {statusOptions.map((status) => (
+                                                            <option key={status} value={status}>
+                                                                {status}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
                                             </div>
                                             {curriculum.createdBy && (
                                                 <p className="text-sm text-gray-600 font-medium">
