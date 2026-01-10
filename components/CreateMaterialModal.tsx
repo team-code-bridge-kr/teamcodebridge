@@ -12,6 +12,15 @@ interface CreateMaterialModalProps {
     onClose: () => void
     curriculums: { id: string; name: string }[]
     onMaterialCreated: () => void
+    editingMaterial?: {
+        id: string
+        name: string
+        description: string
+        fileType: string
+        driveUrl: string
+        fileSize: string | null
+        curriculum: { id: string }
+    } | null
 }
 
 const FILE_TYPES = [
@@ -32,7 +41,7 @@ const FILE_TYPES = [
 
 const STORAGE_KEY = 'material_draft'
 
-export default function CreateMaterialModal({ isOpen, onClose, curriculums, onMaterialCreated }: CreateMaterialModalProps) {
+export default function CreateMaterialModal({ isOpen, onClose, curriculums, onMaterialCreated, editingMaterial }: CreateMaterialModalProps) {
     const { data: session } = useSession()
     const [isSaving, setIsSaving] = useState(false)
     const [isUploading, setIsUploading] = useState(false)
@@ -47,9 +56,19 @@ export default function CreateMaterialModal({ isOpen, onClose, curriculums, onMa
         curriculumId: ''
     })
 
-    // 중간저장 데이터 로드
+    // 수정 모드일 때 데이터 로드
     useEffect(() => {
-        if (isOpen) {
+        if (isOpen && editingMaterial) {
+            setFormData({
+                name: editingMaterial.name,
+                description: editingMaterial.description,
+                fileType: editingMaterial.fileType,
+                driveUrl: editingMaterial.driveUrl,
+                fileSize: editingMaterial.fileSize || '',
+                curriculumId: editingMaterial.curriculum.id
+            })
+        } else if (isOpen && !editingMaterial) {
+            // 새 교재 추가 모드일 때 중간저장 데이터 로드
             const saved = localStorage.getItem(STORAGE_KEY)
             if (saved) {
                 try {
@@ -60,7 +79,7 @@ export default function CreateMaterialModal({ isOpen, onClose, curriculums, onMa
                 }
             }
         }
-    }, [isOpen])
+    }, [isOpen, editingMaterial])
 
     // 자동 중간저장 (5초마다)
     useEffect(() => {
@@ -175,16 +194,24 @@ export default function CreateMaterialModal({ isOpen, onClose, curriculums, onMa
 
         setIsSaving(true)
         try {
-            const response = await fetch('/api/materials', {
-                method: 'POST',
+            const url = editingMaterial 
+                ? `/api/materials/${editingMaterial.id}` 
+                : '/api/materials'
+            const method = editingMaterial ? 'PUT' : 'POST'
+            
+            const response = await fetch(url, {
+                method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             })
 
-            if (!response.ok) throw new Error('Failed to create material')
+            if (!response.ok) throw new Error('Failed to save material')
 
             localStorage.removeItem(STORAGE_KEY)
-            showAlert.success('교재 업로드 완료!', '교재가 성공적으로 업로드되었습니다!')
+            showAlert.success(
+                editingMaterial ? '교재 수정 완료!' : '교재 업로드 완료!', 
+                editingMaterial ? '교재가 수정되었습니다.' : '교재가 성공적으로 업로드되었습니다!'
+            )
             onMaterialCreated()
             handleClose()
         } catch (error) {

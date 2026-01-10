@@ -273,7 +273,7 @@ export default function CreateSurveyModal({ isOpen, onClose, onSuccess, editingS
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
-              <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-500 to-purple-600">
+              <div className="p-6 border-b border-gray-200 bg-blue-600">
                 <div className="flex justify-between items-center">
                   <div>
                     <h2 className="text-2xl font-bold text-white">
@@ -353,7 +353,7 @@ export default function CreateSurveyModal({ isOpen, onClose, onSuccess, editingS
                   {step === 1 ? (
                     <button
                       onClick={handleNext}
-                      className="px-6 py-3 rounded-xl font-medium text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
+                      className="px-6 py-3 rounded-xl font-medium text-white bg-blue-600 hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl"
                     >
                       다음 →
                     </button>
@@ -361,7 +361,7 @@ export default function CreateSurveyModal({ isOpen, onClose, onSuccess, editingS
                     <button
                       onClick={handleCreate}
                       disabled={isSaving}
-                      className="px-6 py-3 rounded-xl font-medium text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50"
+                      className="px-6 py-3 rounded-xl font-medium text-white bg-blue-600 hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50"
                     >
                       {isSaving ? '생성 중...' : '설문 생성'}
                     </button>
@@ -457,7 +457,7 @@ function Step2({ questions, setQuestions, useTemplate, onUseTemplate, onAddQuest
     <div className="space-y-6">
       {/* 추천 템플릿 버튼 */}
       {!useTemplate && questions.length === 0 && (
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-dashed border-blue-300 rounded-2xl p-6 text-center">
+        <div className="bg-blue-50 border-2 border-dashed border-blue-300 rounded-2xl p-6 text-center">
           <h3 className="text-lg font-bold text-gray-900 mb-2">
             ✨ 추천 설문폼 사용하기
           </h3>
@@ -466,7 +466,7 @@ function Step2({ questions, setQuestions, useTemplate, onUseTemplate, onAddQuest
           </p>
           <button
             onClick={onUseTemplate}
-            className="px-6 py-3 rounded-xl font-medium text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
+            className="px-6 py-3 rounded-xl font-medium text-white bg-blue-600 hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl"
           >
             추천 설문폼 사용하기
           </button>

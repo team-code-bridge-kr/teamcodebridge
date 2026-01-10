@@ -130,7 +130,7 @@ export default function SurveysPage() {
             </div>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="px-6 py-3 rounded-xl font-medium text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl flex items-center gap-2"
+              className="px-6 py-3 rounded-xl font-medium text-white bg-blue-600 hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl flex items-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -157,9 +157,9 @@ export default function SurveysPage() {
               <p className="text-sm text-blue-700 font-medium mb-2">종료</p>
               <p className="text-3xl font-black text-blue-600">{stats.completed}</p>
             </div>
-            <div className="bg-purple-50 p-6 rounded-2xl shadow-md border-2 border-purple-200">
-              <p className="text-sm text-purple-700 font-medium mb-2">총 응답</p>
-              <p className="text-3xl font-black text-purple-600">{stats.totalResponses}</p>
+            <div className="bg-blue-50 p-6 rounded-2xl shadow-md border-2 border-blue-200">
+              <p className="text-sm text-blue-700 font-medium mb-2">총 응답</p>
+              <p className="text-3xl font-black text-blue-600">{stats.totalResponses}</p>
             </div>
           </div>
         </div>
@@ -172,7 +172,7 @@ export default function SurveysPage() {
               onClick={() => setFilterStatus(status)}
               className={`px-6 py-3 rounded-xl font-medium transition-all ${
                 filterStatus === status
-                  ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
+                  ? 'bg-blue-600 text-white shadow-lg'
                   : 'bg-white text-gray-600 hover:bg-gray-100'
               }`}
             >
@@ -190,7 +190,7 @@ export default function SurveysPage() {
               <p className="text-gray-600 mb-6">새 설문조사를 만들어보세요!</p>
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="px-6 py-3 rounded-xl font-medium text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 transition-all"
+                className="px-6 py-3 rounded-xl font-medium text-white bg-blue-600 hover:bg-blue-700 transition-all"
               >
                 + 새 설문 만들기
               </button>

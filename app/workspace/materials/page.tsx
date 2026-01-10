@@ -317,27 +317,53 @@ export default function MaterialsPage() {
                                         {material.uploadedBy && <span>{material.uploadedBy.name || '알 수 없음'}</span>}
                                     </div>
                                     
-                                    <a
-                                        href={material.driveUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20"
-                                    >
-                                        <LinkIcon className="w-4 h-4" />
-                                        드라이브에서 열기
-                                    </a>
+                                    <div className="flex gap-2">
+                                        <a
+                                            href={material.driveUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20"
+                                        >
+                                            <LinkIcon className="w-4 h-4" />
+                                            열기
+                                        </a>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                handleEdit(material)
+                                            }}
+                                            className="p-3 text-gray-600 hover:bg-gray-100 rounded-xl transition-colors"
+                                            title="수정"
+                                        >
+                                            <PencilIcon className="w-5 h-5" />
+                                        </button>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                handleDelete(material)
+                                            }}
+                                            className="p-3 text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                                            title="삭제"
+                                        >
+                                            <TrashIcon className="w-5 h-5" />
+                                        </button>
+                                    </div>
                                 </motion.div>
                             ))}
                         </div>
                     )}
                 </motion.div>
 
-                {/* Create Material Modal */}
+                {/* Create/Edit Material Modal */}
                 <CreateMaterialModal
                     isOpen={isCreateModalOpen}
-                    onClose={() => setIsCreateModalOpen(false)}
+                    onClose={() => {
+                        setIsCreateModalOpen(false)
+                        setEditingMaterial(null)
+                    }}
                     curriculums={curriculums}
                     onMaterialCreated={fetchMaterials}
+                    editingMaterial={editingMaterial}
                 />
             </div>
         </div>
