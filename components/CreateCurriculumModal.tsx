@@ -7,10 +7,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { showAlert } from './CustomAlert'
 
 interface Session {
+    id?: string
     sessionNumber: number
     sessionName: string
-    scheduledDate: string
-    location: string
+    scheduledDate: string | null
+    location: string | null
     goal: string
     content: string
 }
@@ -57,10 +58,10 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
         recommendedStudents: 10,
         expectedEffect: '',
         sessions: [
-            { sessionNumber: 1, sessionName: '', scheduledDate: '', location: '', goal: '', content: '' },
-            { sessionNumber: 2, sessionName: '', scheduledDate: '', location: '', goal: '', content: '' },
-            { sessionNumber: 3, sessionName: '', scheduledDate: '', location: '', goal: '', content: '' },
-            { sessionNumber: 4, sessionName: '', scheduledDate: '', location: '', goal: '', content: '' },
+            { sessionNumber: 1, sessionName: '', scheduledDate: null, location: null, goal: '', content: '' },
+            { sessionNumber: 2, sessionName: '', scheduledDate: null, location: null, goal: '', content: '' },
+            { sessionNumber: 3, sessionName: '', scheduledDate: null, location: null, goal: '', content: '' },
+            { sessionNumber: 4, sessionName: '', scheduledDate: null, location: null, goal: '', content: '' },
         ]
     })
 
@@ -120,17 +121,17 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
                 recommendedStudents: 10,
                 expectedEffect: '',
                 sessions: [
-                    { sessionNumber: 1, sessionName: '', scheduledDate: '', location: '', goal: '', content: '' },
-                    { sessionNumber: 2, sessionName: '', scheduledDate: '', location: '', goal: '', content: '' },
-                    { sessionNumber: 3, sessionName: '', scheduledDate: '', location: '', goal: '', content: '' },
-                    { sessionNumber: 4, sessionName: '', scheduledDate: '', location: '', goal: '', content: '' },
+                    { sessionNumber: 1, sessionName: '', scheduledDate: null, location: null, goal: '', content: '' },
+                    { sessionNumber: 2, sessionName: '', scheduledDate: null, location: null, goal: '', content: '' },
+                    { sessionNumber: 3, sessionName: '', scheduledDate: null, location: null, goal: '', content: '' },
+                    { sessionNumber: 4, sessionName: '', scheduledDate: null, location: null, goal: '', content: '' },
                 ]
             })
             setCurrentStep(1)
         }
     }
 
-    const updateSession = (index: number, field: keyof Session, value: string) => {
+    const updateSession = (index: number, field: keyof Session, value: string | null) => {
         const newSessions = [...formData.sessions]
         newSessions[index] = { ...newSessions[index], [field]: value }
         setFormData({ ...formData, sessions: newSessions })
@@ -444,8 +445,8 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
                                                                     <label className="block text-sm font-bold text-gray-700 mb-2">일시</label>
                                                                     <input
                                                                         type="text"
-                                                                        value={session.scheduledDate}
-                                                                        onChange={(e) => updateSession(index, 'scheduledDate', e.target.value)}
+                                                                        value={session.scheduledDate || ''}
+                                                                        onChange={(e) => updateSession(index, 'scheduledDate', e.target.value || null)}
                                                                         placeholder="예: 2026-02-15 14:00"
                                                                         className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                                                                     />
@@ -454,8 +455,8 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
                                                                     <label className="block text-sm font-bold text-gray-700 mb-2">장소</label>
                                                                     <input
                                                                         type="text"
-                                                                        value={session.location}
-                                                                        onChange={(e) => updateSession(index, 'location', e.target.value)}
+                                                                        value={session.location || ''}
+                                                                        onChange={(e) => updateSession(index, 'location', e.target.value || null)}
                                                                         placeholder="예: Zoom, 강의실 203호"
                                                                         className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                                                                     />
