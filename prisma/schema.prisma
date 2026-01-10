@@ -64,6 +64,17 @@ model Task {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   context     ContextCapsule?
+  
+  // 크라켄 구조용 필드
+  parentId    String?  // 상위 업무 ID (계층 구조)
+  parent      Task?    @relation("TaskHierarchy", fields: [parentId], references: [id])
+  children    Task[]   @relation("TaskHierarchy")
+  
+  depth       Int      @default(0)  // 0=Core, 1=Main Branch, 2+=Sub Branch
+  
+  dependsOnId String?  // 선행 업무 ID (의존성)
+  dependsOn   Task?    @relation("TaskDependency", fields: [dependsOnId], references: [id])
+  dependents  Task[]   @relation("TaskDependency")
 }
 
 // 채팅방 모델 (그룹 채팅)

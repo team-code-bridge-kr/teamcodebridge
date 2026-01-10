@@ -105,7 +105,7 @@ export default function WorkspaceWork() {
         ...project,
         tasks: project.tasks.filter(task => {
             const matchesSearch = task.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                              task.owner?.name.toLowerCase().includes(searchTerm.toLowerCase())
+                task.owner?.name.toLowerCase().includes(searchTerm.toLowerCase())
             const matchesStatus = filterStatus ? task.status === filterStatus : true
             return matchesSearch && matchesStatus
         })
@@ -133,7 +133,7 @@ export default function WorkspaceWork() {
                         <DocumentPlusIcon className="w-5 h-5" />
                         새 프로젝트
                     </button>
-                    <button 
+                    <button
                         onClick={() => setIsCreateModalOpen(true)}
                         className="flex items-center gap-2 px-8 py-3 bg-primary-600 text-white rounded-2xl font-bold hover:bg-primary-700 transition-all shadow-xl shadow-primary-600/20"
                     >
@@ -158,7 +158,7 @@ export default function WorkspaceWork() {
                     </div>
                     <div className="h-8 w-[1px] bg-gray-100 hidden md:block" />
                     <div className="h-8 w-[1px] bg-gray-100 hidden md:block" />
-                    
+
                     <Menu as="div" className="relative inline-block text-left">
                         <Menu.Button className={`flex items-center gap-2 px-4 py-2 text-sm font-bold transition-all ${filterStatus ? 'text-primary-600 bg-primary-50 rounded-xl' : 'text-gray-600 hover:text-black'}`}>
                             <FunnelIcon className="w-5 h-5" />
@@ -180,9 +180,8 @@ export default function WorkspaceWork() {
                                         {({ active }) => (
                                             <button
                                                 onClick={() => setFilterStatus(null)}
-                                                className={`${
-                                                    active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
-                                                } block w-full px-4 py-2 text-left text-sm font-bold`}
+                                                className={`${active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
+                                                    } block w-full px-4 py-2 text-left text-sm font-bold`}
                                             >
                                                 전체 보기
                                             </button>
@@ -193,9 +192,8 @@ export default function WorkspaceWork() {
                                             {({ active }) => (
                                                 <button
                                                     onClick={() => setFilterStatus(status)}
-                                                    className={`${
-                                                        active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
-                                                    } block w-full px-4 py-2 text-left text-sm font-bold`}
+                                                    className={`${active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
+                                                        } block w-full px-4 py-2 text-left text-sm font-bold`}
                                                 >
                                                     {status}
                                                 </button>
@@ -210,6 +208,13 @@ export default function WorkspaceWork() {
                         <ArrowsUpDownIcon className="w-5 h-5" />
                         정렬
                     </button>
+                    <div className="h-6 w-[1px] bg-gray-200" />
+                    <a
+                        href="/workspace/kraken"
+                        className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-primary-600 bg-primary-50 hover:bg-primary-100 rounded-xl transition-all"
+                    >
+                        🐙 크라켄 뷰
+                    </a>
                 </div>
             </div>
 
@@ -255,7 +260,7 @@ export default function WorkspaceWork() {
                                         {project.tasks.map((task) => (
                                             <tr key={task.id} className="group hover:bg-gray-50/30 transition-colors border-b border-gray-50 last:border-0">
                                                 <td className="px-8 py-6">
-                                                    <span 
+                                                    <span
                                                         onClick={() => handleTaskClick(task)}
                                                         className="font-bold text-gray-900 text-[15px] group-hover:text-primary-600 transition-colors cursor-pointer hover:underline decoration-2 underline-offset-4"
                                                     >
@@ -301,7 +306,7 @@ export default function WorkspaceWork() {
                             </div>
 
                             {/* Add Task Row Placeholder */}
-                            <div 
+                            <div
                                 onClick={() => setIsCreateModalOpen(true)}
                                 className="px-8 py-5 bg-gray-50/20 flex items-center gap-3 text-gray-400 hover:text-primary-600 hover:bg-primary-50/30 cursor-pointer transition-all group"
                             >
@@ -313,7 +318,7 @@ export default function WorkspaceWork() {
                 ))}
             </div>
 
-            <CreateTaskModal 
+            <CreateTaskModal
                 isOpen={isCreateModalOpen}
                 onClose={() => setIsCreateModalOpen(false)}
                 projects={allProjects}

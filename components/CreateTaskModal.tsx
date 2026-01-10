@@ -16,6 +16,9 @@ export default function CreateTaskModal({ isOpen, onClose, projects, currentUser
     const [name, setName] = useState('')
     const [mission, setMission] = useState('')
     const [projectId, setProjectId] = useState(projects[0]?.id || '')
+    const [parentId, setParentId] = useState<string>('')  // 상위 업무
+    const [dependsOnId, setDependsOnId] = useState<string>('')  // 선행 업무
+    const [existingTasks, setExistingTasks] = useState<{ id: string, name: string, depth: number }[]>([])
     const [isLoading, setIsLoading] = useState(false)
 
     // Ensure projectId is set when projects load
@@ -23,9 +26,31 @@ export default function CreateTaskModal({ isOpen, onClose, projects, currentUser
         setProjectId(projects[0].id)
     }
 
+    // 기존 업무 목록 로드 (상위/선행 업무 선택용)
+    const loadExistingTasks = async () => {
+        try {
+            const res = await fetch('/api/kraken')
+            if (res.ok) {
+                const data = await res.json()
+                setExistingTasks(data.map((t: any) => ({ id: t.id, name: t.name, depth: t.depth })))
+            }
+        } catch (error) {
+            console.error('Failed to load tasks:', error)
+        }
+    }
+
+    // 모달 열릴 때 기존 업무 로드
+    if (isOpen && existingTasks.length === 0) {
+        loadExistingTasks()
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsLoading(true)
+
+        // 상위 업무의 depth를 기반으로 새 업무 depth 계산
+        const parentTask = existingTasks.find(t => t.id === parentId)
+        const newDepth = parentTask ? parentTask.depth + 1 : 0
 
         try {
             await fetch('/api/tasks', {
@@ -37,11 +62,16 @@ export default function CreateTaskModal({ isOpen, onClose, projects, currentUser
                     projectId,
                     ownerId: currentUserId,
                     status: '대기',
-                    priority: '중간'
+                    priority: '중간',
+                    parentId: parentId || null,
+                    dependsOnId: dependsOnId || null,
+                    depth: newDepth
                 })
             })
             setName('')
             setMission('')
+            setParentId('')
+            setDependsOnId('')
             onTaskCreated()
             onClose()
         } catch (error) {
@@ -155,6 +185,55 @@ export default function CreateTaskModal({ isOpen, onClose, projects, currentUser
                                                         value={mission}
                                                         onChange={(e) => setMission(e.target.value)}
                                                     />
+                                                </div>
+                                            </div>
+
+                                            {/* 크라켄 설정 섹션 */}
+                                            <div className="pt-4 border-t border-gray-100">
+                                                <p className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                                                    🐙 크라켄 설정 <span className="text-xs font-normal text-gray-400">(선택사항)</span>
+                                                </p>
+
+                                                <div className="space-y-3">
+                                                    <div>
+                                                        <label htmlFor="parentId" className="block text-xs font-bold text-gray-600">
+                                                            상위 업무
+                                                        </label>
+                                                        <select
+                                                            id="parentId"
+                                                            name="parentId"
+                                                            className="mt-1 block w-full rounded-lg border-gray-200 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm py-2"
+                                                            value={parentId}
+                                                            onChange={(e) => setParentId(e.target.value)}
+                                                        >
+                                                            <option value="">없음 (최상위 업무)</option>
+                                                            {existingTasks.map((t) => (
+                                                                <option key={t.id} value={t.id}>
+                                                                    {'　'.repeat(t.depth)}{t.depth > 0 ? '└ ' : ''}{t.name}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+
+                                                    <div>
+                                                        <label htmlFor="dependsOnId" className="block text-xs font-bold text-gray-600">
+                                                            선행 업무 <span className="text-xs font-normal text-gray-400">(이 업무가 완료되어야 시작 가능)</span>
+                                                        </label>
+                                                        <select
+                                                            id="dependsOnId"
+                                                            name="dependsOnId"
+                                                            className="mt-1 block w-full rounded-lg border-gray-200 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm py-2"
+                                                            value={dependsOnId}
+                                                            onChange={(e) => setDependsOnId(e.target.value)}
+                                                        >
+                                                            <option value="">없음</option>
+                                                            {existingTasks.map((t) => (
+                                                                <option key={t.id} value={t.id}>
+                                                                    {t.name}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
                                                 </div>
                                             </div>
 

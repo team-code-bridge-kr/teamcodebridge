@@ -6,6 +6,12 @@ export async function middleware(request: NextRequest) {
     const url = request.nextUrl.clone()
     const hostname = request.headers.get('host') || ''
 
+    // 개발 모드에서 인증 우회 (DEV_SKIP_AUTH=true 설정 시)
+    if (process.env.DEV_SKIP_AUTH === 'true') {
+        console.log(`[Middleware] DEV_SKIP_AUTH enabled - skipping auth`)
+        return NextResponse.next()
+    }
+
     // 1. e2g.teamcodebridge.dev 루트(/) 접속 시 자동 리다이렉트 제거
     // Google OAuth 인증을 위해 홈페이지는 로그인 없이 접근 가능해야 함
     // 사용자가 직접 "워크스페이스 로그인" 버튼을 클릭할 때만 로그인 페이지로 이동

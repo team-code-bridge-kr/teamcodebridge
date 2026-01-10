@@ -41,6 +41,7 @@ const menuItems: MenuItem[] = [
         icon: BriefcaseIcon,
         subItems: [
             { name: 'SaaS', href: '/workspace/work', icon: BriefcaseIcon },
+            { name: '🐙 크라켄 뷰', href: '/workspace/kraken', icon: BriefcaseIcon },
             { name: '회의 일정', href: '/workspace/meetings', icon: ClockIcon },
             { name: '커리큘럼', href: '/workspace/curriculum', icon: BookOpenIcon },
             { name: '교재관리', href: '/workspace/materials', icon: DocumentTextIcon },
