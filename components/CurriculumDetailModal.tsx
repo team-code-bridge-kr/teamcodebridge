@@ -4,6 +4,7 @@ import { Fragment } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon, UserGroupIcon, UsersIcon, AcademicCapIcon, CalendarIcon, MapPinIcon, DocumentArrowDownIcon } from '@heroicons/react/24/outline'
 import { motion } from 'framer-motion'
+import { showAlert } from './CustomAlert'
 
 interface CurriculumSession {
     id: string
@@ -46,7 +47,7 @@ export default function CurriculumDetailModal({ isOpen, onClose, curriculum }: C
 
     const handlePDFExport = () => {
         // TODO: PDF 저장 기능 구현 예정
-        alert('PDF 저장 기능은 곧 추가될 예정입니다! 🎉')
+        showAlert.info('PDF 저장 기능 준비 중', 'PDF 저장 기능은 곧 추가될 예정입니다!')
     }
 
     return (

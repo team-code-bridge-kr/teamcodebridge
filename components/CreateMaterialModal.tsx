@@ -5,6 +5,7 @@ import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon, BookmarkIcon, CloudArrowUpIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline'
 import { useSession } from 'next-auth/react'
 import { uploadToDrive, validateFile, formatFileSize, getFileExtension } from '@/lib/googleDrive'
+import { showAlert } from './CustomAlert'
 
 interface CreateMaterialModalProps {
     isOpen: boolean
@@ -74,7 +75,7 @@ export default function CreateMaterialModal({ isOpen, onClose, curriculums, onMa
 
     const handleSaveDraft = () => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(formData))
-        alert('임시 저장되었습니다!')
+        showAlert.success('임시 저장 완료', '교재 정보가 임시 저장되었습니다.')
     }
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,7 +85,7 @@ export default function CreateMaterialModal({ isOpen, onClose, curriculums, onMa
         // 파일 유효성 검증
         const validation = validateFile(file)
         if (!validation.valid) {
-            alert(validation.error)
+            showAlert.error('파일 검증 실패', validation.error || '파일을 확인해주세요.')
             e.target.value = '' // 입력 초기화
             return
         }
@@ -109,12 +110,12 @@ export default function CreateMaterialModal({ isOpen, onClose, curriculums, onMa
 
     const handleUploadFile = async () => {
         if (!selectedFile) {
-            alert('파일을 선택해주세요.')
+            showAlert.warning('파일 선택 필요', '업로드할 파일을 선택해주세요.')
             return
         }
 
         if (!session?.accessToken) {
-            alert('로그인이 필요합니다. 다시 로그인해주세요.')
+            showAlert.warning('로그인 필요', '로그인이 필요합니다. 다시 로그인해주세요.')
             return
         }
 
@@ -143,11 +144,11 @@ export default function CreateMaterialModal({ isOpen, onClose, curriculums, onMa
                 driveUrl: uploadedFile.webViewLink
             }))
 
-            alert('파일이 성공적으로 업로드되었습니다! 🎉')
+            showAlert.success('업로드 성공!', '파일이 성공적으로 업로드되었습니다!')
             setSelectedFile(null)
         } catch (error) {
             console.error('Upload failed:', error)
-            alert(error instanceof Error ? error.message : '파일 업로드에 실패했습니다.')
+            showAlert.error('업로드 실패', error instanceof Error ? error.message : '파일 업로드에 실패했습니다.')
         } finally {
             setIsUploading(false)
             setUploadProgress(0)
@@ -156,19 +157,19 @@ export default function CreateMaterialModal({ isOpen, onClose, curriculums, onMa
 
     const handleSubmit = async () => {
         if (!formData.name.trim()) {
-            alert('교재 이름을 입력해주세요.')
+            showAlert.warning('교재 이름 필요', '교재 이름을 입력해주세요.')
             return
         }
         if (!formData.description.trim()) {
-            alert('교재 설명을 입력해주세요.')
+            showAlert.warning('교재 설명 필요', '교재 설명을 입력해주세요.')
             return
         }
         if (!formData.driveUrl.trim()) {
-            alert('구글 드라이브 링크를 입력해주세요.')
+            showAlert.warning('드라이브 링크 필요', '구글 드라이브 링크를 입력해주세요.')
             return
         }
         if (!formData.curriculumId) {
-            alert('커리큘럼을 선택해주세요.')
+            showAlert.warning('커리큘럼 선택 필요', '커리큘럼을 선택해주세요.')
             return
         }
 
@@ -183,12 +184,12 @@ export default function CreateMaterialModal({ isOpen, onClose, curriculums, onMa
             if (!response.ok) throw new Error('Failed to create material')
 
             localStorage.removeItem(STORAGE_KEY)
-            alert('교재가 성공적으로 업로드되었습니다! 📚')
+            showAlert.success('교재 업로드 완료!', '교재가 성공적으로 업로드되었습니다!')
             onMaterialCreated()
             handleClose()
         } catch (error) {
             console.error('Failed to create material:', error)
-            alert('교재 업로드에 실패했습니다. 다시 시도해주세요.')
+            showAlert.error('업로드 실패', '교재 업로드에 실패했습니다. 다시 시도해주세요.')
         } finally {
             setIsSaving(false)
         }

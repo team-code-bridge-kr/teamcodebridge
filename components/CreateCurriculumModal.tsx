@@ -4,6 +4,7 @@ import { Fragment, useState, useEffect } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon, ArrowLeftIcon, ArrowRightIcon, CheckCircleIcon, BookmarkIcon } from '@heroicons/react/24/outline'
 import { motion, AnimatePresence } from 'framer-motion'
+import { showAlert } from './CustomAlert'
 
 interface Session {
     sessionNumber: number
@@ -80,7 +81,7 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
 
     const handleSaveDraft = () => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(formData))
-        alert('임시 저장되었습니다! 나중에 이어서 작성할 수 있습니다.')
+        showAlert.success('임시 저장 완료', '나중에 이어서 작성할 수 있습니다.')
     }
 
     const handleClearDraft = () => {
@@ -136,7 +137,7 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
 
     const handleSubmit = async () => {
         if (!canProceedToNextStep()) {
-            alert('모든 필수 항목을 입력해주세요.')
+            showAlert.warning('필수 항목 누락', '모든 필수 항목을 입력해주세요.')
             return
         }
 
@@ -151,12 +152,12 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
             if (!response.ok) throw new Error('Failed to create curriculum')
 
             localStorage.removeItem(STORAGE_KEY)
-            alert('커리큘럼이 성공적으로 등록되었습니다! 🎉')
+            showAlert.success('커리큘럼 등록 완료!', '커리큘럼이 성공적으로 등록되었습니다.')
             onCurriculumCreated()
             handleClose()
         } catch (error) {
             console.error('Failed to create curriculum:', error)
-            alert('커리큘럼 등록에 실패했습니다. 다시 시도해주세요.')
+            showAlert.error('등록 실패', '커리큘럼 등록에 실패했습니다. 다시 시도해주세요.')
         } finally {
             setIsSaving(false)
         }
@@ -537,7 +538,7 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
                                                         if (canProceedToNextStep()) {
                                                             setCurrentStep(currentStep + 1)
                                                         } else {
-                                                            alert('필수 항목을 모두 입력해주세요.')
+                                                            showAlert.warning('필수 항목 누락', '필수 항목을 모두 입력해주세요.')
                                                         }
                                                     }}
                                                     disabled={!canProceedToNextStep()}
