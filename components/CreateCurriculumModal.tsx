@@ -30,11 +30,22 @@ interface CreateCurriculumModalProps {
     isOpen: boolean
     onClose: () => void
     onCurriculumCreated: () => void
+    editingCurriculum?: {
+        id: string
+        name: string
+        description: string
+        motivation: string
+        benefits: string
+        minMentors: number
+        recommendedStudents: number
+        expectedEffect: string
+        sessions: Session[]
+    } | null
 }
 
 const STORAGE_KEY = 'curriculum_draft'
 
-export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCreated }: CreateCurriculumModalProps) {
+export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCreated, editingCurriculum }: CreateCurriculumModalProps) {
     const [currentStep, setCurrentStep] = useState(1)
     const [isSaving, setIsSaving] = useState(false)
     const [formData, setFormData] = useState<CurriculumData>({
@@ -53,9 +64,22 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
         ]
     })
 
-    // 중간저장 데이터 로드
+    // 수정 모드일 때 데이터 로드 또는 중간저장 데이터 로드
     useEffect(() => {
-        if (isOpen) {
+        if (isOpen && editingCurriculum) {
+            // 수정 모드: 기존 커리큘럼 데이터 로드
+            setFormData({
+                name: editingCurriculum.name,
+                description: editingCurriculum.description,
+                motivation: editingCurriculum.motivation,
+                benefits: editingCurriculum.benefits,
+                minMentors: editingCurriculum.minMentors,
+                recommendedStudents: editingCurriculum.recommendedStudents,
+                expectedEffect: editingCurriculum.expectedEffect,
+                sessions: editingCurriculum.sessions
+            })
+        } else if (isOpen && !editingCurriculum) {
+            // 새 커리큘럼 추가 모드: 중간저장 데이터 로드
             const saved = localStorage.getItem(STORAGE_KEY)
             if (saved) {
                 try {
@@ -66,18 +90,18 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
                 }
             }
         }
-    }, [isOpen])
+    }, [isOpen, editingCurriculum])
 
-    // 자동 중간저장 (5초마다)
+    // 자동 중간저장 (5초마다) - 수정 모드가 아닐 때만
     useEffect(() => {
-        if (!isOpen) return
+        if (!isOpen || editingCurriculum) return
         
         const interval = setInterval(() => {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(formData))
         }, 5000)
 
         return () => clearInterval(interval)
-    }, [formData, isOpen])
+    }, [formData, isOpen, editingCurriculum])
 
     const handleSaveDraft = () => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(formData))
@@ -143,21 +167,32 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
 
         setIsSaving(true)
         try {
-            const response = await fetch('/api/curriculums', {
-                method: 'POST',
+            const url = editingCurriculum 
+                ? `/api/curriculums/${editingCurriculum.id}` 
+                : '/api/curriculums'
+            const method = editingCurriculum ? 'PUT' : 'POST'
+            
+            const response = await fetch(url, {
+                method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             })
 
-            if (!response.ok) throw new Error('Failed to create curriculum')
+            if (!response.ok) throw new Error('Failed to save curriculum')
 
             localStorage.removeItem(STORAGE_KEY)
-            showAlert.success('커리큘럼 등록 완료!', '커리큘럼이 성공적으로 등록되었습니다.')
+            showAlert.success(
+                editingCurriculum ? '커리큘럼 수정 완료!' : '커리큘럼 등록 완료!',
+                editingCurriculum ? '커리큘럼이 수정되었습니다.' : '커리큘럼이 성공적으로 등록되었습니다.'
+            )
             onCurriculumCreated()
             handleClose()
         } catch (error) {
-            console.error('Failed to create curriculum:', error)
-            showAlert.error('등록 실패', '커리큘럼 등록에 실패했습니다. 다시 시도해주세요.')
+            console.error('Failed to save curriculum:', error)
+            showAlert.error(
+                editingCurriculum ? '수정 실패' : '등록 실패',
+                editingCurriculum ? '커리큘럼 수정에 실패했습니다.' : '커리큘럼 등록에 실패했습니다.'
+            )
         } finally {
             setIsSaving(false)
         }
