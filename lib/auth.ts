@@ -36,6 +36,8 @@ export const authOptions: NextAuthOptions = {
                         'https://www.googleapis.com/auth/userinfo.email',
                         'https://www.googleapis.com/auth/userinfo.profile',
                         'https://www.googleapis.com/auth/drive.file', // 앱이 생성한 파일만 접근
+                        'https://www.googleapis.com/auth/forms.body', // Google Forms 생성/수정
+                        'https://www.googleapis.com/auth/forms.responses.readonly', // Google Forms 응답 읽기
                     ].join(' ')
                 }
             }

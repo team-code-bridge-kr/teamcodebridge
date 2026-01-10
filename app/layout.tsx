@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import Providers from '@/components/Providers'
+import { CustomAlert } from '@/components/CustomAlert'
 
 export const metadata: Metadata = {
   title: '팀코드브릿지 | 대학생들이 직접 운영하는 비영리 IT 교육봉사',
@@ -29,7 +30,10 @@ export default function RootLayout({
         <script async defer src="https://accounts.google.com/gsi/client"></script>
       </head>
       <body style={{ fontFamily: 'Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif' }}>
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <CustomAlert />
+        </Providers>
       </body>
     </html>
   )
