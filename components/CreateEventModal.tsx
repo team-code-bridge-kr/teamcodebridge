@@ -3,6 +3,7 @@
 import { Fragment, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon, CalendarIcon } from '@heroicons/react/24/outline'
+import { showAlert } from './CustomAlert'
 
 interface CreateEventModalProps {
     isOpen: boolean
@@ -66,11 +67,11 @@ export default function CreateEventModal({ isOpen, onClose, onEventCreated }: Cr
                 onClose()
             } else {
                 const errorData = await res.json()
-                alert(`이벤트 생성 실패: ${errorData.error}`)
+                showAlert.error('이벤트 생성 실패', `이벤트 생성 실패: ${errorData.error}`)
             }
         } catch (error) {
             console.error('Failed to create event:', error)
-            alert('이벤트 생성 중 오류가 발생했습니다.')
+            showAlert.error('오류 발생', '이벤트 생성 중 오류가 발생했습니다.')
         } finally {
             setIsLoading(false)
         }

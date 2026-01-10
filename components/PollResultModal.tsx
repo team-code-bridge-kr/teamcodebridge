@@ -4,6 +4,7 @@ import { Fragment, useState, useEffect } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon, CheckCircleIcon, UserGroupIcon, ChartBarIcon } from '@heroicons/react/24/outline'
 import { useSession } from 'next-auth/react'
+import { showAlert } from './CustomAlert'
 
 interface PollVote {
     id: string
@@ -91,11 +92,11 @@ export default function PollResultModal({ isOpen, onClose, pollId, onPollUpdated
                 await fetchPollDetails()
                 onPollUpdated?.()
             } else {
-                alert('일정 확정에 실패했습니다.')
+                showAlert.error('일정 확정 실패', '일정 확정에 실패했습니다.')
             }
         } catch (error) {
             console.error('Error finalizing poll:', error)
-            alert('일정 확정 중 오류가 발생했습니다.')
+            showAlert.error('오류 발생', '일정 확정 중 오류가 발생했습니다.')
         } finally {
             setFinalizing(false)
         }

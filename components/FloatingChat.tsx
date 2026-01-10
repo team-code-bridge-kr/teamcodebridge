@@ -18,6 +18,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion'
 import { io, Socket } from 'socket.io-client'
 import { useSession } from 'next-auth/react'
+import { showAlert } from './CustomAlert'
 
 interface Message {
     id: string
@@ -304,7 +305,7 @@ export default function FloatingChat() {
             }
         } catch (error) {
             console.error('Failed to create chat room:', error)
-            alert('채팅방 생성에 실패했습니다.')
+            showAlert.error('채팅방 생성 실패', '채팅방 생성에 실패했습니다.')
         }
     }
 

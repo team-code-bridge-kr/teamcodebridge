@@ -4,6 +4,7 @@ import { Fragment, useState, useEffect } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon, CalendarIcon, ChevronLeftIcon, ChevronRightIcon, ClockIcon } from '@heroicons/react/24/outline'
 import { useSession } from 'next-auth/react'
+import { showAlert } from './CustomAlert'
 
 interface CreatePollModalProps {
     isOpen: boolean
@@ -157,7 +158,7 @@ export default function CreatePollModal({ isOpen, onClose, onPollCreated }: Crea
 
         try {
             if (selectedDates.size === 0) {
-                alert('최소 하나의 날짜를 선택해주세요.')
+                showAlert.warning('날짜 선택 필요', '최소 하나의 날짜를 선택해주세요.')
                 setIsLoading(false)
                 return
             }
@@ -186,11 +187,11 @@ export default function CreatePollModal({ isOpen, onClose, onPollCreated }: Crea
                 onClose()
             } else {
                 const errorData = await res.json()
-                alert(`투표 생성 실패: ${errorData.error}`)
+                showAlert.error('투표 생성 실패', `투표 생성 실패: ${errorData.error}`)
             }
         } catch (error) {
             console.error('Failed to create poll:', error)
-            alert('투표 생성 중 오류가 발생했습니다.')
+            showAlert.error('오류 발생', '투표 생성 중 오류가 발생했습니다.')
         } finally {
             setIsLoading(false)
         }
