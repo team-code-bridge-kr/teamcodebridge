@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, TaskStatus } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -31,30 +31,33 @@ export async function POST(request: Request) {
         }
 
         // Determine Task Status change (using Prisma enum values)
-        let taskStatusUpdate = {}
-        if (status) {
-            // Map incoming status to enum value
-            const statusMap: Record<string, string> = {
-                '진행 중': 'IN_PROGRESS',
-                '대기': 'PENDING',
-                '완료': 'COMPLETED',
-                '차단됨': 'BLOCKED',
-                '지연': 'DEFERRED',
-                // Also accept enum values directly
-                'IN_PROGRESS': 'IN_PROGRESS',
-                'PENDING': 'PENDING',
-                'COMPLETED': 'COMPLETED',
-                'BLOCKED': 'BLOCKED',
-                'DEFERRED': 'DEFERRED',
-            }
-            taskStatusUpdate = { status: statusMap[status] || status }
+        let taskStatusUpdate: { status?: TaskStatus } = {}
+        
+        // Map incoming status to Prisma TaskStatus enum
+        const statusMap: Record<string, TaskStatus> = {
+            '진행 중': TaskStatus.IN_PROGRESS,
+            '대기': TaskStatus.PENDING,
+            '완료': TaskStatus.COMPLETED,
+            '차단됨': TaskStatus.BLOCKED,
+            '지연': TaskStatus.DEFERRED,
+            'IN_PROGRESS': TaskStatus.IN_PROGRESS,
+            'PENDING': TaskStatus.PENDING,
+            'COMPLETED': TaskStatus.COMPLETED,
+            'BLOCKED': TaskStatus.BLOCKED,
+            'DEFERRED': TaskStatus.DEFERRED,
+        }
+        
+        if (status && statusMap[status]) {
+            taskStatusUpdate = { status: statusMap[status] }
         } else if (risks !== undefined) {
-             // Ignition -> In Progress
-            taskStatusUpdate = { status: 'IN_PROGRESS' }
+            // Ignition -> In Progress
+            taskStatusUpdate = { status: TaskStatus.IN_PROGRESS }
         } else if (lastStableState !== undefined) {
             // Clear -> Pending
-            taskStatusUpdate = { status: 'PENDING' }
+            taskStatusUpdate = { status: TaskStatus.PENDING }
         }
+
+        console.log('[Context API] Updating task:', taskId, 'with status:', taskStatusUpdate)
 
         const [capsule] = await prisma.$transaction([
             prisma.contextCapsule.upsert({
@@ -81,8 +84,11 @@ export async function POST(request: Request) {
             })
         ])
 
+        console.log('[Context API] Successfully updated task status')
         return NextResponse.json(capsule)
     } catch (error) {
+        console.error('[Context API] Failed to update:', error)
         return NextResponse.json({ error: 'Failed to update context capsule' }, { status: 500 })
     }
 }
+
