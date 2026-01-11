@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+// 동적 라우트 설정 (빌드 시 정적 생성 방지)
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 // GET /api/kraken - 크라켄 시각화용 계층 데이터 조회
 export async function GET(request: Request) {
     try {
