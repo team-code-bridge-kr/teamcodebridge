@@ -49,21 +49,50 @@ model Project {
   tasks       Task[]
 }
 
+// 업무 상태 열거형
+enum TaskStatus {
+  PENDING     // 대기
+  IN_PROGRESS // 진행 중
+  BLOCKED     // 차단됨
+  COMPLETED   // 완료
+  DEFERRED    // 지연
+}
+
+// 우선순위 열거형
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// 링크 타입 열거형
+enum LinkType {
+  SPEC        // 기획서/명세서
+  DESIGN      // 디자인 문서/Figma
+  CODE        // 코드 참조
+  DATA        // 데이터 소스/대시보드
+  PARENT      // 상위 업무
+  BLOCKER     // 차단 의존성
+  RELATED     // 연관 참조
+}
+
 // 업무(Task) 모델
 model Task {
-  id          String   @id @default(cuid())
+  id          String     @id @default(cuid())
   name        String
-  status      String   @default("대기") // 대기, 진행 중, 완료, 지연
-  priority    String   @default("중간") // 낮음, 중간, 높음
+  status      TaskStatus @default(PENDING)
+  priority    Priority   @default(MEDIUM)
   timeline    String?
   driveUrl    String?
   projectId   String
-  project     Project  @relation(fields: [projectId], references: [id])
+  project     Project    @relation(fields: [projectId], references: [id])
   ownerId     String?
-  owner       User?    @relation(fields: [ownerId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  owner       User?      @relation(fields: [ownerId], references: [id])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
   context     ContextCapsule?
+  links       TaskLink[]
   
   // 크라켄 구조용 필드
   parentId    String?  // 상위 업무 ID (계층 구조)
@@ -75,6 +104,29 @@ model Task {
   dependsOnId String?  // 선행 업무 ID (의존성)
   dependsOn   Task?    @relation("TaskDependency", fields: [dependsOnId], references: [id])
   dependents  Task[]   @relation("TaskDependency")
+}
+
+// 업무 링크 모델 (외부 문서/아티팩트 연결)
+model TaskLink {
+  id          String   @id @default(cuid())
+  taskId      String
+  task        Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  
+  // Link Type (REQUIRED)
+  linkType    LinkType
+  
+  // Target (exactly one must be set)
+  url         String?           // External URL (Notion, Confluence, etc.)
+  repoPath    String?           // GitHub path (org/repo#issue or org/repo/path)
+  artifactId  String?           // Internal artifact reference
+  
+  // Metadata
+  label       String?           // Human-readable label
+  isRequired  Boolean  @default(false)  // Must be opened before starting
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([taskId])
 }
 
 // 채팅방 모델 (그룹 채팅)
@@ -219,7 +271,7 @@ model Curriculum {
   minMentors          Int      // 최소 현장 멘토 수
   recommendedStudents Int      // 추천 수혜 학생수
   expectedEffect      String   @db.Text // 기대효과
-  status              String   @default("준비중") // 준비중, 진행중, 완료
+  status              String   @default("준비중") // 준비중, 검토중, 수업중, 종료됨
   createdById         String?
   createdBy           User?    @relation("CreatedCurriculums", fields: [createdById], references: [id])
   createdAt           DateTime @default(now())
