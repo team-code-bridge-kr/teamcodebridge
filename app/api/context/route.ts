@@ -30,16 +30,30 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Task ID is required' }, { status: 400 })
         }
 
-        // Determine Task Status change
+        // Determine Task Status change (using Prisma enum values)
         let taskStatusUpdate = {}
         if (status) {
-            taskStatusUpdate = { status }
+            // Map incoming status to enum value
+            const statusMap: Record<string, string> = {
+                '진행 중': 'IN_PROGRESS',
+                '대기': 'PENDING',
+                '완료': 'COMPLETED',
+                '차단됨': 'BLOCKED',
+                '지연': 'DEFERRED',
+                // Also accept enum values directly
+                'IN_PROGRESS': 'IN_PROGRESS',
+                'PENDING': 'PENDING',
+                'COMPLETED': 'COMPLETED',
+                'BLOCKED': 'BLOCKED',
+                'DEFERRED': 'DEFERRED',
+            }
+            taskStatusUpdate = { status: statusMap[status] || status }
         } else if (risks !== undefined) {
-             // If risks is present (even empty string), assume Ignition -> In Progress
-            taskStatusUpdate = { status: '진행 중' }
+             // Ignition -> In Progress
+            taskStatusUpdate = { status: 'IN_PROGRESS' }
         } else if (lastStableState !== undefined) {
-            // If lastStableState is present, assume Clear -> Pending
-            taskStatusUpdate = { status: '대기' }
+            // Clear -> Pending
+            taskStatusUpdate = { status: 'PENDING' }
         }
 
         const [capsule] = await prisma.$transaction([

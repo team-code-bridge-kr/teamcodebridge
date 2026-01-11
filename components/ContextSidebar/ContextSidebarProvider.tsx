@@ -82,8 +82,8 @@ export function ContextSidebarProvider({ children }: { children: ReactNode }) {
             body: JSON.stringify({
                 taskId,
                 risks: data.risks,
-                mission: capsule?.mission, // Keep existing mission
-                status: '진행 중' // Explicitly set status to In Progress
+                mission: capsule?.mission,
+                status: 'IN_PROGRESS' // Prisma enum value
             })
         })
         
@@ -100,8 +100,8 @@ export function ContextSidebarProvider({ children }: { children: ReactNode }) {
             body: JSON.stringify({
                 taskId,
                 ...data,
-                mission: capsule?.mission, // Keep existing mission
-                status: '대기' // Explicitly set status to Pending
+                mission: capsule?.mission,
+                status: 'PENDING' // Prisma enum value
             })
         })
         closeSidebar()
@@ -117,8 +117,8 @@ export function ContextSidebarProvider({ children }: { children: ReactNode }) {
             body: JSON.stringify({
                 taskId,
                 ...data,
-                mission: capsule?.mission, // Keep existing mission
-                status: '완료' // Force status update to Completed
+                mission: capsule?.mission,
+                status: 'COMPLETED'
             })
         })
         closeSidebar()

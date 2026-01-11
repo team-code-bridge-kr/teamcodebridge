@@ -11,7 +11,13 @@ export async function GET() {
                 tasks: {
                     include: {
                         owner: true,
-                        context: true
+                        context: true,
+                        links: true,
+                        parent: {
+                            include: {
+                                context: true
+                            }
+                        }
                     }
                 }
             }

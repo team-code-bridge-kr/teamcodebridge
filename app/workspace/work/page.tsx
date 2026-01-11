@@ -15,7 +15,29 @@ import { Menu, Transition } from '@headlessui/react'
 import { useContextSidebar } from '@/components/ContextSidebar/ContextSidebarProvider'
 import CreateTaskModal from '@/components/CreateTaskModal'
 import CreateProjectModal from '@/components/CreateProjectModal'
+import UnifiedTaskPage from '@/components/UnifiedTaskPage'
+import AddLinkModal from '@/components/AddLinkModal'
 import { useSession } from 'next-auth/react'
+
+interface TaskLink {
+    id: string
+    linkType: string
+    url?: string
+    repoPath?: string
+    artifactId?: string
+    label?: string
+    isRequired: boolean
+}
+
+interface ContextCapsule {
+    mission: string | null
+    risks: string | null
+    lastStableState: string | null
+    openLoops: string | null
+    nextAction: string | null
+    id: string
+    taskId: string
+}
 
 interface Task {
     id: string
@@ -27,15 +49,13 @@ interface Task {
     owner: {
         name: string
     } | null
-    context?: {
-        mission: string | null
-        risks: string | null
-        lastStableState: string | null
-        openLoops: string | null
-        nextAction: string | null
+    context?: ContextCapsule
+    links: TaskLink[]
+    parent?: {
         id: string
-        taskId: string
-    }
+        name: string
+        context?: ContextCapsule | null
+    } | null
 }
 
 interface Project {
@@ -45,16 +65,47 @@ interface Project {
 }
 
 const statusStyles: { [key: string]: string } = {
+    // Korean labels
     "완료": "bg-[#00c875] text-white",
     "진행 중": "bg-[#0086f0] text-white",
     "대기": "bg-[#c4c4c4] text-white",
     "지연": "bg-[#e2445c] text-white",
+    "차단됨": "bg-[#9c27b0] text-white",
+    // Enum values (from Prisma)
+    "COMPLETED": "bg-[#00c875] text-white",
+    "IN_PROGRESS": "bg-[#0086f0] text-white",
+    "PENDING": "bg-[#c4c4c4] text-white",
+    "DEFERRED": "bg-[#e2445c] text-white",
+    "BLOCKED": "bg-[#9c27b0] text-white",
+}
+
+// Status display labels (enum -> Korean)
+const statusLabels: { [key: string]: string } = {
+    "PENDING": "대기",
+    "IN_PROGRESS": "진행 중",
+    "COMPLETED": "완료",
+    "BLOCKED": "차단됨",
+    "DEFERRED": "지연",
 }
 
 const priorityStyles: { [key: string]: string } = {
+    // Korean labels
     "높음": "text-[#e2445c] bg-[#ffebee] border border-[#ffcdd2]",
     "중간": "text-[#fdab3d] bg-[#fff3e0] border border-[#ffe0b2]",
     "낮음": "text-[#0086f0] bg-[#e3f2fd] border border-[#bbdefb]",
+    // Enum values
+    "CRITICAL": "text-[#d32f2f] bg-[#ffcdd2] border border-[#ef9a9a]",
+    "HIGH": "text-[#e2445c] bg-[#ffebee] border border-[#ffcdd2]",
+    "MEDIUM": "text-[#fdab3d] bg-[#fff3e0] border border-[#ffe0b2]",
+    "LOW": "text-[#0086f0] bg-[#e3f2fd] border border-[#bbdefb]",
+}
+
+// Priority display labels (enum -> Korean)
+const priorityLabels: { [key: string]: string } = {
+    "LOW": "낮음",
+    "MEDIUM": "중간",
+    "HIGH": "높음",
+    "CRITICAL": "긴급",
 }
 
 export default function WorkspaceWork() {
@@ -65,6 +116,9 @@ export default function WorkspaceWork() {
     const [isLoading, setIsLoading] = useState(true)
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
     const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] = useState(false)
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null)
+    const [isTaskPageOpen, setIsTaskPageOpen] = useState(false)
+    const [isAddLinkModalOpen, setIsAddLinkModalOpen] = useState(false)
     const { openIgnition, openClear } = useContextSidebar()
 
     const fetchProjects = async () => {
@@ -94,11 +148,29 @@ export default function WorkspaceWork() {
     }, [])
 
     const handleTaskClick = (task: Task) => {
-        if (task.status === '진행 중') {
-            openClear(task.id, task.name, task.context)
-        } else {
-            openIgnition(task.id, task.name, task.context)
-        }
+        // Open Unified Task Page instead of directly opening sidebar
+        setSelectedTask(task)
+        setIsTaskPageOpen(true)
+    }
+
+    const handleIgniteFromTaskPage = () => {
+        if (!selectedTask) return
+        setIsTaskPageOpen(false)
+        openIgnition(selectedTask.id, selectedTask.name, selectedTask.context)
+    }
+
+    const handleClearFromTaskPage = () => {
+        if (!selectedTask) return
+        setIsTaskPageOpen(false)
+        openClear(selectedTask.id, selectedTask.name, selectedTask.context)
+    }
+
+    const handleAddLink = () => {
+        setIsAddLinkModalOpen(true)
+    }
+
+    const handleLinkAdded = () => {
+        fetchProjects() // Refresh to get updated links
     }
 
     const filteredProjects = projects.map(project => ({
@@ -330,6 +402,22 @@ export default function WorkspaceWork() {
                 onClose={() => setIsCreateProjectModalOpen(false)}
                 onProjectCreated={fetchProjects}
             />
+            <UnifiedTaskPage
+                isOpen={isTaskPageOpen}
+                onClose={() => setIsTaskPageOpen(false)}
+                task={selectedTask}
+                onIgnite={handleIgniteFromTaskPage}
+                onClear={handleClearFromTaskPage}
+                onAddLink={handleAddLink}
+            />
+            {selectedTask && (
+                <AddLinkModal
+                    isOpen={isAddLinkModalOpen}
+                    onClose={() => setIsAddLinkModalOpen(false)}
+                    taskId={selectedTask.id}
+                    onLinkAdded={handleLinkAdded}
+                />
+            )}
         </div>
     )
 }
