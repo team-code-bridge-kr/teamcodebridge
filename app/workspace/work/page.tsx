@@ -119,7 +119,7 @@ export default function WorkspaceWork() {
     const [selectedTask, setSelectedTask] = useState<Task | null>(null)
     const [isTaskPageOpen, setIsTaskPageOpen] = useState(false)
     const [isAddLinkModalOpen, setIsAddLinkModalOpen] = useState(false)
-    const { openIgnition, openClear } = useContextSidebar()
+    const { openIgnition, openClear, setOnDataChange } = useContextSidebar()
 
     const fetchProjects = async () => {
         setIsLoading(true)
@@ -145,6 +145,9 @@ export default function WorkspaceWork() {
 
     useEffect(() => {
         fetchProjects()
+        // Register fetchProjects as the callback for real-time updates
+        setOnDataChange(fetchProjects)
+        return () => setOnDataChange(null) // Cleanup on unmount
     }, [])
 
     const handleTaskClick = (task: Task) => {

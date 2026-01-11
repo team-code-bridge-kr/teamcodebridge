@@ -20,6 +20,7 @@ interface ContextSidebarContextType {
     openIgnition: (taskId: string, taskTitle: string, capsule?: ContextCapsule) => void
     openClear: (taskId: string, taskTitle: string, capsule?: ContextCapsule) => void
     closeSidebar: () => void
+    setOnDataChange: (callback: (() => void) | null) => void
 }
 
 const ContextSidebarContext = createContext<ContextSidebarContextType | undefined>(undefined)
@@ -31,6 +32,11 @@ export function ContextSidebarProvider({ children }: { children: ReactNode }) {
     const [taskId, setTaskId] = useState<string | null>(null)
     const [taskTitle, setTaskTitle] = useState('')
     const [capsule, setCapsule] = useState<ContextCapsule | null>(null)
+    const [onDataChange, setOnDataChangeState] = useState<(() => void) | null>(null)
+
+    const setOnDataChange = (callback: (() => void) | null) => {
+        setOnDataChangeState(() => callback)
+    }
 
     const fetchCapsule = async (tid: string) => {
         try {
@@ -83,12 +89,13 @@ export function ContextSidebarProvider({ children }: { children: ReactNode }) {
                 taskId,
                 risks: data.risks,
                 mission: capsule?.mission,
-                status: 'IN_PROGRESS' // Prisma enum value
+                status: 'IN_PROGRESS'
             })
         })
         
         closeSidebar()
         router.refresh()
+        onDataChange?.() // Trigger data refetch for real-time update
     }
 
     const handleClear = async (data: { lastStableState: string, openLoops: string, nextAction: string }) => {
@@ -101,11 +108,12 @@ export function ContextSidebarProvider({ children }: { children: ReactNode }) {
                 taskId,
                 ...data,
                 mission: capsule?.mission,
-                status: 'PENDING' // Prisma enum value
+                status: 'PENDING'
             })
         })
         closeSidebar()
         router.refresh()
+        onDataChange?.() // Trigger data refetch for real-time update
     }
 
     const handleComplete = async (data: { lastStableState: string, openLoops: string, nextAction: string }) => {
@@ -123,10 +131,11 @@ export function ContextSidebarProvider({ children }: { children: ReactNode }) {
         })
         closeSidebar()
         router.refresh()
+        onDataChange?.() // Trigger data refetch for real-time update
     }
 
     return (
-        <ContextSidebarContext.Provider value={{ openIgnition, openClear, closeSidebar }}>
+        <ContextSidebarContext.Provider value={{ openIgnition, openClear, closeSidebar, setOnDataChange }}>
             {children}
             <ContextSidebar
                 isOpen={isOpen}
@@ -150,3 +159,4 @@ export function useContextSidebar() {
     }
     return context
 }
+
