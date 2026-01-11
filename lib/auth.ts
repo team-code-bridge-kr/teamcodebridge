@@ -1,6 +1,7 @@
 import NextAuth, { DefaultSession, type NextAuthOptions } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import { prisma } from "@/lib/prisma"
+import { sendWelcomeEmail } from "@/lib/email"
 
 declare module "next-auth" {
     interface Session {
@@ -176,6 +177,15 @@ export const authOptions: NextAuthOptions = {
                             }
                         })
                     }
+                    
+                    // 🎉 관리자 로그인 시 환영 메일 발송
+                    try {
+                        await sendWelcomeEmail(mapping.name, user.email)
+                        console.log(`✅ 환영 메일 발송 완료: ${user.email}`)
+                    } catch (emailError) {
+                        console.error('❌ 환영 메일 발송 실패 (로그인은 성공):', emailError)
+                    }
+                    
                     return true
                 }
 
@@ -195,6 +205,15 @@ export const authOptions: NextAuthOptions = {
                                 name: user.name
                             }
                         })
+                        
+                        // 🎉 승인된 사용자 로그인 시 환영 메일 발송
+                        try {
+                            await sendWelcomeEmail(user.name || '멘토님', user.email)
+                            console.log(`✅ 환영 메일 발송 완료: ${user.email}`)
+                        } catch (emailError) {
+                            console.error('❌ 환영 메일 발송 실패 (로그인은 성공):', emailError)
+                        }
+                        
                         return true
                     } else {
                         // 승인 대기 중

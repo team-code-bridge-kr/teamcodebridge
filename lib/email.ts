@@ -153,3 +153,66 @@ export const sendPollFinalizedEmail = async (
     })
 }
 
+// 로그인 환영 메일
+export const sendWelcomeEmail = async (
+    userName: string,
+    userEmail: string
+) => {
+    const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+                .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+                .welcome-box { background: #dbeafe; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #3b82f6; text-align: center; }
+                .button { display: inline-block; padding: 12px 24px; background: #3b82f6; color: white; text-decoration: none; border-radius: 5px; margin-top: 20px; }
+                .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🎉 환영합니다!</h1>
+                </div>
+                <div class="content">
+                    <div class="welcome-box">
+                        <h2 style="margin: 0; color: #1e40af;">로그인되었습니다!</h2>
+                        <p style="margin: 10px 0 0 0; font-size: 16px;">TeamCodeBridge 워크스페이스에 오신 것을 환영합니다</p>
+                    </div>
+                    
+                    <p>안녕하세요, <strong>${userName}</strong>님!</p>
+                    <p><strong>${userEmail}</strong> 계정으로 성공적으로 로그인하셨습니다.</p>
+                    
+                    <p style="margin-top: 20px;">TeamCodeBridge에서 다음과 같은 기능을 사용하실 수 있습니다:</p>
+                    <ul style="line-height: 1.8;">
+                        <li>📋 프로젝트 및 업무 관리</li>
+                        <li>💬 실시간 채팅</li>
+                        <li>📅 캘린더 및 회의 일정 관리</li>
+                        <li>📚 커리큘럼 및 교재 관리</li>
+                        <li>📊 만족도 조사</li>
+                    </ul>
+                    
+                    <p style="text-align: center;">
+                        <a href="${process.env.NEXTAUTH_URL || 'https://e2g.teamcodebridge.dev'}/workspace" class="button">워크스페이스로 이동</a>
+                    </p>
+                </div>
+                <div class="footer">
+                    <p>TeamCodeBridge 워크스페이스</p>
+                    <p>이 메일은 로그인 확인용 자동 발송 메일입니다.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+    `
+
+    return await sendEmail({
+        to: userEmail,
+        subject: '[TeamCodeBridge] 로그인되었습니다 🎉',
+        html,
+    })
+}
+
