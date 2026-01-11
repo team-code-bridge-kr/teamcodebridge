@@ -271,7 +271,7 @@ model Curriculum {
   minMentors          Int      // 최소 현장 멘토 수
   recommendedStudents Int      // 추천 수혜 학생수
   expectedEffect      String   @db.Text // 기대효과
-  status              String   @default("준비중") // 준비중, 진행중, 완료
+  status              String   @default("준비중") // 준비중, 검토중, 수업중, 종료됨
   createdById         String?
   createdBy           User?    @relation("CreatedCurriculums", fields: [createdById], references: [id])
   createdAt           DateTime @default(now())

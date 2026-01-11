@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma"
+import { TaskStatus, Priority } from "@prisma/client"
 import fs from 'fs'
 import path from 'path'
 
@@ -46,9 +47,24 @@ export async function GET() {
             if (nameMatch) {
                 const taskName = nameMatch[1].trim()
                 const ownerName = ownerMatch ? ownerMatch[1].split('[')[0].trim() : "미지정"
-                const status = statusMatch ? statusMatch[1].trim() : "대기"
-                const priority = priorityMatch ? priorityMatch[1].trim() : "중간"
+                const statusStr = statusMatch ? statusMatch[1].trim() : "대기"
+                const priorityStr = priorityMatch ? priorityMatch[1].trim() : "중간"
                 const timeline = deadlineMatch ? deadlineMatch[1].trim() : null
+
+                // 한글 상태를 Enum으로 매핑
+                let status: TaskStatus = TaskStatus.PENDING
+                if (statusStr === "완료") status = TaskStatus.COMPLETED
+                else if (statusStr === "진행" || statusStr === "진행중" || statusStr === "진행 중") status = TaskStatus.IN_PROGRESS
+                else if (statusStr === "차단" || statusStr === "차단됨") status = TaskStatus.BLOCKED
+                else if (statusStr === "지연") status = TaskStatus.DEFERRED
+                else status = TaskStatus.PENDING
+
+                // 한글 우선순위를 Enum으로 매핑
+                let priority: Priority = Priority.MEDIUM
+                if (priorityStr === "긴급" || priorityStr === "높음") priority = Priority.HIGH
+                else if (priorityStr === "매우높음" || priorityStr === "매우 높음") priority = Priority.CRITICAL
+                else if (priorityStr === "낮음") priority = Priority.LOW
+                else priority = Priority.MEDIUM
 
                 // 2. 담당자 생성/찾기
                 let user = null
@@ -73,8 +89,8 @@ export async function GET() {
                     const task = await prisma.task.create({
                         data: {
                             name: taskName,
-                            status: status === "완료" ? "완료" : (status === "진행" ? "진행 중" : "대기"),
-                            priority: priority === "긴급" ? "높음" : (priority === "보통" ? "중간" : "낮음"),
+                            status: status,
+                            priority: priority,
                             timeline: timeline,
                             projectId: project.id,
                             ownerId: user?.id
