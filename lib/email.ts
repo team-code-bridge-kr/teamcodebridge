@@ -1,27 +1,28 @@
 import nodemailer from 'nodemailer'
 
-// SMTP 설정 (sogo mail 기준)
-// sogo mail "발신자 의존 전송" 설정에서 입력한 값을 환경 변수로 사용
+// SMTP 설정 (Mailcow 기준)
+// mail.teamcodebridge.dev 메일 서버 사용
 const createTransporter = () => {
-    // sogo mail 발신자 의존 전송 설정:
-    // - 호스트: smtp.sogo.co.kr:587 (또는 mail.sogo.co.kr:587)
-    // - 사용자 이름: support@teamcodebridge.dev
-    // - 비밀번호: [계정 비밀번호 또는 앱 비밀번호]
+    // Mailcow SMTP 설정:
+    // - 호스트: mail.teamcodebridge.dev
+    // - 포트: 587 (STARTTLS)
+    // - 사용자 이름: noreply@teamcodebridge.dev
+    // - 비밀번호: [계정 비밀번호]
     
-    const host = process.env.SMTP_HOST || 'smtp.sogo.co.kr'
+    const host = process.env.SMTP_HOST || 'mail.teamcodebridge.dev'
     const port = parseInt(process.env.SMTP_PORT || '587')
     const isSecure = process.env.SMTP_SECURE === 'true' || port === 465
     
     return nodemailer.createTransport({
-        host: host, // 발신자 의존 전송의 "호스트"에서 포트 제외 (예: smtp.sogo.co.kr)
-        port: port, // 발신자 의존 전송의 "호스트"에 포함된 포트 (예: 587)
+        host: host,
+        port: port,
         secure: isSecure, // 포트 465면 true, 587이면 false
         auth: {
-            user: process.env.SMTP_USER || 'support@teamcodebridge.dev', // 발신자 의존 전송의 "사용자 이름"
-            pass: process.env.SMTP_PASS || '', // 발신자 의존 전송의 "비밀번호"
+            user: process.env.SMTP_USER || 'noreply@teamcodebridge.dev',
+            pass: process.env.SMTP_PASS || '',
         },
         tls: {
-            rejectUnauthorized: false, // sogo mail 인증서 검증 우회 (필요시)
+            rejectUnauthorized: false, // 자체 인증서 허용
         },
     })
 }
@@ -38,7 +39,7 @@ export const sendEmail = async ({ to, subject, html, text }: EmailOptions) => {
         const transporter = createTransporter()
         
         const mailOptions = {
-            from: `"TeamCodeBridge" <${process.env.SMTP_USER || 'support@teamcodebridge.dev'}>`,
+            from: `"TeamCodeBridge" <${process.env.SMTP_USER || 'noreply@teamcodebridge.dev'}>`,
             to: Array.isArray(to) ? to.join(', ') : to,
             subject,
             text: text || html.replace(/<[^>]*>/g, ''), // HTML 태그 제거한 텍스트 버전
