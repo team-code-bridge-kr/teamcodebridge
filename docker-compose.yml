@@ -11,6 +11,9 @@ services:
       - .env
     environment:
       - NODE_ENV=production
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     logging:
       driver: "json-file"
       options:
@@ -25,6 +28,9 @@ services:
     restart: always
     ports:
       - "4000:4000"
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     logging:
       driver: "json-file"
       options:
