@@ -1,8 +1,8 @@
 'use client'
 
-import { Fragment, useState } from 'react'
+import { Fragment, useState, useEffect } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
-import { XMarkIcon, DocumentPlusIcon } from '@heroicons/react/24/outline'
+import { XMarkIcon, DocumentPlusIcon, UserIcon } from '@heroicons/react/24/outline'
 
 interface CreateTaskModalProps {
     isOpen: boolean
@@ -18,7 +18,9 @@ export default function CreateTaskModal({ isOpen, onClose, projects, currentUser
     const [projectId, setProjectId] = useState(projects[0]?.id || '')
     const [parentId, setParentId] = useState<string>('')  // 상위 업무
     const [dependsOnId, setDependsOnId] = useState<string>('')  // 선행 업무
+    const [ownerId, setOwnerId] = useState<string>(currentUserId || '')  // 담당자
     const [existingTasks, setExistingTasks] = useState<{ id: string, name: string, depth: number }[]>([])
+    const [users, setUsers] = useState<{ id: string; name: string | null; email: string | null }[]>([])
     const [isLoading, setIsLoading] = useState(false)
 
     // Ensure projectId is set when projects load
@@ -39,10 +41,27 @@ export default function CreateTaskModal({ isOpen, onClose, projects, currentUser
         }
     }
 
-    // 모달 열릴 때 기존 업무 로드
-    if (isOpen && existingTasks.length === 0) {
-        loadExistingTasks()
+    // 사용자 목록 로드
+    const loadUsers = async () => {
+        try {
+            const res = await fetch('/api/users')
+            if (res.ok) {
+                const data = await res.json()
+                setUsers(data)
+            }
+        } catch (error) {
+            console.error('Failed to load users:', error)
+        }
     }
+
+    // 모달 열릴 때 데이터 로드
+    useEffect(() => {
+        if (isOpen) {
+            loadExistingTasks()
+            loadUsers()
+            setOwnerId(currentUserId || '')
+        }
+    }, [isOpen, currentUserId])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -60,9 +79,9 @@ export default function CreateTaskModal({ isOpen, onClose, projects, currentUser
                     name,
                     mission,
                     projectId,
-                    ownerId: currentUserId,
-                    status: '대기',
-                    priority: '중간',
+                    ownerId: ownerId || null,
+                    status: 'PENDING',
+                    priority: 'MEDIUM',
                     parentId: parentId || null,
                     dependsOnId: dependsOnId || null,
                     depth: newDepth
@@ -72,6 +91,7 @@ export default function CreateTaskModal({ isOpen, onClose, projects, currentUser
             setMission('')
             setParentId('')
             setDependsOnId('')
+            setOwnerId('')
             onTaskCreated()
             onClose()
         } catch (error) {
@@ -185,6 +205,29 @@ export default function CreateTaskModal({ isOpen, onClose, projects, currentUser
                                                         value={mission}
                                                         onChange={(e) => setMission(e.target.value)}
                                                     />
+                                                </div>
+                                            </div>
+
+                                            {/* 담당자 선택 */}
+                                            <div>
+                                                <label htmlFor="owner" className="block text-sm font-bold text-gray-700">
+                                                    👤 담당자
+                                                </label>
+                                                <div className="mt-1">
+                                                    <select
+                                                        id="owner"
+                                                        name="owner"
+                                                        className="block w-full rounded-xl border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm py-3"
+                                                        value={ownerId}
+                                                        onChange={(e) => setOwnerId(e.target.value)}
+                                                    >
+                                                        <option value="">미지정</option>
+                                                        {users.map((u) => (
+                                                            <option key={u.id} value={u.id}>
+                                                                {u.name || u.email || '이름 없음'}
+                                                            </option>
+                                                        ))}
+                                                    </select>
                                                 </div>
                                             </div>
 

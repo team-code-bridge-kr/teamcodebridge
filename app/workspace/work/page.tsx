@@ -17,6 +17,7 @@ import CreateTaskModal from '@/components/CreateTaskModal'
 import CreateProjectModal from '@/components/CreateProjectModal'
 import UnifiedTaskPage from '@/components/UnifiedTaskPage'
 import AddLinkModal from '@/components/AddLinkModal'
+import AssigneeModal from '@/components/AssigneeModal'
 import { useSession } from 'next-auth/react'
 
 interface TaskLink {
@@ -47,6 +48,7 @@ interface Task {
     timeline: string | null
     driveUrl: string | null
     owner: {
+        id: string
         name: string
     } | null
     context?: ContextCapsule
@@ -119,10 +121,12 @@ export default function WorkspaceWork() {
     const [selectedTask, setSelectedTask] = useState<Task | null>(null)
     const [isTaskPageOpen, setIsTaskPageOpen] = useState(false)
     const [isAddLinkModalOpen, setIsAddLinkModalOpen] = useState(false)
+    const [isAssigneeModalOpen, setIsAssigneeModalOpen] = useState(false)
+    const [taskToAssign, setTaskToAssign] = useState<{ id: string; name: string; ownerId: string | null } | null>(null)
     const { openIgnition, openClear, setOnDataChange } = useContextSidebar()
 
-    const fetchProjects = async () => {
-        setIsLoading(true)
+    const fetchProjects = async (showLoading = true) => {
+        if (showLoading) setIsLoading(true)
         try {
             const response = await fetch('/api/projects')
             if (!response.ok) {
@@ -139,14 +143,17 @@ export default function WorkspaceWork() {
             console.error("Failed to fetch projects:", error)
             setProjects([])
         } finally {
-            setIsLoading(false)
+            if (showLoading) setIsLoading(false)
         }
     }
 
+    // Silent refresh for real-time updates (no loading state, preserves scroll)
+    const refreshProjects = () => fetchProjects(false)
+
     useEffect(() => {
         fetchProjects()
-        // Register fetchProjects as the callback for real-time updates
-        setOnDataChange(fetchProjects)
+        // Register silent refresh for real-time updates
+        setOnDataChange(refreshProjects)
         return () => setOnDataChange(null) // Cleanup on unmount
     }, [])
 
@@ -343,7 +350,14 @@ export default function WorkspaceWork() {
                                                     </span>
                                                 </td>
                                                 <td className="px-8 py-6">
-                                                    <div className="flex items-center gap-3">
+                                                    <div 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation()
+                                                            setTaskToAssign({ id: task.id, name: task.name, ownerId: task.owner?.id || null })
+                                                            setIsAssigneeModalOpen(true)
+                                                        }}
+                                                        className="flex items-center gap-3 cursor-pointer hover:bg-primary-50 rounded-lg p-2 -m-2 transition-colors"
+                                                    >
                                                         <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center text-xs font-black text-primary-600 border-2 border-white shadow-sm">
                                                             {task.owner?.name?.[0] || '?'}
                                                         </div>
@@ -419,6 +433,16 @@ export default function WorkspaceWork() {
                     onClose={() => setIsAddLinkModalOpen(false)}
                     taskId={selectedTask.id}
                     onLinkAdded={handleLinkAdded}
+                />
+            )}
+            {taskToAssign && (
+                <AssigneeModal
+                    isOpen={isAssigneeModalOpen}
+                    onClose={() => setIsAssigneeModalOpen(false)}
+                    taskId={taskToAssign.id}
+                    taskName={taskToAssign.name}
+                    currentOwnerId={taskToAssign.ownerId}
+                    onAssigned={refreshProjects}
                 />
             )}
         </div>
