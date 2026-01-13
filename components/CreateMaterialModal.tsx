@@ -334,44 +334,6 @@ export default function CreateMaterialModal({ isOpen, onClose, curriculums, onMa
                                         />
                                     </div>
 
-                                    {/* 파일 형식 */}
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-2">
-                                            파일 형식 <span className="text-red-500">*</span>
-                                        </label>
-                                        <div className="grid grid-cols-3 gap-3">
-                                            {FILE_TYPES.map((type) => (
-                                                <button
-                                                    key={type.value}
-                                                    type="button"
-                                                    onClick={() => setFormData({ ...formData, fileType: type.value })}
-                                                    className={`flex items-center gap-2 px-4 py-3 rounded-xl font-bold text-sm transition-all ${
-                                                        formData.fileType === type.value
-                                                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
-                                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                                    }`}
-                                                >
-                                                    <span className="text-lg">{type.icon}</span>
-                                                    <span>{type.value}</span>
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {/* 파일 용량 */}
-                                    <div>
-                                        <label className="block text-sm font-bold text-gray-700 mb-2">
-                                            파일 용량 (선택)
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={formData.fileSize}
-                                            onChange={(e) => setFormData({ ...formData, fileSize: e.target.value })}
-                                            placeholder="예: 2.5 MB, 150 KB, 1.2 GB"
-                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                                        />
-                                    </div>
-
                                     {/* 파일 업로드 또는 링크 입력 */}
                                     <div>
                                         <label className="block text-sm font-bold text-gray-700 mb-3">
@@ -456,7 +418,7 @@ export default function CreateMaterialModal({ isOpen, onClose, curriculums, onMa
                                         
                                         {/* 수동 링크 입력 옵션 */}
                                         <div>
-                                            <p className="text-sm font-bold text-gray-600 mb-2">또는 구글 드라이브 링크 직접 입력</p>
+                                            <p className="text-sm font-bold text-gray-600 mb-2">또는 직접 링크를 업로드하세요!</p>
                                             <input
                                                 type="url"
                                                 value={formData.driveUrl}
@@ -466,9 +428,47 @@ export default function CreateMaterialModal({ isOpen, onClose, curriculums, onMa
                                                 disabled={isUploading}
                                             />
                                             <p className="text-xs text-gray-500 mt-2">
-                                                💡 이미 드라이브에 있는 파일의 링크를 붙여넣으세요
+                                                💡 Google Drive에 업로드 할 경우 자동으로 입력됩니다.
                                             </p>
                                         </div>
+                                    </div>
+
+                                    {/* 파일 형식 */}
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">
+                                            파일 형식 <span className="text-red-500">*</span>
+                                        </label>
+                                        <div className="grid grid-cols-3 gap-3">
+                                            {FILE_TYPES.map((type) => (
+                                                <button
+                                                    key={type.value}
+                                                    type="button"
+                                                    onClick={() => setFormData({ ...formData, fileType: type.value })}
+                                                    className={`flex items-center gap-2 px-4 py-3 rounded-xl font-bold text-sm transition-all ${
+                                                        formData.fileType === type.value
+                                                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
+                                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                                    }`}
+                                                >
+                                                    <span className="text-lg">{type.icon}</span>
+                                                    <span>{type.value}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* 파일 용량 */}
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">
+                                            파일 용량 (선택)
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={formData.fileSize}
+                                            onChange={(e) => setFormData({ ...formData, fileSize: e.target.value })}
+                                            placeholder="예: 2.5 MB, 150 KB, 1.2 GB"
+                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                        />
                                     </div>
                                 </div>
 
