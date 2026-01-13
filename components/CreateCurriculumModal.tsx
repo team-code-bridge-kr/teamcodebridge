@@ -239,7 +239,7 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
                         >
                             <Dialog.Panel className="w-full max-w-4xl transform overflow-hidden rounded-3xl bg-white shadow-2xl transition-all">
                                 {/* Header */}
-                                <div className="border-b border-gray-100 bg-gradient-to-r from-purple-50 to-blue-50 px-8 py-6">
+                                <div className="border-b border-gray-100 bg-gradient-to-r from-blue-50 to-blue-50 px-8 py-6">
                                     <div className="flex items-center justify-between mb-4">
                                         <Dialog.Title className="text-2xl font-black text-gray-900">
                                             새 커리큘럼 만들기
@@ -247,7 +247,7 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
                                         <div className="flex items-center gap-2">
                                             <button
                                                 onClick={handleSaveDraft}
-                                                className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-gray-600 hover:text-purple-600 hover:bg-white rounded-xl transition-all"
+                                                className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-gray-600 hover:text-blue-600 hover:bg-white rounded-xl transition-all"
                                             >
                                                 <BookmarkIcon className="w-4 h-4" />
                                                 임시저장
@@ -268,7 +268,7 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
                                                 <div className="flex items-center gap-3">
                                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all ${
                                                         currentStep === step.number
-                                                            ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/50'
+                                                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/50'
                                                             : currentStep > step.number
                                                             ? 'bg-green-500 text-white'
                                                             : 'bg-white text-gray-400 border-2 border-gray-200'
@@ -319,7 +319,7 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
                                                             value={formData.name}
                                                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                                             placeholder="예: 멘토링톤, PyDrone, 웹 개발 입문 등"
-                                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                                         />
                                                     </div>
 
@@ -332,7 +332,7 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
                                                             onChange={(e) => setFormData({ ...formData, description: e.target.value.slice(0, 200) })}
                                                             placeholder="이 프로그램은 어떤 내용인가요? 간단히 소개해주세요."
                                                             rows={4}
-                                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
+                                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
                                                         />
                                                         <p className="text-xs text-gray-500 mt-1 text-right">
                                                             {formData.description.length}/200자
@@ -348,7 +348,7 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
                                                             onChange={(e) => setFormData({ ...formData, motivation: e.target.value.slice(0, 200) })}
                                                             placeholder="이 프로그램을 기획하게 된 계기는 무엇인가요?"
                                                             rows={4}
-                                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
+                                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
                                                         />
                                                         <p className="text-xs text-gray-500 mt-1 text-right">
                                                             {formData.motivation.length}/200자
@@ -369,7 +369,7 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
                                                             onChange={(e) => setFormData({ ...formData, benefits: e.target.value })}
                                                             placeholder="학생들이 이 프로그램을 통해 무엇을 얻을 수 있나요?"
                                                             rows={5}
-                                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
+                                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
                                                         />
                                                     </div>
 
@@ -383,7 +383,7 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
                                                                 min="1"
                                                                 value={formData.minMentors}
                                                                 onChange={(e) => setFormData({ ...formData, minMentors: parseInt(e.target.value) || 1 })}
-                                                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                                             />
                                                         </div>
 
@@ -396,7 +396,7 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
                                                                 min="1"
                                                                 value={formData.recommendedStudents}
                                                                 onChange={(e) => setFormData({ ...formData, recommendedStudents: parseInt(e.target.value) || 1 })}
-                                                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                                                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                                             />
                                                         </div>
                                                     </div>
@@ -412,8 +412,8 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
                                             {/* Step 3: 프로그램 구성 (4회차) */}
                                             {currentStep === 3 && (
                                                 <div className="space-y-6">
-                                                    <div className="bg-purple-50 border border-purple-100 rounded-xl p-4 mb-6">
-                                                        <p className="text-sm text-purple-800 font-medium">
+                                                    <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6">
+                                                        <p className="text-sm text-blue-800 font-medium">
                                                             📚 4회차 프로그램을 구성해주세요. 각 회차의 목표와 활동 내용을 구체적으로 작성하면 더 좋습니다!
                                                         </p>
                                                     </div>
@@ -421,7 +421,7 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
                                                     {formData.sessions.map((session, index) => (
                                                         <div key={index} className="border border-gray-200 rounded-2xl p-6 space-y-4">
                                                             <div className="flex items-center gap-3 mb-4">
-                                                                <div className="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                                                                <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
                                                                     {session.sessionNumber}
                                                                 </div>
                                                                 <h3 className="text-lg font-bold text-gray-900">{session.sessionNumber}회차</h3>
@@ -436,7 +436,7 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
                                                                     value={session.sessionName}
                                                                     onChange={(e) => updateSession(index, 'sessionName', e.target.value)}
                                                                     placeholder="예: Python 기초 문법, 드론 제어 실습 등"
-                                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                                                 />
                                                             </div>
 
@@ -448,7 +448,7 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
                                                                         value={session.scheduledDate || ''}
                                                                         onChange={(e) => updateSession(index, 'scheduledDate', e.target.value || null)}
                                                                         placeholder="예: 2026-02-15 14:00"
-                                                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                                                     />
                                                                 </div>
                                                                 <div>
@@ -458,7 +458,7 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
                                                                         value={session.location || ''}
                                                                         onChange={(e) => updateSession(index, 'location', e.target.value || null)}
                                                                         placeholder="예: Zoom, 강의실 203호"
-                                                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                                                                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                                                     />
                                                                 </div>
                                                             </div>
@@ -472,7 +472,7 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
                                                                     onChange={(e) => updateSession(index, 'goal', e.target.value)}
                                                                     placeholder="이 회차의 학습 목표를 작성하세요"
                                                                     rows={3}
-                                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
+                                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
                                                                 />
                                                             </div>
 
@@ -485,7 +485,7 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
                                                                     onChange={(e) => updateSession(index, 'content', e.target.value)}
                                                                     placeholder="이 회차에서 진행할 구체적인 활동 내용을 작성하세요"
                                                                     rows={4}
-                                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
+                                                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
                                                                 />
                                                             </div>
                                                         </div>
@@ -505,12 +505,12 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
                                                             onChange={(e) => setFormData({ ...formData, expectedEffect: e.target.value })}
                                                             placeholder="이 프로그램이 학생들과 지역사회에 어떤 긍정적인 영향을 줄 것으로 기대하나요?"
                                                             rows={6}
-                                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
+                                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
                                                         />
                                                     </div>
 
                                                     {/* 검토 요약 */}
-                                                    <div className="bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-100 rounded-2xl p-6">
+                                                    <div className="bg-gradient-to-br from-blue-50 to-blue-50 border border-blue-100 rounded-2xl p-6">
                                                         <h3 className="text-lg font-black text-gray-900 mb-4">📋 입력 내용 검토</h3>
                                                         <div className="space-y-3 text-sm">
                                                             <div className="flex items-start gap-3">
@@ -578,7 +578,7 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
                                                         }
                                                     }}
                                                     disabled={!canProceedToNextStep()}
-                                                    className="flex items-center gap-2 px-8 py-3 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-500/30"
+                                                    className="flex items-center gap-2 px-8 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/30"
                                                 >
                                                     다음
                                                     <ArrowRightIcon className="w-5 h-5" />
@@ -587,7 +587,7 @@ export default function CreateCurriculumModal({ isOpen, onClose, onCurriculumCre
                                                 <button
                                                     onClick={handleSubmit}
                                                     disabled={isSaving || !canProceedToNextStep()}
-                                                    className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-bold hover:from-purple-700 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-purple-500/30"
+                                                    className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-600 text-white rounded-xl font-bold hover:from-blue-700 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/30"
                                                 >
                                                     {isSaving ? (
                                                         <>
