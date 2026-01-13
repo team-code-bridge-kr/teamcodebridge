@@ -154,7 +154,7 @@ export default function CurriculumDetailModal({ isOpen, onClose, curriculum, onS
                                         <div className="flex items-center gap-2">
                                             <button
                                                 onClick={handlePDFExport}
-                                                className="flex items-center gap-2 px-4 py-2 bg-white text-purple-600 border border-purple-200 rounded-xl font-bold hover:bg-purple-50 transition-all"
+                                                className="flex items-center gap-2 px-4 py-2 bg-white text-blue-600 border border-blue-200 rounded-xl font-bold hover:bg-blue-50 transition-all"
                                             >
                                                 <DocumentArrowDownIcon className="w-5 h-5" />
                                                 PDF 저장
@@ -179,7 +179,7 @@ export default function CurriculumDetailModal({ isOpen, onClose, curriculum, onS
                                         className="mb-8"
                                     >
                                         <h3 className="text-xl font-black text-gray-900 mb-4 flex items-center gap-2">
-                                            <span className="w-8 h-8 bg-purple-600 text-white rounded-lg flex items-center justify-center text-sm">1</span>
+                                            <span className="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center text-sm">1</span>
                                             기본 정보
                                         </h3>
                                         <div className="bg-gray-50 rounded-2xl p-6 space-y-4">
@@ -202,7 +202,7 @@ export default function CurriculumDetailModal({ isOpen, onClose, curriculum, onS
                                         className="mb-8"
                                     >
                                         <h3 className="text-xl font-black text-gray-900 mb-4 flex items-center gap-2">
-                                            <span className="w-8 h-8 bg-purple-600 text-white rounded-lg flex items-center justify-center text-sm">2</span>
+                                            <span className="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center text-sm">2</span>
                                             목표 & 인원 구성
                                         </h3>
                                         <div className="space-y-4">
@@ -213,14 +213,14 @@ export default function CurriculumDetailModal({ isOpen, onClose, curriculum, onS
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div className="bg-white border border-gray-200 rounded-2xl p-6">
                                                     <div className="flex items-center gap-3 mb-2">
-                                                        <UsersIcon className="w-6 h-6 text-purple-600" />
+                                                        <UsersIcon className="w-6 h-6 text-blue-600" />
                                                         <p className="text-sm font-bold text-gray-600">최소 현장 멘토 수</p>
                                                     </div>
                                                     <p className="text-3xl font-black text-gray-900">{curriculum.minMentors}명</p>
                                                 </div>
                                                 <div className="bg-white border border-gray-200 rounded-2xl p-6">
                                                     <div className="flex items-center gap-3 mb-2">
-                                                        <UserGroupIcon className="w-6 h-6 text-green-600" />
+                                                        <UserGroupIcon className="w-6 h-6 text-blue-600" />
                                                         <p className="text-sm font-bold text-gray-600">추천 수혜 학생 수</p>
                                                     </div>
                                                     <p className="text-3xl font-black text-gray-900">{curriculum.recommendedStudents}명</p>
@@ -237,7 +237,7 @@ export default function CurriculumDetailModal({ isOpen, onClose, curriculum, onS
                                         className="mb-8"
                                     >
                                         <h3 className="text-xl font-black text-gray-900 mb-4 flex items-center gap-2">
-                                            <span className="w-8 h-8 bg-purple-600 text-white rounded-lg flex items-center justify-center text-sm">3</span>
+                                            <span className="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center text-sm">3</span>
                                             프로그램 일정표 ({curriculum.sessions.length}회차)
                                         </h3>
                                         <div className="space-y-6">
@@ -247,10 +247,10 @@ export default function CurriculumDetailModal({ isOpen, onClose, curriculum, onS
                                                     initial={{ opacity: 0, x: -20 }}
                                                     animate={{ opacity: 1, x: 0 }}
                                                     transition={{ delay: 0.4 + index * 0.1 }}
-                                                    className="bg-white border-2 border-purple-100 rounded-2xl p-6 hover:border-purple-200 transition-all"
+                                                    className="bg-white border-2 border-blue-100 rounded-2xl p-6 hover:border-blue-200 transition-all"
                                                 >
                                                     <div className="flex items-start gap-4 mb-4">
-                                                        <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-purple-700 text-white rounded-xl flex items-center justify-center font-black text-lg shadow-lg shadow-purple-500/30">
+                                                        <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-xl flex items-center justify-center font-black text-lg shadow-lg shadow-blue-500/30">
                                                             {session.sessionNumber}
                                                         </div>
                                                         <div className="flex-1">
@@ -294,7 +294,7 @@ export default function CurriculumDetailModal({ isOpen, onClose, curriculum, onS
                                         className="mb-4"
                                     >
                                         <h3 className="text-xl font-black text-gray-900 mb-4 flex items-center gap-2">
-                                            <span className="w-8 h-8 bg-purple-600 text-white rounded-lg flex items-center justify-center text-sm">4</span>
+                                            <span className="w-8 h-8 bg-blue-600 text-white rounded-lg flex items-center justify-center text-sm">4</span>
                                             기대효과
                                         </h3>
                                         <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-6">
@@ -316,7 +316,7 @@ export default function CurriculumDetailModal({ isOpen, onClose, curriculum, onS
                                         <div className="flex items-center gap-3">
                                             <button
                                                 onClick={handlePDFExport}
-                                                className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-xl font-bold hover:bg-purple-700 transition-all shadow-lg shadow-purple-500/30"
+                                                className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/30"
                                             >
                                                 <DocumentArrowDownIcon className="w-5 h-5" />
                                                 PDF로 저장
