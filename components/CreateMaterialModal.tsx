@@ -422,7 +422,7 @@ export default function CreateMaterialModal({ isOpen, onClose, curriculums, onMa
                                                     <button
                                                         type="button"
                                                         onClick={handleUploadFile}
-                                                        className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition-all ml-2"
+                                                        className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 transition-all ml-2"
                                                     >
                                                         <CloudArrowUpIcon className="w-5 h-5" />
                                                         업로드 시작
@@ -445,8 +445,8 @@ export default function CreateMaterialModal({ isOpen, onClose, curriculums, onMa
                                                 ) : null}
                                                 
                                                 {formData.driveUrl ? (
-                                                    <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                                                        <p className="text-sm font-bold text-green-700">
+                                                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                                        <p className="text-sm font-bold text-blue-700">
                                                             ✅ 파일 업로드 완료!
                                                         </p>
                                                     </div>
