@@ -145,17 +145,17 @@ export default function SurveysPage() {
               <p className="text-sm text-gray-500 font-medium mb-2">총 설문조사</p>
               <p className="text-3xl font-black text-gray-900">{stats.total}</p>
             </div>
-            <div className="bg-yellow-50 p-6 rounded-2xl shadow-md border-2 border-yellow-200">
-              <p className="text-sm text-yellow-700 font-medium mb-2">준비 중</p>
-              <p className="text-3xl font-black text-yellow-600">{stats.preparing}</p>
-            </div>
-            <div className="bg-green-50 p-6 rounded-2xl shadow-md border-2 border-green-200">
-              <p className="text-sm text-green-700 font-medium mb-2">진행 중</p>
-              <p className="text-3xl font-black text-green-600">{stats.ongoing}</p>
-            </div>
             <div className="bg-blue-50 p-6 rounded-2xl shadow-md border-2 border-blue-200">
+              <p className="text-sm text-blue-500 font-medium mb-2">준비 중</p>
+              <p className="text-3xl font-black text-blue-500">{stats.preparing}</p>
+            </div>
+            <div className="bg-blue-100 p-6 rounded-2xl shadow-md border-2 border-blue-300">
+              <p className="text-sm text-blue-600 font-medium mb-2">진행 중</p>
+              <p className="text-3xl font-black text-blue-600">{stats.ongoing}</p>
+            </div>
+            <div className="bg-blue-200 p-6 rounded-2xl shadow-md border-2 border-blue-400">
               <p className="text-sm text-blue-700 font-medium mb-2">종료</p>
-              <p className="text-3xl font-black text-blue-600">{stats.completed}</p>
+              <p className="text-3xl font-black text-blue-700">{stats.completed}</p>
             </div>
             <div className="bg-blue-50 p-6 rounded-2xl shadow-md border-2 border-blue-200">
               <p className="text-sm text-blue-700 font-medium mb-2">총 응답</p>
@@ -224,11 +224,11 @@ function SurveyCard({ survey, onEdit, onDelete }: any) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case '준비중':
-        return 'bg-yellow-100 text-yellow-700 border-yellow-300'
+        return 'bg-blue-50 text-blue-500 border-blue-200'
       case '진행중':
-        return 'bg-green-100 text-green-700 border-green-300'
+        return 'bg-blue-100 text-blue-600 border-blue-300'
       case '종료':
-        return 'bg-gray-100 text-gray-700 border-gray-300'
+        return 'bg-blue-200 text-blue-700 border-blue-400'
       default:
         return 'bg-gray-100 text-gray-700 border-gray-300'
     }
