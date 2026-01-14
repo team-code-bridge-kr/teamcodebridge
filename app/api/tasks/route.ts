@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 export async function POST(request: Request) {
     try {
         const body = await request.json()
-        const { name, status, priority, timeline, driveUrl, projectId, ownerId, mission } = body
+        const { name, status, priority, timeline, driveUrl, projectId, ownerId, mission, parentId, dependsOnId, depth } = body
 
         const task = await prisma.task.create({
             data: {
@@ -17,6 +17,9 @@ export async function POST(request: Request) {
                 driveUrl,
                 projectId,
                 ownerId,
+                parentId: parentId || null,
+                dependsOnId: dependsOnId || null,
+                depth: depth ?? 0,
                 context: mission ? {
                     create: {
                         mission

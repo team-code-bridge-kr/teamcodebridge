@@ -46,7 +46,7 @@ export async function PATCH(
         }
 
         const body = await request.json()
-        const { name, status, priority, timeline, driveUrl, ownerId, parentId } = body
+        const { name, status, priority, timeline, driveUrl, ownerId, parentId, dependsOnId, depth } = body
 
         // Build update data (only include provided fields)
         const updateData: Record<string, any> = {}
@@ -57,6 +57,8 @@ export async function PATCH(
         if (driveUrl !== undefined) updateData.driveUrl = driveUrl
         if (ownerId !== undefined) updateData.ownerId = ownerId
         if (parentId !== undefined) updateData.parentId = parentId
+        if (dependsOnId !== undefined) updateData.dependsOnId = dependsOnId
+        if (depth !== undefined) updateData.depth = depth
 
         const task = await prisma.task.update({
             where: { id: params.id },
