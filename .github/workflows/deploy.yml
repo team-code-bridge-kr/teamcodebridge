@@ -72,12 +72,21 @@ jobs:
             # Docker 배포
             echo "🐳 Docker 배포를 시작합니다..."
             docker-compose down || true
+            
+            # .env 파일 확인
+            echo "📋 .env 파일 확인 중..."
+            if [ ! -f ".env" ]; then
+              echo "⚠️ .env 파일이 없습니다. 기본값을 사용합니다..."
+            else
+              echo "✅ .env 파일이 존재합니다."
+            fi
+            
+            # Docker 빌드
+            echo "🔨 Docker 이미지 빌드 중..."
             docker-compose build --no-cache
             
-            # 빌드 로그 확인
-            echo "📋 빌드 로그 확인 중..."
-            docker-compose logs --tail=100 || true
-            
+            # Docker 실행
+            echo "🚀 Docker 컨테이너 시작 중..."
             docker-compose up -d
             
             # 상태 확인
@@ -86,14 +95,26 @@ jobs:
             
             # 헬스 체크
             echo "🏥 헬스 체크 중..."
-            for i in {1..5}; do
+            for i in {1..10}; do
               if docker ps | grep -q teamcodebridge-web; then
                 echo "✅ 컨테이너가 실행 중입니다."
-                break
+                # 컨테이너가 실제로 응답하는지 확인
+                sleep 5
+                if docker ps | grep -q teamcodebridge-web; then
+                  echo "✅ 컨테이너가 정상적으로 실행 중입니다."
+                  break
+                fi
               fi
-              echo "⏳ 대기 중... ($i/5)"
+              echo "⏳ 대기 중... ($i/10)"
               sleep 3
             done
+            
+            # 최종 상태 확인
+            echo "📊 Docker 컨테이너 상태:"
+            docker ps -a | grep teamcodebridge || echo "⚠️ 컨테이너를 찾을 수 없습니다."
+            
+            echo "📊 Docker Compose 서비스 상태:"
+            docker-compose ps || true
             
             if docker ps | grep -q teamcodebridge-web; then
               echo "✅ 배포 완료!"
@@ -101,11 +122,13 @@ jobs:
               docker ps | grep teamcodebridge-web
               
               # 컨테이너 로그 확인
-              echo "📋 최근 로그:"
-              docker-compose logs --tail=30 teamcodebridge-web || true
+              echo "📋 최근 로그 (web 서비스):"
+              docker-compose logs --tail=50 web || docker logs --tail=50 teamcodebridge-web || true
             else
-              echo "❌ 배포 실패"
-              echo "📋 전체 로그:"
-              docker-compose logs --tail=100
+              echo "❌ 배포 실패 - 컨테이너가 실행되지 않았습니다."
+              echo "📋 Docker Compose 로그:"
+              docker-compose logs --tail=100 || true
+              echo "📋 Docker 컨테이너 목록:"
+              docker ps -a || true
               exit 1
             fi
