@@ -1,0 +1,126 @@
+name: Deploy E2G Workspace (e2g.teamcodebridge.dev)
+
+on:
+  push:
+    branches:
+      - feat/mentor-workspace-next
+  workflow_dispatch:  # 수동 실행 가능
+
+jobs:
+  build:
+    name: Build and Test E2G
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: feat/mentor-workspace-next
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run linter
+        run: npm run lint || true
+      
+      - name: Build application
+        run: npm run build
+        env:
+          NODE_ENV: production
+  
+  deploy:
+    name: Deploy E2G Workspace + Socket
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+      - name: Deploy E2G via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          port: 22
+          script: |
+            set -e
+            echo "🚀 E2G 워크스페이스 배포 시작 (e2g.teamcodebridge.dev)..."
+            
+            # 프로젝트 디렉토리로 이동
+            cd /root/teamcodebridge
+            
+            # feat/mentor-workspace-next 브랜치로 전환
+            echo "📥 feat/mentor-workspace-next 브랜치로 전환..."
+            git fetch origin feat/mentor-workspace-next
+            git checkout feat/mentor-workspace-next
+            git reset --hard origin/feat/mentor-workspace-next
+            
+            # .env 파일 확인
+            echo "📋 .env 파일 확인 중..."
+            if [ ! -f ".env" ]; then
+              echo "⚠️ .env 파일이 없습니다."
+            else
+              echo "✅ .env 파일이 존재합니다."
+            fi
+            
+            # E2G 서비스만 중지 (Web은 영향 없음)
+            echo "🛑 E2G 서비스만 중지..."
+            docker-compose -f docker-compose.e2g.yml down || true
+            docker rm -f teamcodebridge-e2g-web teamcodebridge-socket 2>/dev/null || true
+            
+            # Docker 빌드
+            echo "🔨 Docker 이미지 빌드 중..."
+            docker-compose -f docker-compose.e2g.yml build --no-cache
+            
+            # Docker 실행
+            echo "🚀 E2G 서비스 시작 중..."
+            docker-compose -f docker-compose.e2g.yml up -d
+            
+            # 상태 확인
+            echo "⏳ 컨테이너 상태 확인 중..."
+            sleep 15
+            
+            # 헬스 체크
+            echo "🏥 헬스 체크 중..."
+            for i in {1..10}; do
+              if docker ps | grep -q teamcodebridge-e2g-web && docker ps | grep -q teamcodebridge-socket; then
+                echo "✅ E2G 컨테이너들이 실행 중입니다."
+                sleep 5
+                if docker ps | grep -q teamcodebridge-e2g-web && docker ps | grep -q teamcodebridge-socket; then
+                  echo "✅ E2G 서비스가 정상적으로 실행 중입니다."
+                  break
+                fi
+              fi
+              echo "⏳ 대기 중... ($i/10)"
+              sleep 3
+            done
+            
+            # 최종 상태 확인
+            echo "📊 Docker 컨테이너 상태:"
+            docker ps | grep -E "teamcodebridge-e2g-web|teamcodebridge-socket" || echo "⚠️ E2G 컨테이너를 찾을 수 없습니다."
+            
+            echo "📊 Docker Compose 서비스 상태:"
+            docker-compose -f docker-compose.e2g.yml ps || true
+            
+            if docker ps | grep -q teamcodebridge-e2g-web && docker ps | grep -q teamcodebridge-socket; then
+              echo "✅ E2G 배포 완료!"
+              echo "🌐 https://e2g.teamcodebridge.dev"
+              docker ps | grep -E "teamcodebridge-e2g-web|teamcodebridge-socket"
+              
+              # 컨테이너 로그 확인
+              echo "📋 최근 로그 (web):"
+              docker-compose -f docker-compose.e2g.yml logs --tail=50 web || true
+              echo "📋 최근 로그 (socket):"
+              docker-compose -f docker-compose.e2g.yml logs --tail=50 socket || true
+            else
+              echo "❌ E2G 배포 실패"
+              echo "📋 Docker Compose 로그:"
+              docker-compose -f docker-compose.e2g.yml logs --tail=100 || true
+              exit 1
+            fi
+

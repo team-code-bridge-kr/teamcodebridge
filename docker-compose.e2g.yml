@@ -1,0 +1,51 @@
+# E2G 워크스페이스 + Socket 통신 서비스 (e2g.teamcodebridge.dev)
+# feat/mentor-workspace-next 브랜치에서 사용
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: teamcodebridge-e2g-web
+    restart: always
+    ports:
+      - "3001:3000"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - e2g-network
+    depends_on:
+      - socket
+
+  socket:
+    build:
+      context: .
+      dockerfile: Dockerfile.socket
+    container_name: teamcodebridge-socket
+    restart: always
+    ports:
+      - "4000:4000"
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - e2g-network
+
+networks:
+  e2g-network:
+    driver: bridge
+

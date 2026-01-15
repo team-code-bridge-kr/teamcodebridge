@@ -1,16 +1,14 @@
-name: Deploy to Server (DEPRECATED - Use deploy-web.yml instead)
-
-# ⚠️ 이 워크플로우는 더 이상 사용되지 않습니다.
-# 대신 다음 워크플로우를 사용하세요:
-# - deploy-web.yml: Web 서비스 배포 (main 브랜치)
-# - deploy-e2g.yml: E2G 워크스페이스 배포 (feat/mentor-workspace-next 브랜치)
+name: Deploy Web (next.teamcodebridge.dev)
 
 on:
-  workflow_dispatch:  # 수동 실행만 가능 (자동 트리거 비활성화)
+  push:
+    branches:
+      - main
+  workflow_dispatch:  # 수동 실행 가능
 
 jobs:
   build:
-    name: Build and Test
+    name: Build and Test Web
     runs-on: ubuntu-latest
     
     steps:
@@ -35,12 +33,12 @@ jobs:
           NODE_ENV: production
   
   deploy:
-    name: Deploy Team Code Bridge
+    name: Deploy Web Service
     runs-on: ubuntu-latest
     needs: build
     
     steps:
-      - name: Deploy via SSH
+      - name: Deploy Web via SSH
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -49,47 +47,37 @@ jobs:
           port: 22
           script: |
             set -e
-            echo "🚀 GitHub Actions 배포 시작..."
+            echo "🚀 Web 서비스 배포 시작 (next.teamcodebridge.dev)..."
             
             # 프로젝트 디렉토리로 이동
             cd /root/teamcodebridge
             
-            # Git 충돌 방지 및 최신 코드 가져오기
-            echo "📥 최신 코드를 가져옵니다..."
+            # main 브랜치로 전환
+            echo "📥 main 브랜치로 전환..."
             git fetch origin main
+            git checkout main
             git reset --hard origin/main
-            
-            # 의존성 확인
-            echo "📦 package-lock.json 확인 중..."
-            if [ ! -f "package-lock.json" ]; then
-              echo "⚠️ package-lock.json이 없습니다. npm install을 실행합니다..."
-              npm install
-            fi
-            
-            # Docker 정리 (디스크 공간 확보)
-            echo "🧹 Docker 정리 중..."
-            docker system prune -f || true
-            docker builder prune -f || true
-            
-            # Docker 배포
-            echo "🐳 Docker 배포를 시작합니다..."
-            docker-compose down || true
             
             # .env 파일 확인
             echo "📋 .env 파일 확인 중..."
             if [ ! -f ".env" ]; then
-              echo "⚠️ .env 파일이 없습니다. 기본값을 사용합니다..."
+              echo "⚠️ .env 파일이 없습니다."
             else
               echo "✅ .env 파일이 존재합니다."
             fi
             
+            # Web 서비스만 중지 (E2G는 영향 없음)
+            echo "🛑 Web 서비스만 중지..."
+            docker-compose -f docker-compose.web.yml down || true
+            docker rm -f teamcodebridge-web 2>/dev/null || true
+            
             # Docker 빌드
             echo "🔨 Docker 이미지 빌드 중..."
-            docker-compose build --no-cache
+            docker-compose -f docker-compose.web.yml build --no-cache
             
             # Docker 실행
-            echo "🚀 Docker 컨테이너 시작 중..."
-            docker-compose up -d
+            echo "🚀 Web 서비스 시작 중..."
+            docker-compose -f docker-compose.web.yml up -d
             
             # 상태 확인
             echo "⏳ 컨테이너 상태 확인 중..."
@@ -99,11 +87,10 @@ jobs:
             echo "🏥 헬스 체크 중..."
             for i in {1..10}; do
               if docker ps | grep -q teamcodebridge-web; then
-                echo "✅ 컨테이너가 실행 중입니다."
-                # 컨테이너가 실제로 응답하는지 확인
+                echo "✅ Web 컨테이너가 실행 중입니다."
                 sleep 5
                 if docker ps | grep -q teamcodebridge-web; then
-                  echo "✅ 컨테이너가 정상적으로 실행 중입니다."
+                  echo "✅ Web 서비스가 정상적으로 실행 중입니다."
                   break
                 fi
               fi
@@ -113,24 +100,23 @@ jobs:
             
             # 최종 상태 확인
             echo "📊 Docker 컨테이너 상태:"
-            docker ps -a | grep teamcodebridge || echo "⚠️ 컨테이너를 찾을 수 없습니다."
+            docker ps | grep teamcodebridge-web || echo "⚠️ Web 컨테이너를 찾을 수 없습니다."
             
             echo "📊 Docker Compose 서비스 상태:"
-            docker-compose ps || true
+            docker-compose -f docker-compose.web.yml ps || true
             
             if docker ps | grep -q teamcodebridge-web; then
-              echo "✅ 배포 완료!"
+              echo "✅ Web 배포 완료!"
               echo "🌐 https://next.teamcodebridge.dev"
               docker ps | grep teamcodebridge-web
               
               # 컨테이너 로그 확인
-              echo "📋 최근 로그 (web 서비스):"
-              docker-compose logs --tail=50 web || docker logs --tail=50 teamcodebridge-web || true
+              echo "📋 최근 로그:"
+              docker-compose -f docker-compose.web.yml logs --tail=50 web || true
             else
-              echo "❌ 배포 실패 - 컨테이너가 실행되지 않았습니다."
+              echo "❌ Web 배포 실패"
               echo "📋 Docker Compose 로그:"
-              docker-compose logs --tail=100 || true
-              echo "📋 Docker 컨테이너 목록:"
-              docker ps -a || true
+              docker-compose -f docker-compose.web.yml logs --tail=100 || true
               exit 1
             fi
+
