@@ -2,11 +2,20 @@
 
 import { motion } from 'framer-motion'
 import { useInView } from 'framer-motion'
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 
 export default function About() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-100px' })
+  const [showWorkspaceLogin, setShowWorkspaceLogin] = useState(false)
+
+  useEffect(() => {
+    // 도메인 체크: e2g.teamcodebridge.dev에서만 워크스페이스 로그인 버튼 표시
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname
+      setShowWorkspaceLogin(hostname === 'e2g.teamcodebridge.dev')
+    }
+  }, [])
 
   const features = [
     {
@@ -72,6 +81,35 @@ export default function About() {
             </motion.div>
           ))}
         </div>
+
+        {/* 워크스페이스 서비스 설명 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3 }}
+          className="mt-12"
+        >
+          <div className="bg-gradient-to-r from-primary-50 to-primary-100 border border-primary-200 rounded-2xl p-8 text-center">
+            <h3 className="text-xl md:text-2xl font-black text-gray-900 mb-3">
+              멘토 전용 워크스페이스 서비스
+            </h3>
+            <p className="text-gray-700 text-sm md:text-base mb-6 leading-relaxed">
+              업무 관리, 실시간 채팅, 캘린더, 회의 일정 투표 등 멘토링 활동을 지원하는 통합 업무 시스템
+            </p>
+            {showWorkspaceLogin && (
+              <a
+                href="/workspace/login"
+                className="inline-flex items-center gap-2 bg-primary-600 text-white px-8 py-3 rounded-xl font-bold text-sm md:text-base hover:bg-primary-700 transition-all transform hover:scale-105 shadow-lg shadow-primary-600/20"
+              >
+                워크스페이스 로그인
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
+            )}
+          </div>
+        </motion.div>
       </div>
     </section>
   )

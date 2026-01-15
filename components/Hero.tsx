@@ -14,12 +14,21 @@ const backgroundImages = [
 
 export default function Hero() {
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [showWorkspaceLogin, setShowWorkspaceLogin] = useState(false)
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % backgroundImages.length)
     }, 5000)
     return () => clearInterval(timer)
+  }, [])
+
+  useEffect(() => {
+    // 도메인 체크: e2g.teamcodebridge.dev에서만 워크스페이스 로그인 버튼 표시
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname
+      setShowWorkspaceLogin(hostname === 'e2g.teamcodebridge.dev')
+    }
   }, [])
 
   return (
@@ -87,6 +96,31 @@ export default function Hero() {
           >
             <span className="text-yellow-400 text-lg">🏆</span>
             <span className="text-white text-sm font-semibold tracking-tight">교육부장관상 수상</span>
+          </motion.div>
+
+          {/* 워크스페이스 서비스 설명 추가 */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="mb-8"
+          >
+            <div className="inline-block bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl px-6 py-4 mb-6">
+              <p className="text-white/90 text-sm md:text-base font-medium">
+                멘토 전용 워크스페이스 서비스
+              </p>
+              <p className="text-white/70 text-xs md:text-sm mt-2">
+                업무 관리, 실시간 채팅, 캘린더, 회의 일정 투표 등 멘토링 활동을 지원하는 통합 업무 시스템
+              </p>
+              {showWorkspaceLogin && (
+                <a
+                  href="/workspace/login"
+                  className="inline-block mt-4 px-6 py-2 bg-white text-black rounded-xl font-bold text-sm hover:bg-white/90 transition-colors"
+                >
+                  워크스페이스 로그인 →
+                </a>
+              )}
+            </div>
           </motion.div>
 
           <motion.div
