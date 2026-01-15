@@ -34,7 +34,7 @@ export default function PrivacyPage() {
                     </div>
                     <div className="mt-12 pt-8 border-t border-gray-200">
                         <p className="text-sm text-gray-500">
-                            최종 수정일: 2026년 1월 5일
+                            최종 수정일: 2026년 1월 12일
                         </p>
                     </div>
                 </div>
