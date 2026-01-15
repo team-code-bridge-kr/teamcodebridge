@@ -7,9 +7,35 @@ on:
   workflow_dispatch:  # 수동 실행 가능
 
 jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run linter
+        run: npm run lint || true
+      
+      - name: Build application
+        run: npm run build
+        env:
+          NODE_ENV: production
+  
   deploy:
     name: Deploy Team Code Bridge
     runs-on: ubuntu-latest
+    needs: build
     
     steps:
       - name: Deploy via SSH
@@ -31,6 +57,13 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             
+            # 의존성 확인
+            echo "📦 package-lock.json 확인 중..."
+            if [ ! -f "package-lock.json" ]; then
+              echo "⚠️ package-lock.json이 없습니다. npm install을 실행합니다..."
+              npm install
+            fi
+            
             # Docker 정리 (디스크 공간 확보)
             echo "🧹 Docker 정리 중..."
             docker system prune -f || true
@@ -40,18 +73,39 @@ jobs:
             echo "🐳 Docker 배포를 시작합니다..."
             docker-compose down || true
             docker-compose build --no-cache
+            
+            # 빌드 로그 확인
+            echo "📋 빌드 로그 확인 중..."
+            docker-compose logs --tail=100 || true
+            
             docker-compose up -d
             
             # 상태 확인
             echo "⏳ 컨테이너 상태 확인 중..."
-            sleep 10
+            sleep 15
+            
+            # 헬스 체크
+            echo "🏥 헬스 체크 중..."
+            for i in {1..5}; do
+              if docker ps | grep -q teamcodebridge-web; then
+                echo "✅ 컨테이너가 실행 중입니다."
+                break
+              fi
+              echo "⏳ 대기 중... ($i/5)"
+              sleep 3
+            done
             
             if docker ps | grep -q teamcodebridge-web; then
               echo "✅ 배포 완료!"
               echo "🌐 https://next.teamcodebridge.dev"
               docker ps | grep teamcodebridge-web
+              
+              # 컨테이너 로그 확인
+              echo "📋 최근 로그:"
+              docker-compose logs --tail=30 teamcodebridge-web || true
             else
               echo "❌ 배포 실패"
-              docker-compose logs --tail=50
+              echo "📋 전체 로그:"
+              docker-compose logs --tail=100
               exit 1
             fi
