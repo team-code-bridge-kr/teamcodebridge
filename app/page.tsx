@@ -19,7 +19,6 @@ export default function Home() {
       <Achievement />
       <About />
       <Projects />
-      <Activities />
       <FAQ />
       <CTA />
       <Footer variant="dark" />
