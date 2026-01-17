@@ -49,9 +49,110 @@ const stats = [
     { label: '재참여 의향', value: 4.9, suffix: '/5', decimals: 1 },
 ]
 
+const achievementCards = [
+    {
+        id: 1,
+        category: 'Achievement',
+        title: '교육부장관상 수상',
+        description: 'IT 교육의 혁신성과 공익성을 인정받아 교육부장관상을 수상하였습니다. 학생들의 미래를 설계하는 교육의 가치를 증명했습니다.',
+        number: '01',
+        subtitle: '대한민국 IT 교육의 표준',
+        icon: '🏆',
+        bgStyle: 'bg-white/5 backdrop-blur-xl border border-white/10',
+        labelStyle: 'bg-primary-500/20 text-primary-500',
+    },
+    {
+        id: 2,
+        category: 'Vision',
+        title: '더 넓은 세상으로',
+        description: '우리의 목표는 멈추지 않습니다. 더 많은 학생들에게 꿈을 심어주고, 미래 인재를 양성하기 위해 끊임없이 도전합니다.',
+        number: '02',
+        subtitle: '글로벌 IT 인재 양성의 허브',
+        icon: '✨',
+        bgStyle: 'bg-gradient-to-br from-primary-500/20 to-primary-700/20 backdrop-blur-xl border border-primary-500/30',
+        labelStyle: 'bg-white/20 text-white',
+    },
+    {
+        id: 3,
+        category: 'Recognition',
+        title: '교육기부 우수 동아리 지정',
+        description: '한국과학창의재단에서 교육기부 우수 동아리로 지정되었습니다.\n교육 기부 문화의 선도 기관으로서 지속적으로 혁신적인 교육 프로그램을 제공합니다.',
+        number: '03',
+        subtitle: '교육 기부 문화의 선도 기관',
+        icon: '🏅',
+        bgStyle: 'bg-white/5 backdrop-blur-xl border border-white/10',
+        labelStyle: 'bg-primary-500/20 text-primary-500',
+    },
+    {
+        id: 4,
+        category: 'Media',
+        title: '뉴스에 나온 팀코드브릿지',
+        description: '팀코드브릿지의 놀라운 성과를 뉴스에서 만나보세요!',
+        number: '04',
+        subtitle: '언론이 주목하는 교육 기부 단체',
+        icon: '📰',
+        bgStyle: 'bg-gradient-to-br from-primary-500/20 to-primary-700/20 backdrop-blur-xl border border-primary-500/30',
+        labelStyle: 'bg-white/20 text-white',
+        links: [
+            { name: '한겨레', url: 'https://www.hani.co.kr/arti/economy/biznews/1215438.html' },
+            { name: '중앙이코노미뉴스', url: 'https://www.joongangenews.com/news/articleView.html?idxno=444481' },
+            { name: '스마트경제', url: 'https://www.dailysmart.co.kr/news/articleView.html?idxno=112121' },
+        ],
+    },
+]
+
 export default function Achievement() {
     const ref = useRef(null)
-    const isInView = useInView(ref, { once: true, margin: '-100px' }) // Run animation only once
+    const scrollRef = useRef<HTMLDivElement>(null)
+    const isInView = useInView(ref, { once: true, margin: '-100px' })
+    const [currentIndex, setCurrentIndex] = useState(0)
+    const isProgrammaticScroll = useRef(false)
+
+    // Auto scroll effect
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (!isProgrammaticScroll.current) {
+                setCurrentIndex((prev) => (prev + 1) % achievementCards.length)
+            }
+        }, 5000)
+        return () => clearInterval(interval)
+    }, [])
+
+    // Scroll to current card
+    useEffect(() => {
+        if (scrollRef.current) {
+            const isMobile = window.innerWidth < 768
+            const cardWidth = isMobile ? Math.min(window.innerWidth * 0.9, 500) : 500
+            const gap = isMobile ? 16 : 20
+            const scrollPos = currentIndex * (cardWidth + gap)
+
+            scrollRef.current.scrollTo({
+                left: scrollPos,
+                behavior: 'smooth'
+            })
+
+            const timeout = setTimeout(() => {
+                isProgrammaticScroll.current = false
+            }, 600)
+
+            return () => clearTimeout(timeout)
+        }
+    }, [currentIndex])
+
+    const handlePrev = () => {
+        isProgrammaticScroll.current = true
+        setCurrentIndex((prev) => (prev - 1 + achievementCards.length) % achievementCards.length)
+    }
+
+    const handleNext = () => {
+        isProgrammaticScroll.current = true
+        setCurrentIndex((prev) => (prev + 1) % achievementCards.length)
+    }
+
+    const handleDotClick = (index: number) => {
+        isProgrammaticScroll.current = true
+        setCurrentIndex(index)
+    }
 
     return (
         <section className="py-24 bg-black relative overflow-hidden">
@@ -105,62 +206,129 @@ export default function Achievement() {
                     </motion.div>
                 </div>
 
-                <div ref={ref} className="grid md:grid-cols-2 gap-6 items-center max-w-5xl mx-auto">
-                    {/* Minister Award */}
-                    <motion.div
-                        initial={{ opacity: 0, x: -50 }}
-                        animate={isInView ? { opacity: 1, x: 0 } : {}}
-                        transition={{ duration: 0.8 }}
-                        className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 md:p-8 relative overflow-hidden group h-full"
+                {/* Achievement Cards Slider */}
+                <div ref={ref} className="relative group">
+                    {/* Navigation Buttons */}
+                    <button
+                        onClick={handlePrev}
+                        className="hidden md:flex absolute left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-black/50 hover:bg-black/80 border border-white/20 rounded-full items-center justify-center text-white transition-all backdrop-blur-sm opacity-0 group-hover:opacity-100 disabled:opacity-0"
+                        aria-label="Previous card"
                     >
-                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <span className="text-6xl">🏆</span>
-                        </div>
-                        <div className="relative z-10">
-                            <div className="inline-block px-3 py-0.5 bg-primary-500/20 text-primary-500 rounded-full text-xs font-bold mb-4">
-                                Achievement
-                            </div>
-                            <h3 className="text-xl md:text-2xl font-bold text-white mb-3 break-keep">교육부장관상 수상</h3>
-                            <p className="text-gray-400 text-sm md:text-base leading-relaxed mb-5 break-keep">
-                                IT 교육의 혁신성과 공익성을 인정받아 교육부장관상을 수상하였습니다.
-                                학생들의 미래를 설계하는 교육의 가치를 증명했습니다.
-                            </p>
-                            <div className="flex items-center space-x-3">
-                                <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
-                                    <span className="text-white font-bold text-lg">01</span>
-                                </div>
-                                <span className="text-white font-medium text-sm md:text-base break-keep">대한민국 IT 교육의 표준</span>
-                            </div>
-                        </div>
-                    </motion.div>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M15 18l-6-6 6-6"></path>
+                        </svg>
+                    </button>
+                    <button
+                        onClick={handleNext}
+                        className="hidden md:flex absolute right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-black/50 hover:bg-black/80 border border-white/20 rounded-full items-center justify-center text-white transition-all backdrop-blur-sm opacity-0 group-hover:opacity-100 disabled:opacity-0"
+                        aria-label="Next card"
+                    >
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M9 18l6-6-6-6"></path>
+                        </svg>
+                    </button>
 
-                    {/* Vision/Next Step */}
-                    <motion.div
-                        initial={{ opacity: 0, x: 50 }}
-                        animate={isInView ? { opacity: 1, x: 0 } : {}}
-                        transition={{ duration: 0.8, delay: 0.2 }}
-                        className="bg-gradient-to-br from-primary-500/20 to-primary-700/20 backdrop-blur-xl border border-primary-500/30 rounded-2xl p-6 md:p-8 relative overflow-hidden group h-full"
+                    {/* Horizontal Scroll Container */}
+                    <div
+                        ref={scrollRef}
+                        className="flex gap-4 md:gap-5 overflow-x-auto pb-10 px-[50vw] md:px-8 scrollbar-hide snap-x snap-mandatory"
+                        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                     >
-                        <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-40 transition-opacity">
-                            <span className="text-6xl">✨</span>
-                        </div>
-                        <div className="relative z-10">
-                            <div className="inline-block px-3 py-0.5 bg-white/20 text-white rounded-full text-xs font-bold mb-4">
-                                Vision
-                            </div>
-                            <h3 className="text-xl md:text-2xl font-bold text-white mb-3 break-keep">더 넓은 세상으로</h3>
-                            <p className="text-white/80 text-sm md:text-base leading-relaxed mb-5 break-keep">
-                                우리의 목표는 멈추지 않습니다. 더 많은 학생들에게 꿈을 심어주고,
-                                미래 인재를 양성하기 위해 끊임없이 도전합니다.
-                            </p>
-                            <div className="flex items-center space-x-3">
-                                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                                    <span className="text-white font-bold text-lg">02</span>
-                                </div>
-                                <span className="text-white font-medium text-sm md:text-base break-keep">글로벌 IT 인재 양성의 허브</span>
-                            </div>
-                        </div>
-                    </motion.div>
+                        {/* Left padding for mobile */}
+                        <div className="flex-shrink-0 w-[calc((100vw-90vw)/2)] md:w-[calc((100vw-500px)/2-20px)] md:hidden"></div>
+                        <div className="flex-shrink-0 w-[calc((100vw-500px)/2-20px)] hidden md:block"></div>
+
+                        {/* Achievement Cards */}
+                        {achievementCards.map((card, index) => (
+                            <motion.div
+                                key={card.id}
+                                initial={{ opacity: 0, x: 50 }}
+                                animate={isInView ? { opacity: 1, x: 0 } : {}}
+                                transition={{ duration: 0.6, delay: index * 0.1 }}
+                                className="flex-shrink-0 w-[90vw] max-w-[500px] md:w-[500px] snap-center"
+                                style={{ aspectRatio: '500/281' }}
+                            >
+                                <div className={`${card.bgStyle} rounded-2xl p-6 md:p-8 relative overflow-hidden group h-full`}>
+                                        <div className={`absolute top-0 right-0 p-4 ${
+                                            card.bgStyle.includes('gradient') ? 'opacity-20 group-hover:opacity-40' : 'opacity-10 group-hover:opacity-20'
+                                        } transition-opacity`}>
+                                            <span className="text-6xl">{card.icon}</span>
+                                        </div>
+                                        <div className="relative z-10">
+                                            <div className={`inline-block px-3 py-0.5 ${card.labelStyle} rounded-full text-xs font-bold mb-4`}>
+                                                {card.category}
+                                            </div>
+                                            <h3 className={`text-xl md:text-2xl font-bold mb-3 break-keep ${
+                                                card.bgStyle.includes('gradient') ? 'text-white' : 'text-white'
+                                            }`}>
+                                                {card.title}
+                                            </h3>
+                                            <p className={`text-sm md:text-base leading-relaxed mb-5 break-keep ${
+                                                card.bgStyle.includes('gradient') ? 'text-white/80' : 'text-gray-400'
+                                            }`}>
+                                                {card.description}
+                                            </p>
+                                            {card.id === 4 && card.links && (
+                                                <div className="flex flex-wrap gap-3 mb-4">
+                                                    {card.links.map((link, linkIndex) => (
+                                                        <a
+                                                            key={linkIndex}
+                                                            href={link.url}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="text-gray-400 hover:text-gray-200 text-xs md:text-sm underline transition-colors"
+                                                        >
+                                                            {link.name}
+                                                        </a>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            <div className="flex items-center space-x-3 mb-4">
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                                                    card.bgStyle.includes('gradient') ? 'bg-white/20' : 'bg-white/10'
+                                                }`}>
+                                                    <span className="text-white font-bold text-lg">{card.number}</span>
+                                                </div>
+                                                <span className="text-white font-medium text-sm md:text-base break-keep">{card.subtitle}</span>
+                                            </div>
+                                            {card.id !== 4 && card.links && (
+                                                <div className="flex flex-wrap gap-3 mt-4">
+                                                    {card.links.map((link, linkIndex) => (
+                                                        <a
+                                                            key={linkIndex}
+                                                            href={link.url}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="text-gray-400 hover:text-gray-200 text-xs md:text-sm underline transition-colors"
+                                                        >
+                                                            {link.name}
+                                                        </a>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </motion.div>
+                        ))}
+
+                        {/* Right padding for mobile */}
+                        <div className="flex-shrink-0 w-[calc((100vw-90vw)/2)] md:w-[calc((100vw-500px)/2-20px)] md:hidden"></div>
+                        <div className="flex-shrink-0 w-[calc((100vw-500px)/2-20px)] hidden md:block"></div>
+                    </div>
+
+                    {/* Dot Navigation */}
+                    <div className="flex justify-center space-x-2 mt-6">
+                        {achievementCards.map((_, index) => (
+                            <button
+                                key={index}
+                                onClick={() => handleDotClick(index)}
+                                className={`h-1.5 rounded-full transition-all duration-300 ${
+                                    currentIndex === index ? 'bg-brand w-8' : 'bg-white/20 w-1.5 hover:bg-white/40'
+                                }`}
+                                aria-label={`Go to card ${index + 1}`}
+                            />
+                        ))}
+                    </div>
                 </div>
             </div>
         </section>
