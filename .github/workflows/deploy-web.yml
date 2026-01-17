@@ -52,11 +52,19 @@ jobs:
             # 프로젝트 디렉토리로 이동
             cd /root/teamcodebridge
             
+            # Git remote를 teamcodebridge 레포로 설정
+            echo "📝 Git remote 설정..."
+            git remote set-url origin https://github.com/team-code-bridge-kr/teamcodebridge.git || git remote add origin https://github.com/team-code-bridge-kr/teamcodebridge.git
+            
             # main 브랜치로 전환
             echo "📥 main 브랜치로 전환..."
             git fetch origin main
             git checkout main
             git reset --hard origin/main
+            
+            # 현재 브랜치 및 레포 확인
+            echo "✅ 현재 브랜치: $(git branch --show-current)"
+            echo "✅ 현재 레포: $(git remote get-url origin)"
             
             # .env 파일 확인
             echo "📋 .env 파일 확인 중..."
