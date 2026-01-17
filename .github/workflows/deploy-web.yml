@@ -66,10 +66,23 @@ jobs:
             echo "✅ 현재 브랜치: $(git branch --show-current)"
             echo "✅ 현재 레포: $(git remote get-url origin)"
             
-            # .env 파일 확인
+            # .env 파일 확인 및 복사
             echo "📋 .env 파일 확인 중..."
             if [ ! -f ".env" ]; then
-              echo "⚠️ .env 파일이 없습니다."
+              echo "⚠️ .env 파일이 없습니다. 다른 위치에서 복사 시도..."
+              # 여러 위치에서 .env 파일 찾기 및 복사
+              if [ -f "/root/teamcodebridge-e2g/.env" ]; then
+                cp /root/teamcodebridge-e2g/.env .env
+                echo "✅ /root/teamcodebridge-e2g/.env 파일을 복사했습니다."
+              elif [ -f "/root/teamcodebridge/.env.backup" ]; then
+                cp /root/teamcodebridge/.env.backup .env
+                echo "✅ 백업 .env 파일을 복사했습니다."
+              else
+                echo "⚠️ .env 파일을 찾을 수 없습니다. 최소한의 빈 .env 파일을 생성합니다."
+                echo "# 환경 변수 파일" > .env
+                echo "# 실제 환경 변수는 서버 관리자에게 문의하세요" >> .env
+                echo "⚠️ 주의: .env 파일이 비어있습니다. 서비스를 실행하기 전에 환경 변수를 설정해야 합니다."
+              fi
             else
               echo "✅ .env 파일이 존재합니다."
             fi
@@ -78,6 +91,11 @@ jobs:
             echo "🛑 Web 서비스만 중지..."
             docker-compose -f docker-compose.web.yml down || true
             docker rm -f teamcodebridge-web 2>/dev/null || true
+            
+            # 임시 파일 정리
+            if [ -f "docker-compose.web.yml.bak" ]; then
+              rm docker-compose.web.yml.bak
+            fi
             
             # Docker 빌드
             echo "🔨 Docker 이미지 빌드 중..."
