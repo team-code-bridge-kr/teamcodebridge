@@ -2,10 +2,11 @@ import Navigation from '@/components/Navigation'
 import Hero from '@/components/Hero'
 import Introduction from '@/components/Introduction'
 import Achievement from '@/components/Achievement'
-import Projects from '@/components/Projects'
 import About from '@/components/About'
-import CTA from '@/components/CTA'
+import Projects from '@/components/Projects'
+import Activities from '@/components/Activities'
 import FAQ from '@/components/FAQ'
+import CTA from '@/components/CTA'
 import Footer from '@/components/Footer'
 import FloatingChat from '@/components/FloatingChat'
 
@@ -18,6 +19,7 @@ export default function Home() {
       <Achievement />
       <About />
       <Projects />
+      <Activities />
       <FAQ />
       <CTA />
       <Footer variant="dark" />

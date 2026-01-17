@@ -24,7 +24,7 @@ export default function Navigation({ variant = 'dark' }: NavigationProps) {
   const navItems = [
     { name: '팀코드브릿지 소개', href: '/about' },
     { name: '프로젝트', href: '/projects' },
-    { name: '활동', href: '/activities' },
+    { name: '팀코드브릿지 활동', href: '/activities' },
   ]
 
   return (
